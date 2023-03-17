@@ -35,6 +35,7 @@ int main(int argc, char const *argv[])
     int port_controller;
     char buffer[BUFFER_SIZE];
     struct sockaddr_in ctrl_addr, view_addr;
+    socklen_t view_addr_len;
     int recv_bytes, send_bytes;
 
 
@@ -58,7 +59,8 @@ int main(int argc, char const *argv[])
     printf("ctrl addr: %s\n", c);
     
     listen(socket_fd, 5);
-    new_socket_fd = accept(socket_fd, (struct sockaddr *) &view_addr, (socklen_t *) sizeof(view_addr));
+    view_addr_len = sizeof(view_addr);
+    new_socket_fd = accept(socket_fd, (struct sockaddr *) &view_addr, &view_addr_len);
     
     // debug
     char s[16];
