@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.regex.*;
 
 public class Parse {
     public static void main(String[] argv) throws IOException {
@@ -63,12 +62,12 @@ public class Parse {
         return parserManager(file, "id");
     }
 
-    public static String parserPort(File file) throws IOException {
-        return parserManager(file, "controller-port");
+    public static int parserPort(File file) throws IOException {
+        return Integer.parseInt(parserManager(file, "controller-port"));
     }
 
-    public static String parserTimeout(File file) throws IOException {
-        return parserManager(file, "display-timeout-value");
+    public static int parserTimeout(File file) throws IOException {
+        return Integer.parseInt(parserManager(file, "display-timeout-value"));
     }
 
     public static String parserResources(File file) throws IOException {
