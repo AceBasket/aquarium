@@ -19,4 +19,4 @@ parserJava:
 	javac $(sourceJava)Parse.java
 
 clean:
-	rm *.exe *.class *.o
+	rm $(build)*.exe $(sourceJava)*.class $(build)*.o
