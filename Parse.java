@@ -13,10 +13,6 @@ public class Parse {
             parserResources(file);
     }
     public static void parserCommand(String command) {
-        // switch(command) {
-        //     case status:
-
-        // }
         if (command.equals("status")) {
             System.out.println("Request : status");
         }
