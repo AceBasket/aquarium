@@ -5,7 +5,7 @@ public class Parse {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String cmd = reader.readLine();
             parserCommand(cmd);
-            File file = new File("affichage.cfg");
+            File file = new File("src/config/affichage.cfg");
             parserIP(file);
             parserID(file);
             parserPort(file);

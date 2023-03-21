@@ -1,19 +1,22 @@
-flags= -Wall -Wextra -std=c99
+flags = -Wall -Wextra -std=c99
+sourceJava = src/view/
+sourceC = src/controller/
+build = build/
 
 build:
 
 
 view:
-	javac View.java
+	javac $(sourceJava)View.java
 
 controller: 
-	gcc $(flags) controller.c -o controller.exe
+	gcc $(flags) $(sourceC)controller.c -o $(build)controller.exe -pthread
 
 parserC: 
-	gcc $(flags) parser.c -o parser.exe
+	gcc $(flags) $(sourceC)parser.c -o $(build)parser.exe
 
 parserJava:
-	javac Parse.java
+	javac $(sourceJava)Parse.java
 
 clean:
 	rm *.exe *.class *.o
