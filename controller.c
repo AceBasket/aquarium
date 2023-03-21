@@ -32,17 +32,25 @@ void *thread_controller(void *new_socket_fd) {
     int recv_bytes, send_bytes;
     int socket_fd = *(int *) new_socket_fd;
 
-    // Mettre chaque thread en continu
-    bzero(buffer, BUFFER_SIZE);
-    recv_bytes = recv(socket_fd, buffer, BUFFER_SIZE, 0);
-    exit_if(recv_bytes < 0, "ERROR reading from socket");
 
-    printf("Here is the message: %s\n",buffer);
-    send_bytes = send(socket_fd, buffer, BUFFER_SIZE, 0);
-    exit_if(send_bytes < 0, "ERROR writing to socket");
+    while (1) {
+        bzero(buffer, BUFFER_SIZE);
+        recv_bytes = recv(socket_fd, buffer, BUFFER_SIZE, 0);
+        exit_if(recv_bytes < 0, "ERROR reading from socket");
 
+        printf("%d\n", recv_bytes);
+        if (recv_bytes == 1) {
+            break;
+        }
 
-    return 0;
+        printf("Here is the message: %s\n",buffer);
+        send_bytes = send(socket_fd, buffer, BUFFER_SIZE, 0);
+        exit_if(send_bytes < 0, "ERROR writing to socket");
+    }
+
+    exit_if(close(socket_fd) == -1, "ERROR on close");
+
+    return EXIT_SUCCESS;
 }
 
 
