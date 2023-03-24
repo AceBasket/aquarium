@@ -6,7 +6,7 @@ public class Parse {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String cmd = reader.readLine();
             parserCommand(cmd);
-            File file = new File("affichage.cfg");
+            File file = new File("src/config/affichage.cfg");
             parserIP(file);
             parserID(file);
             parserPort(file);
@@ -14,24 +14,20 @@ public class Parse {
             parserResources(file);
     }
     public static void parserCommand(String command) {
-        // switch(command) {
-        //     case status:
-
-        // }
         if (command.equals("status")) {
-            System.out.println("Request : status");
+            System.out.println("OK : status");
         }
         else if (command.equals("addFish")) {
-            System.out.println("Request : addFish");
+            System.out.println("OK : addFish");
         }
         else if (command.equals("delFish")) {
-            System.out.println("Request : delFish");
+            System.out.println("OK : delFish");
         }
         else if (command.equals("startFish")) {
-            System.out.println("Request : startFish");
+            System.out.println("OK : startFish");
         }
         else {
-            System.out.println("This is not a request");
+            System.out.println("NOK : commande introuvable");
         }
     }
 
