@@ -1,4 +1,4 @@
-package aquarium;
+
 import java.io.*;
 
 public class Parse {
