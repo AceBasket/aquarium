@@ -9,11 +9,13 @@ void  parser(char * str){
     switch (command){
         case "load":
             char *arg = strtok(NULL, " ");
-            load(arg);
+            //load(arg);
+            printf("load %s\n", arg);
             break;
         case "show":
             char * arg = strtok(NULL, " ");
-            show(arg);
+            printf("show %s\n", arg);
+            //show(arg);
             break;
         case "add":
             command = strtok(str, " ");
@@ -26,7 +28,8 @@ void  parser(char * str){
             char *arg3 = strtok(NULL, "+");
             char *arg4 = strtok(NULL, "+");
             char *arg5 = strtok(NULL, "");
-            add_view(arg1, arg2, atoi(arg3), atoi(arg4), atoi(arg5), )
+            printf("add %s %s %s %s %s\n", arg1, arg2, arg3, arg4, arg5);
+            //add_view(arg1, arg2, atoi(arg3), atoi(arg4), atoi(arg5), )
             break;
         case "del":
             command = strtok(str, " ");
@@ -35,11 +38,13 @@ void  parser(char * str){
                 exit(0);
             }
             char * arg = strtok(str, " ");
-            del_view(arg);
+            printf("del %s\n", arg);
+            //del_view(arg);
             break;
         case "save":
             char * arg = strtok(NULL, " ");
-            save(arg);
+            printf("save %s\n", arg);
+            //save(arg);
             break;
         default:
             printf("uknown command");
