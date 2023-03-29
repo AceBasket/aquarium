@@ -4,26 +4,35 @@ import java.net.*;
 import java.nio.file.Path;
 
 public class View {
+    // for socket
     private int portNumber;
-    private int id = 0;
-    private int displayTimeoutValue;
-    private Path resources;
     private String controllerAddress;
     private Socket socket;
     private BufferedReader input;
     private PrintWriter output;
 
-    public View(int port, String address) throws IOException {
-        portNumber = port;
-        controllerAddress = address;
-        socket = new Socket(address, portNumber);
+    // useful for communication with controller
+    private String id = "";
+    private int displayTimeoutValue;
+    private String resources;
+
+    // private Aquarium aquariumView;:
+
+    public View(File config) throws IOException {
+        displayTimeoutValue = utils.Parse.parserTimeout(config);
+        resources = utils.Parse.parserResources(config);
+        id = utils.Parse.parserID(config);
+        controllerAddress = utils.Parse.parserIP(config);
+        portNumber = utils.Parse.parserPort(config);
+        socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+        
     }
 
 
     private void init() {
-        if (this.id != 0) {
+        if (this.id != "") {
             this.output.println("hello in as " + this.id);
         } else {
             this.output.println("hello");
