@@ -4,3 +4,4 @@
 .vscode/
 controller/bin/
 view/bin/
+cmocka*/
