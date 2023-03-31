@@ -8,23 +8,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-
+#include "utils/exit.h"
 
 #define BUFFER_SIZE 256
 
 
-void exit_if(int condition, const char *prefix)
-{
-    if (condition) {
-        if (errno != 0) {
-            perror(prefix);
-        }
-        else {
-            fprintf( stderr, "%s\n", prefix );
-        }
-        exit(1);
-    }
-}
 
 
 void *thread_controller(void *new_socket_fd) {
