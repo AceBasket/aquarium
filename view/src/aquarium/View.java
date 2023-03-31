@@ -77,7 +77,7 @@ public class View {
     public static void main(String[] argv) {
         try {
 
-            View view = new View(8888, "192.168.57.203");
+            View view = new View(new File("../affichage.cfg"));
 
             view.output.println("Testing connection");
 

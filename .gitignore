@@ -2,5 +2,6 @@
 *.class
 *.o
 .vscode/
-controller/bin/
-view/bin/
+controller/build/
+view/build/
+view/lib/
