@@ -9,20 +9,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
- #include <sys/select.h>
+#include <sys/select.h>
 
 
 #define BUFFER_SIZE 256
 
 
-void exit_if(int condition, const char *prefix)
-{
+void exit_if(int condition, const char *prefix) {
     if (condition) {
         if (errno != 0) {
             perror(prefix);
-        }
-        else {
-            fprintf( stderr, "%s\n", prefix );
+        } else {
+            fprintf(stderr, "%s\n", prefix);
         }
         exit(1);
     }
@@ -32,11 +30,11 @@ void exit_if(int condition, const char *prefix)
 void *thread_controller(void *new_socket_fd) {
     char buffer[BUFFER_SIZE];
     int recv_bytes, send_bytes;
-    int socket_fd = *(int *) new_socket_fd;
+    int socket_fd = *(int *)new_socket_fd;
 
 
     bzero(buffer, BUFFER_SIZE);
-    
+
     while ((recv_bytes = recv(socket_fd, buffer, BUFFER_SIZE, 0)) > 1) {
         buffer[recv_bytes] = '\0';
 
@@ -90,15 +88,15 @@ int main(int argc, char const *argv[]) {
     exit_if(socket_fd < 0, "ERROR opening socket");
 
     // Resetting the controller address area
-    bzero((char *) &ctrl_addr, sizeof(ctrl_addr));
+    bzero((char *)&ctrl_addr, sizeof(ctrl_addr));
     // Definition of the type of socket created
     ctrl_addr.sin_family = AF_INET;
     ctrl_addr.sin_addr.s_addr = INADDR_ANY;
     ctrl_addr.sin_port = htons(port);
 
     // Bind of the socket to the controller address area 
-    exit_if(bind(socket_fd, (struct sockaddr *) &ctrl_addr, sizeof(ctrl_addr)) < 0, "ERROR on binding");
-    
+    exit_if(bind(socket_fd, (struct sockaddr *)&ctrl_addr, sizeof(ctrl_addr)) < 0, "ERROR on binding");
+
     // Listening to a maximum of nb_views pending connections
     listen(socket_fd, nb_views);
 
@@ -112,27 +110,27 @@ int main(int argc, char const *argv[]) {
         int max_fd = socket_fd;
 
         // Adding child sockets to set
-        for (int j = 0; j < nb_views ; j++) {
+        for (int j = 0; j < nb_views; j++) {
             // Socket descriptor
             int sd = views_sockets[j];
-             
+
             // If valid socket descriptor then add to read list
-            if(sd > 0)
-                FD_SET(sd , &fds);
-             
+            if (sd > 0)
+                FD_SET(sd, &fds);
+
             // If highest file descriptor number, need it for the select function
-            if(sd > max_fd)
+            if (sd > max_fd)
                 max_fd = sd;
         }
 
         // Wait indefinitely for an activity on one of the sockets
-        int activity = select(max_fd + 1 , &fds , NULL , NULL , NULL);
+        int activity = select(max_fd + 1, &fds, NULL, NULL, NULL);
         exit_if(activity == -1, "ERROR on select");
 
         // Something happened on the main socket => incoming connection
         if (FD_ISSET(socket_fd, &fds)) {
             view_addr_len = sizeof(view_addr);
-            new_socket_fd = accept(socket_fd, (struct sockaddr *) &view_addr, &view_addr_len);
+            new_socket_fd = accept(socket_fd, (struct sockaddr *)&view_addr, &view_addr_len);
             exit_if(new_socket_fd < 0, "ERROR on accept");
 
             printf("Welcome\n");
@@ -140,18 +138,18 @@ int main(int argc, char const *argv[]) {
             // Adding the new socket to the array of sockets
             for (int k = 0; k < nb_views; k++) {
                 // If the position is empty
-                if(views_sockets[k] == 0) {
+                if (views_sockets[k] == 0) {
                     views_sockets[k] = new_socket_fd;
-                    printf("Adding to list of sockets as %d\n" , k);
-                    
+                    printf("Adding to list of sockets as %d\n", k);
+
                     pthread_t tid;
                     exit_if(pthread_create(&tid, NULL, thread_controller, &views_sockets[k]) < 0, "ERROR on thread creation");
-                    
+
                     exit_if(pthread_detach(tid) != 0, "ERROR in thread detachment");
-                    
+
                     break;
                 }
-            }      
+            }
         }
     }
 

@@ -33,7 +33,7 @@
 
 extern void parser(char *str);
 
-int fct_test_parse();
+void fct_test_parse();
 
 
 #endif // __TEST_H__
