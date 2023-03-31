@@ -1,1 +1,7 @@
 *.exe
+*.class
+*.o
+.vscode/
+controller/bin/
+view/bin/
+cmocka*/

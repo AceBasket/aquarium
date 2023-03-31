@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
-#include "utils/exit.h"
+#include "utils/utils.h"
 
 #define BUFFER_SIZE 256
 

@@ -1,0 +1,5 @@
+controller-address = 255.255.255.255
+
+id = NA
+
+resources = 0toto
