@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <sys/select.h>
-// #include "utils.h"
+#include "utils.h"
 
 
 #define BUFFER_SIZE 256
@@ -32,21 +32,6 @@ struct parameters {
     // Set of socket descriptor
     fd_set fds;
 };
-
-
-
-void exit_if(int condition, const char *prefix)
-{
-    if (condition) {
-        if (errno != 0) {
-            perror(prefix);
-        }
-        else {
-            fprintf( stderr, "%s\n", prefix );
-        }
-        exit(1);
-    }
-}
 
 
 void *thread_io(void *io) {
