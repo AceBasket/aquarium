@@ -19,6 +19,11 @@ TEST = build/alltests
 
 .PHONY: all build test clean
 
+all: dir build
+
+dir:
+	mkdir -p build/src build/tst
+
 build: ${BIN}
 
 test: ${TEST}
