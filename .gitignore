@@ -5,3 +5,4 @@
 controller/build/
 view/bin/
 cmocka*/
+view/lib/
