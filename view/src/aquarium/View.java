@@ -32,11 +32,15 @@ public class View {
 
 
     private void init() {
-        if (this.id != "") {
+        if (!this.id.equals("")) {
             this.output.println("hello in as " + this.id);
         } else {
             this.output.println("hello");
         }
+    }
+    
+    private void setId(String id) {
+        this.id = id;
     }
 
     private void getFishes() {
@@ -73,6 +77,7 @@ public class View {
     private void startFish(String name) {
         this.output.println("delFish " + name);
     }
+
 
     public static void main(String[] argv) {
         try {
