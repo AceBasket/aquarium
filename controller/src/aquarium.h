@@ -7,12 +7,12 @@ struct fish {
     int height;
     int width;
     enum movement_pattern movement_pattern;
-    int status; // started or not started
+    enum status status; // started or not started
     struct fish *next;
 };
 
 enum movement_pattern { RANDOMWAYPOINT };
-enum STATUS { STARTED, NOT_STARTED };
+enum status { STARTED, NOT_STARTED };
 
 struct aquarium {
     struct fish *fishes; // chained list to fishes
