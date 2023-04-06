@@ -1,0 +1,7 @@
+id = N2
+
+controller-port = 23
+
+display-timeout-value = -117
+
+resources = blabla
