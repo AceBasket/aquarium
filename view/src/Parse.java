@@ -5,12 +5,17 @@ public class Parse {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             String cmd = reader.readLine();
             parserCommand(cmd);
-            File file = new File("src/config/affichage.cfg");
-            parserIP(file);
-            parserID(file);
-            parserPort(file);
-            parserTimeout(file);
-            parserResources(file);
+            File file = new File("view/src/affichage.cfg");
+            try{
+                parserIP(file);
+                parserID(file);
+                parserPort(file);
+                parserTimeout(file);
+                parserResources(file);
+            } catch(FileNotFoundException e) {
+                System.out.println("Le fichier de configuration est introuvable")
+            }
+            
     }
     public static void parserCommand(String command) {
         if (command.equals("status")) {
