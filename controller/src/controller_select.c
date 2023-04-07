@@ -11,10 +11,13 @@
 #include <pthread.h>
 #include <sys/select.h>
 #include "utils.h"
+#include "aquarium.h"
 
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8
+
+enum functions {LOAD, SHOW, ADD, DEL, SAVE};
 
 
 struct parameters {
@@ -43,6 +46,56 @@ void *thread_io(void *io) {
 
 void *thread_prompt(void *param) {
     struct parameters *p = param;
+
+    // struct parse *parse = parser(*p);
+    // int function = (int)parse->function_name;
+
+    // switch (function) {
+    //     case LOAD:
+    //         create_aquarium();
+    //         // add_viems(a, v);
+    //         break;
+    //     case SHOW:
+    //         struct aquarium *a;
+    //         show_aquarium(a);
+    //         break;
+    //     case ADD:
+    //         add_view();
+    //         break;
+    //     case DEL:
+    //         remove_view();
+    //         break;
+    //     case SAVE:
+    //         /* code */
+    //         break;
+        
+    //     default:
+    //         break;
+    // }
+
+
+    // load aquarium
+    // printf("Aquarium loaded (%d display view)\n", p->nb_views);
+
+    // show aquarium
+    // printf("%dx%d\n", aquarium_width, aquarium_height);
+    // for (int i = 0; i < p->nb_views; i++) {
+    //     printf("N%d %dx%d+%d+%d\n", i, vue_x, vue_y, vue_width, vue_height);
+    // }
+    
+    // add view N5 400x400+400+200
+    // printf("View added\n");
+
+    // del view N5
+    //printf("View N%d deleted\n", i);
+
+    // save aquarium2
+    // printf("Aquarium saved (%d display view)\n", p->nb_views);
+
+
+
+
+
 
     // char buffer[BUFFER_SIZE];
     // int recv_bytes, send_bytes;
@@ -75,23 +128,6 @@ void *thread_prompt(void *param) {
 
     //printf("Je suis dans prompt\n");
 
-    // load aquarium
-    // printf("Aquarium loaded (%d display view)\n", p->nb_views);
-
-    // show aquarium
-    // printf("%dx%d\n", aquarium_width, aquarium_height);
-    // for (int i = 0; i < p->nb_views; i++) {
-    //     printf("N%d %dx%d+%d+%d\n", i, vue_x, vue_y, vue_width, vue_height);
-    // }
-    
-    // add view N5 400x400+400+200
-    // printf("View added\n");
-
-    // del view N5
-    //printf("View N%d deleted\n", i);
-
-    // save aquarium2
-    // printf("Aquarium saved (%d display view)\n", p->nb_views);
 
 
     return 0;

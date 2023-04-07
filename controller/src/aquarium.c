@@ -165,3 +165,49 @@ struct aquarium *create_aquarium(int height, int width) {
 struct fish *get_fishes(struct aquarium *a) {
     return a->fishes;
 }
+
+void show_aquarium(struct aquarium *a) {
+    printf("%dx%d\n", a->width, a->height);
+
+    struct view *current_view = a->views;
+    struct view *next_view = current_view->next;
+    for (int i = 0; i < len_views(a); i++) {
+        printf("N%d %dx%d+%d+%d\n", i, current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
+        current_view = next_view;
+        next_view = current_view->next;
+    }
+}
+
+int len_views(struct aquarium *a) {
+    int nb_views;
+
+    // if the aquarium is empty
+    if (a->views == NULL) {
+        return 0;
+    }
+    // if the aquarium is not empty
+    struct view *current = a->views;
+    while (current->next != NULL) {
+        current = current->next;
+        nb_views++;
+    }
+    
+    return nb_views;
+}
+
+int len_fishes(struct aquarium *a) {
+    int nb_fishes;
+
+    // if the aquarium is empty
+    if (a->fishes == NULL) {
+        return 0;
+    }
+    // if the aquarium is not empty
+    struct view *current = a->fishes;
+    while (current->next != NULL) {
+        current = current->next;
+        nb_fishes++;
+    }
+
+    return nb_fishes;
+}
