@@ -10,6 +10,7 @@
 struct parse{
     char **tab; // a list of parsed elements
     int size; // the number of elements(words, numbers...) in the tab
+    //enum function function_name;
 };
 
 void free_parser(struct parse *p){
@@ -57,16 +58,29 @@ void too_few_arguments(struct parse *p, char * str){
     printf("the commande should be like : %s\n", str);
     free_parser(p);
 }
+char *  remove_spaces(char *str)
+{
+    char *string =malloc(sizeof(char)*strlen(str));
+    strcpy(string, str);
+	int i;
+    int j = -1;
+    for (i = 0; string[i]; i++)
+      if (string[i] != ' ')
+          string[++j] = string[i];
+    string[++j] = '\0';
+    //printf("%s\n", string);
+    return string;
+}
 
 struct parse * parser(char *str) {
-    char *saveptr;
+    //char *saveptr;
 
     char string[strlen(str)];
     strcpy(string, str);
 
     char *command;
     //command = strtok(string, " ");
-    command = strtok_r(string, " ", &saveptr);
+    command = strtok(string, " ");
     if(command == NULL){
         printf("No command provided.\n");
         return NULL;
@@ -125,9 +139,6 @@ struct parse * parser(char *str) {
     else if (strcmp(command, "add") == 0) {
         char * command2 = strtok(NULL, " ");
         if(command2 == NULL){
-            // printf("too fiew arguments! \n");
-            // printf("the command should be like: add view N5 400x400+400+200\n");
-            // free_parser(p);
             too_few_arguments(p, "add view N5 400x400+400+200");
             return NULL;
         }
@@ -281,7 +292,7 @@ struct parse * parser(char *str) {
     }
     //addFish
     else if (strcmp(command, "addFish") == 0) {
-        char *arg1 = strtok_r(NULL, " ", &saveptr);
+        char *arg1 = strtok(NULL, " ");
         if(arg1 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>>");
             return NULL;
@@ -293,7 +304,7 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg1);
 
-        char * command2 = strtok_r(NULL, " ", &saveptr);
+        char * command2 = strtok(NULL, " ");
         if(command2 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -306,7 +317,7 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, command2);
 
-        char *arg2 = strtok_r(NULL, "x", &saveptr);
+        char *arg2 = strtok(NULL, "x");
         if(arg2 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -319,8 +330,8 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg2);
 
-        char *arg3 = strtok_r(NULL, ",", &saveptr);
-        //char *arg3_bis = strtok(arg3, " ");
+        char *arg3 = strtok(NULL, ",");
+        //arg3 = remove_spaces(arg3);
         if(arg3 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -333,12 +344,13 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg3);
 
-        char *arg4 = strtok_r(NULL, "x", &saveptr);
+        char *arg4 = strtok(NULL, "x");
 
         if(arg4 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
         }
+        arg4 = remove_spaces(arg4); // allocation 
         if(!is_number(arg4, 0)){
             printf("the 4th(%s) coord should be a number\n", arg4);
             printf("Or the separation between the 3nd argument and 4th should be an <x> symbol\n");
@@ -347,7 +359,7 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg4);
 
-        char *arg5 = strtok_r(NULL, ", ", &saveptr);
+        char *arg5 = strtok(NULL, ", ");
         if(arg5 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -360,7 +372,8 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg5);
 
-        char *arg6 = strtok_r(NULL, "", &saveptr);
+        char *arg6 = strtok(NULL, "");
+        arg6 = remove_spaces(arg6);
         if(arg6 == NULL){
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -372,10 +385,10 @@ struct parse * parser(char *str) {
         }
         adding_arg_to_parse(p, arg6);
 
-        if(strtok_r(NULL, "", &saveptr) != NULL){
+        if(strtok(NULL, "") != NULL){
             too_much_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
         }
-        return NULL;
+        return p;
     }
     // else if (strcmp(command, "delFish") == 0) {
     //     char *arg = strtok(NULL, "");
@@ -427,11 +440,12 @@ struct parse * parser(char *str) {
 int main(int argc, char * argv[]){
     struct parse *result = parser("addFish PoissonNain at 61x52, 4x3, RandomWayPoint");
     if (result !=NULL){
-        printf("%d\n", result->size);
+        printf("size %d\n", result->size);
         for (int i =0; i<result->size; i++){
             printf("%s\n", result->tab[i]);
         }
     }
-    else printf("%p\n", result);
+    else 
+        printf("%p\n", result);
     return 0;
 }
