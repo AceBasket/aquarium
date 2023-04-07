@@ -1,5 +1,7 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <stdint.h>
-#include <cmocka.h>
+#include "test.h"
+
+extern void parser(char *str);
+
+void fct_test_parse() {
+    parser("load test");
+}
