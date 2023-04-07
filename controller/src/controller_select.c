@@ -19,6 +19,13 @@
 
 enum functions {LOAD, SHOW, ADD, DEL, SAVE};
 
+struct parse {
+    char **tab;
+    int size;
+    enum functions function_name;
+};
+
+
 
 struct parameters {
     int nb_views;
@@ -44,34 +51,39 @@ void *thread_io(void *io) {
 }
 
 
-void *thread_prompt(void *param) {
-    struct parameters *p = param;
+void *thread_prompt(void *argv) {
+    // struct parameters *p = param;
 
-    // struct parse *parse = parser(*p);
-    // int function = (int)parse->function_name;
+    struct parse *parse = parser();
+    int function = (int)parse->function_name;
 
-    // switch (function) {
-    //     case LOAD:
-    //         create_aquarium();
-    //         // add_viems(a, v);
-    //         break;
-    //     case SHOW:
-    //         struct aquarium *a;
-    //         show_aquarium(a);
-    //         break;
-    //     case ADD:
-    //         add_view();
-    //         break;
-    //     case DEL:
-    //         remove_view();
-    //         break;
-    //     case SAVE:
-    //         /* code */
-    //         break;
+    switch (function) {
+        case LOAD:
+            struct aquarium *a = create_aquarium();
+            // add_viems(a, v);
+            printf("Aquarium loaded (%d display view)\n", len_views(a));
+            break;
+        case SHOW:
+            show_aquarium(a);
+            break;
+        case ADD:
+            struct coordinates coord = {parse->tab[1], parse->tab[2]};
+            struct view *v = create_view(parse->tab[0], coord, parse->tab[3], parse->tab[4]);
+            add_view(a, v);
+            printf("View added\n");
+            break;
+        case DEL:
+
+            remove_view(a, get_view(a, parse->tab[0]));
+            printf("View %s deleted\n", parse->tab[0]);
+            break;
+        case SAVE:
+            /* code */
+            break;
         
-    //     default:
-    //         break;
-    // }
+        default:
+            break;
+    }
 
 
     // load aquarium
@@ -220,7 +232,7 @@ int main(int argc, char const *argv[]) {
     listen(param.socket_fd, param.nb_views);
 
     exit_if(pthread_create(&tid_accept, NULL, thread_accept, &param) < 0, "ERROR on thread creation");
-    exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &param) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &argv) < 0, "ERROR on thread creation");
 
 
 
