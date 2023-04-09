@@ -32,11 +32,15 @@ public class View {
 
 
     private void init() {
-        if (this.id != "") {
+        if (!this.id.equals("")) {
             this.output.println("hello in as " + this.id);
         } else {
             this.output.println("hello");
         }
+    }
+    
+    private void setId(String id) {
+        this.id = id;
     }
 
     private void getFishes() {
@@ -74,10 +78,11 @@ public class View {
         this.output.println("delFish " + name);
     }
 
+
     public static void main(String[] argv) {
         try {
 
-            View view = new View(8888, "192.168.57.203");
+            View view = new View(new File("../affichage.cfg"));
 
             view.output.println("Testing connection");
 

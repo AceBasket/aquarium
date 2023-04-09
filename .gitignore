@@ -3,6 +3,5 @@
 *.o
 .vscode/
 controller/build/
-view/bin/
-cmocka*/
+view/build/
 view/lib/
