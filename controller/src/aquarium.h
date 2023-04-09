@@ -1,8 +1,16 @@
 #ifndef _AQUARIUM_H_
 #define _AQUARIUM_H_
 
+enum movement_pattern { RANDOMWAYPOINT };
+enum status { STARTED, NOT_STARTED };
+
+struct coordinates {
+    int x;
+    int y;
+};
+
 struct fish {
-    char *name;
+    const char *name;
     struct coordinates top_left;
     int height;
     int width;
@@ -10,9 +18,6 @@ struct fish {
     enum status status; // started or not started
     struct fish *next;
 };
-
-enum movement_pattern { RANDOMWAYPOINT };
-enum status { STARTED, NOT_STARTED };
 
 struct aquarium {
     struct fish *fishes; // chained list to fishes
@@ -22,16 +27,11 @@ struct aquarium {
 };
 
 struct view {
+    const char *name;
     struct coordinates top_left;
     int height;
     int width;
-    char *name;
     struct view *next;
-};
-
-struct coordinates {
-    int x;
-    int y;
 };
 
 struct aquarium *aquarium_create(int height, int width);
