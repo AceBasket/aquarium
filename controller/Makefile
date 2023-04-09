@@ -13,8 +13,8 @@ OBJ = ${SRC:%.c=build/%.o}
 TST = ${shell find tst -name *.c}
 OBJ_TST = ${TST:%.c=build/%.o}
 
-BIN = build/controller
-TEST = build/alltests
+BIN = build/controller.exe
+TEST = build/alltests.exe
 
 
 .PHONY: all build test clean
