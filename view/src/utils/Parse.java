@@ -62,7 +62,8 @@ public class Parse {
                 parserPort(file);
                 parserTimeout(file);
                 parserResources(file);
-                parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint");
+                parserServerResponse("NOK : modèle de mobilité non supporté");
+                // parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint");
                 // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint"));
             } catch(FileNotFoundException e) {
                 System.out.println("Le fichier de configuration est introuvable");
@@ -72,20 +73,20 @@ public class Parse {
     public static PromptParserResult parserCommand(String command) {
         ArrayList<String> args = new ArrayList<String>();
 
-        String commandAdd = command.split("addFish");
+        String[] commandAdd = command.split("addFish");
         String wantedDel = "delFish";
-        String commandDel = command.split("delFish");
+        String[] commandDel = command.split("delFish");
         String wantedStart = "startFish";
-        String commandStart = command.split("startFish");
+        String[] commandStart = command.split("startFish");
 
         // arrayRes = new String[10];
         if (command.equals("status")) {
             System.out.println("OK : status");
-            return new PromptParserResult(PromptCommandType.STATUS, args )
+            return new PromptParserResult(PromptCommandType.STATUS, args );
         }
         else if (commandAdd.equals("addFish")) {
-            return new PromptParserResult(PromptCommandType.ADDFISH, args)
-            // Comment analyser les léléments entre les virgules avec split() ? Parce que là je vois pas
+            return new PromptParserResult(PromptCommandType.ADDFISH, args);
+            // Comment analyser les éléments entre les virgules avec split() ? Parce que là je vois pas
 
             // System.out.println("OK : addFish");
         }
@@ -93,14 +94,14 @@ public class Parse {
             // System.out.println("OK : delFish");
             // arrayRes[0] = "2";
             // arrayRes[1] = commandDel.substring(wantedDel.length()+1);
-            args.add(commandDel.substring(wantedDel.length()+1));
+            args.add(command.substring(wantedDel.length()+1));
             return new PromptParserResult(PromptCommandType.DELFISH, args);
         }
         else if (commandStart.equals("startFish")) {
             // System.out.println("OK : startFish");
             // arrayRes[0] = "3";
             // arrayRes[1] = commandStart.substring(wantedStart.length()+1);
-            args.add(commandStart.substring(wantedStart.length()+1));
+            args.add(command.substring(wantedStart.length()+1));
             return new PromptParserResult(PromptCommandType.STARTFISH, args);
         }
         else {
@@ -114,11 +115,20 @@ public class Parse {
 
     public static ServerResponseParserResult parserServerResponse(String response) {
         ArrayList<String> args = new ArrayList<String>();
-        String responseNOK = response.split("NOK");
-        String responseOK = response.split("OK");
-        if (responseNOK.equals("NOK")) {
+        String[] responseSplit = response.split(" : |, ");
+        if (responseSplit[0].equals("NOK")) {
+            args.add(responseSplit[1]);
             // return response.substring(responseNOK.length() + 3); //On retourne l'erreur correspondante
             return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
+        }
+        else if (responseSplit[0].equals("OK")) {
+            for (int i = 1 ; i < responseSplit.length ; i++) {
+                args.add(responseSplit[i]);
+            }
+            return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+        }
+        else {
+            throw new InvalidParameterException("Unknown response");
         }
     }
 
