@@ -73,55 +73,44 @@ public class Parse {
     
     public static PromptParserResult parserCommand(String command) {
         ArrayList<String> args = new ArrayList<String>();
-
-        String[] commandAdd = command.split("addFish");
-        String wantedDel = "delFish";
-        String[] commandDel = command.split("delFish");
-        String wantedStart = "startFish";
-        String[] commandStart = command.split("startFish");
-
-        // arrayRes = new String[10];
-        if (command.equals("status")) {
-            System.out.println("OK : status");
+        String[] commandSplit = command.split(" : |, |,| |x| at ");
+        if (commandSplit[0].equals("status")) {
             return new PromptParserResult(PromptCommandType.STATUS, args );
         }
-        else if (commandAdd.equals("addFish")) {
+        else if (commandSplit[0].equals("addFish")) {
+            for (int i = 1 ; i < commandSplit.length ; i++) {
+                args.add(commandSplit[i]);
+            }
             return new PromptParserResult(PromptCommandType.ADDFISH, args);
-            // Comment analyser les éléments entre les virgules avec split() ? Parce que là je vois pas
-
-            // System.out.println("OK : addFish");
         }
-        else if (commandDel.equals("delFish")) {
-            // System.out.println("OK : delFish");
-            // arrayRes[0] = "2";
-            // arrayRes[1] = commandDel.substring(wantedDel.length()+1);
-            args.add(command.substring(wantedDel.length()+1));
+        else if (commandSplit[0].equals("delFish")) {
+            if (commandSplit.length == 1) {
+                args.add(commandSplit[1]);
+            }
             return new PromptParserResult(PromptCommandType.DELFISH, args);
         }
-        else if (commandStart.equals("startFish")) {
-            // System.out.println("OK : startFish");
-            // arrayRes[0] = "3";
-            // arrayRes[1] = commandStart.substring(wantedStart.length()+1);
-            args.add(command.substring(wantedStart.length()+1));
+        else if (commandSplit[0].equals("startFish")) {
+            if (commandSplit.length == 1) {
+                args.add(commandSplit[1]);
+            }
             return new PromptParserResult(PromptCommandType.STARTFISH, args);
         }
         else {
-            // System.out.println("NOK : commande introuvable");
-            // arrayRes[0] = "-1";
             throw new InvalidParameterException("Unknown command");
         }
         
-        // return arrayRes;
     }
 
     public static ServerResponseParserResult parserServerResponse(String response) {
         ArrayList<String> args = new ArrayList<String>();
-        String[] responseSplit = response.split(" : |, |,| \\[|\\]|x| at ");
+        String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
         for (int i = 0 ; i < responseSplit.length ; i++) {
             System.out.println(responseSplit[i]);
         }
         if (responseSplit[0].equals("NOK")) {
-            args.add(responseSplit[1]);
+            if (responseSplit.length == 1) {
+                args.add(responseSplit[1]);
+            }
             return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
         }
         else if (responseSplit[0].equals("OK")) {
@@ -196,45 +185,4 @@ public class Parse {
         return parserManager(file, "resources");
     }
 
-    // public static void parserComm(String sent, String received) {
-    //     String hello = "hello";
-    //     String greeting = "greeting";
-    //     String sentHello = sent.substring(0, hello.length());
-    //     String ping = "ping";
-    //     String sentPing = sent.substring(0, ping.length());
-    //     if (sentHello.equals("hello")) {
-    //         String receivedGreeting = received.substring(0, greeting.length());
-    //         if (receivedGreeting.equals("greeting")) {
-    //             String ID = received.substring(greeting.length()+1);
-    //         }
-    //         else {
-    //             //Renvoyer une erreur
-    //         }
-    //     }
-    //     //Faire les list en réponse à getFishes, ls et getFishesContinuously
-    
-    //     else if (sent.equals("log out")) {
-    //         if (received.equals("bye")) {
-    //             //Renvoyer ok
-    //         }
-    //         else {
-    //             //Renvoyer que la déconnexion n'a pas été faite
-    //         }
-    //     }
-    
-    //     else if (sentPing.equals("ping")) {
-    //         String pong = "pong";
-    //         String receivedPong = received.substring(0, pong.length());
-    //         if (receivedPong.equals("pong")) {
-    //             //Retourner que la connexion est bonne
-    //         }
-    //         else {
-    //             //Renvoyer que problème de connexion
-    //         }
-    //     }
-    
-    //     else {
-    //         //Retourner que la réponse n'est pas reconnue
-    //     }
-    // }
 }
