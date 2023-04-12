@@ -1,6 +1,55 @@
 // package utils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.security.InvalidParameterException;
+
+
+
+class PromptParserResult {
+    private PromptCommandType command;
+    private ArrayList<String> args;
+
+    public PromptParserResult(PromptCommandType command, ArrayList<String> args) {
+        this.command = command;
+        this.args = args;
+    }
+    
+    public PromptCommandType getCommand() {
+        return command;
+    }
+
+    public ArrayList<String> getArgs() {
+        return args;
+    }
+}
+
+class ServerResponseParserResult {
+    private PossibleServerResponses response;
+    private ArrayList<String> args;
+
+    public ServerResponseParserResult(PossibleServerResponses response, ArrayList<String> args) {
+        this.response = response;
+        this.args = args;
+    }
+    
+    public PossibleServerResponses getResponse() {
+        return response;
+    }
+
+    public ArrayList<String> getArgs() {
+        return args;
+    }
+}
+
+enum PromptCommandType {
+    STATUS, ADDFISH, DELFISH, STARTFISH
+}
+
+enum PossibleServerResponses {
+    GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG
+}
+
 
 public class Parse {
     public static void main(String[] argv) throws IOException {
@@ -20,48 +69,56 @@ public class Parse {
             }
             
     }
-    public static String[] parserCommand(String command) {
+    public static PromptParserResult parserCommand(String command) {
+        ArrayList<String> args = new ArrayList<String>();
+
         String commandAdd = command.split("addFish");
         String wantedDel = "delFish";
         String commandDel = command.split("delFish");
         String wantedStart = "startFish";
         String commandStart = command.split("startFish");
 
-        String[] arrayRes;
-        arrayRes = new String[10];
+        // arrayRes = new String[10];
         if (command.equals("status")) {
             System.out.println("OK : status");
-            arrayRes[0] = "0";
+            return new PromptParserResult(PromptCommandType.STATUS, args )
         }
         else if (commandAdd.equals("addFish")) {
-            arrayRes[0] = "1";
+            return new PromptParserResult(PromptCommandType.ADDFISH, args)
             // Comment analyser les léléments entre les virgules avec split() ? Parce que là je vois pas
 
             // System.out.println("OK : addFish");
         }
         else if (commandDel.equals("delFish")) {
             // System.out.println("OK : delFish");
-            arrayRes[0] = "2";
-            arrayRes[1] = commandDel.substring(wantedDel.length()+1);
+            // arrayRes[0] = "2";
+            // arrayRes[1] = commandDel.substring(wantedDel.length()+1);
+            args.add(commandDel.substring(wantedDel.length()+1));
+            return new PromptParserResult(PromptCommandType.DELFISH, args);
         }
         else if (commandStart.equals("startFish")) {
             // System.out.println("OK : startFish");
-            arrayRes[0] = "3";
-            arrayRes[1] = commandStart.substring(wantedStart.length()+1);
+            // arrayRes[0] = "3";
+            // arrayRes[1] = commandStart.substring(wantedStart.length()+1);
+            args.add(commandStart.substring(wantedStart.length()+1));
+            return new PromptParserResult(PromptCommandType.STARTFISH, args);
         }
         else {
             // System.out.println("NOK : commande introuvable");
-            arrayRes[0] = "-1";
+            // arrayRes[0] = "-1";
+            throw new InvalidParameterException("Unknown command");
         }
         
-        return arrayRes;
+        // return arrayRes;
     }
 
-    public static String parserServerResponse(String response) {
+    public static ServerResponseParserResult parserServerResponse(String response) {
+        ArrayList<String> args = new ArrayList<String>();
         String responseNOK = response.split("NOK");
         String responseOK = response.split("OK");
         if (responseNOK.equals("NOK")) {
-            return response.substring(responseNOK.length() + 3); //On retourne l'erreur correspondante
+            // return response.substring(responseNOK.length() + 3); //On retourne l'erreur correspondante
+            return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
         }
     }
 
