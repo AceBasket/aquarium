@@ -62,7 +62,7 @@ public class Parse {
                 parserPort(file);
                 parserTimeout(file);
                 parserResources(file);
-                parserServerResponse("NOK : modèle de mobilité non supporté");
+                parserServerResponse("list [PoissonRouge at 90x4,10x4,5] [PoissonClown at 90x4,10x4,5]");
                 // parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint");
                 // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint"));
             } catch(FileNotFoundException e) {
@@ -70,6 +70,7 @@ public class Parse {
             }
             
     }
+    
     public static PromptParserResult parserCommand(String command) {
         ArrayList<String> args = new ArrayList<String>();
 
@@ -115,10 +116,12 @@ public class Parse {
 
     public static ServerResponseParserResult parserServerResponse(String response) {
         ArrayList<String> args = new ArrayList<String>();
-        String[] responseSplit = response.split(" : |, ");
+        String[] responseSplit = response.split(" : |, |,| \\[|\\]|x| at ");
+        for (int i = 0 ; i < responseSplit.length ; i++) {
+            System.out.println(responseSplit[i]);
+        }
         if (responseSplit[0].equals("NOK")) {
             args.add(responseSplit[1]);
-            // return response.substring(responseNOK.length() + 3); //On retourne l'erreur correspondante
             return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
         }
         else if (responseSplit[0].equals("OK")) {
@@ -126,6 +129,26 @@ public class Parse {
                 args.add(responseSplit[i]);
             }
             return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+        }
+        else if (responseSplit[0].equals("greeting")) {
+            args.add(responseSplit[1]);
+            return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
+        }
+        else if (responseSplit[0].equals("no greeting")) {
+            return new ServerResponseParserResult(PossibleServerResponses.NOGREETING, args);
+        }
+        else if (responseSplit[0].equals("list")) {
+            for (int i = 1 ; i < responseSplit.length ; i++) {
+                args.add(responseSplit[i]);
+            }
+            return new ServerResponseParserResult(PossibleServerResponses.LISTFISHES, args);
+        }
+        else if (responseSplit[0].equals("bye")) {
+            return new ServerResponseParserResult(PossibleServerResponses.BYE, args);
+        }
+        else if (responseSplit[0].equals("pong")) {
+            args.add(responseSplit[1]);
+            return new ServerResponseParserResult(PossibleServerResponses.PONG, args);
         }
         else {
             throw new InvalidParameterException("Unknown response");
