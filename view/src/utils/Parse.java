@@ -84,16 +84,22 @@ public class Parse {
             return new PromptParserResult(PromptCommandType.ADDFISH, args);
         }
         else if (commandSplit[0].equals("delFish")) {
-            if (commandSplit.length == 1) {
+            if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
+                return new PromptParserResult(PromptCommandType.DELFISH, args);
             }
-            return new PromptParserResult(PromptCommandType.DELFISH, args);
+            else {
+                throw new InvalidParameterException("Unknown response");
+            }
         }
         else if (commandSplit[0].equals("startFish")) {
-            if (commandSplit.length == 1) {
+            if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
+                return new PromptParserResult(PromptCommandType.STARTFISH, args);
             }
-            return new PromptParserResult(PromptCommandType.STARTFISH, args);
+            else {
+                throw new InvalidParameterException("Unknown response");
+            }
         }
         else {
             throw new InvalidParameterException("Unknown command");
@@ -104,14 +110,17 @@ public class Parse {
     public static ServerResponseParserResult parserServerResponse(String response) {
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
-        for (int i = 0 ; i < responseSplit.length ; i++) {
-            System.out.println(responseSplit[i]);
-        }
+        // for (int i = 0 ; i < responseSplit.length ; i++) {
+        //     System.out.println(responseSplit[i]);
+        // }
         if (responseSplit[0].equals("NOK")) {
-            if (responseSplit.length == 1) {
+            if (responseSplit.length >= 2) {
                 args.add(responseSplit[1]);
+                return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
             }
-            return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
+            else {
+                throw new InvalidParameterException("Unknown response");
+            }
         }
         else if (responseSplit[0].equals("OK")) {
             for (int i = 1 ; i < responseSplit.length ; i++) {
