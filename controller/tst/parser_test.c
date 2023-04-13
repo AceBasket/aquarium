@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <stdint.h>
-
+#include "../src/utils.h"
 
 extern struct parse* parser(char *str);
 
@@ -68,6 +68,9 @@ void test_hello(){
 }
 
 int main(void) {
-    
+    test_addFish();
+    test_delFish();
+    test_startFish();
+    test_hello();
     return 0;
 }
