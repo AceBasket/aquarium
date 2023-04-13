@@ -4,10 +4,8 @@ enum movementEnum { RANDOM }
 
 public class Fish {
     private final String name;
-    private int positionX;
-    private int positionY;
-    private int destinationX;
-    private int destinationY;
+    private Coordinate position;
+    private Coordinate destination;
     private final int length;
     private final int height;
     private movementEnum movement;
@@ -21,10 +19,8 @@ public class Fish {
             throw new IllegalArgumentException("Unknown movement");
         }
         this.name = name;
-        this.positionX = positionX;
-        this.positionY = positionY;
-        this.destinationX = destinationX;
-        this.destinationY = destinationY;
+        this.position = new Coordinate(positionX, positionY);
+        this.destination = new Coordinate(destinationX, destinationY);
         this.length = length;
         this.height = height;
         this.movementDuration = movementDuration;
@@ -47,20 +43,12 @@ public class Fish {
         return name;
     }
 
-    public int getPositionX() {
-        return positionX;
+    public Coordinate getPosition() {
+        return position;
     }
 
-    public int getPositionY() {
-        return positionY;
-    }
-
-    public int getDestinationX() {
-        return destinationX;
-    }
-
-    public int getDestinationY() {
-        return destinationY;
+    public Coordinate getDestination() {
+        return destination;
     }
 
     public int getLength() {
@@ -88,13 +76,11 @@ public class Fish {
     }
 
     public void setPosition(int positionX, int positionY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
+        this.position = new Coordinate(positionX, positionY);
     }
 
     public void setDestination(int destinationX, int destinationY, int movementDuration) {
-        this.destinationX = destinationX;
-        this.destinationY = destinationY;
+        this.destination = new Coordinate(destinationX, destinationY);
         this.movementDuration = movementDuration;
     }
 
