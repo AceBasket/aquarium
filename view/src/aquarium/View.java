@@ -14,13 +14,12 @@ public class View {
     // useful for communication with controller
     private String id = "";
     private int displayTimeoutValue;
-    private String resources;
 
     // private Aquarium aquariumView;:
 
     public View(File config) throws IOException {
         displayTimeoutValue = utils.Parse.parserTimeout(config);
-        resources = utils.Parse.parserResources(config);
+        // resources = utils.Parse.parserResources(config);
         id = utils.Parse.parserID(config);
         controllerAddress = utils.Parse.parserIP(config);
         portNumber = utils.Parse.parserPort(config);
@@ -75,7 +74,7 @@ public class View {
 
     // prototype not fixed
     private void startFish(String name) {
-        this.output.println("delFish " + name);
+        this.output.println("startFish " + name);
     }
 
 

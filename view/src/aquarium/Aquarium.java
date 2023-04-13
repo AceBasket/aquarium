@@ -2,14 +2,14 @@ package aquarium;
 import java.util.ArrayList;
 
 public class Aquarium {
-    private ArrayList<Fish> fishes_list;
+    private ArrayList<Fish> fishesList;
 
     public Aquarium() {
-        fishes_list = new ArrayList<Fish>();
+        fishesList = new ArrayList<Fish>();
     }
 
     public void addFish(Fish fish) {
-        fishes_list.add(fish);
+        fishesList.add(fish);
     }
 
     public void removeFish(String name) throws IllegalArgumentException {
@@ -17,11 +17,11 @@ public class Aquarium {
         if (fish == null) {
             throw new IllegalArgumentException("Fish not found");
         }
-        fishes_list.remove(fish);
+        fishesList.remove(fish);
     }
 
     public ArrayList<Fish> getFishes() {
-        return fishes_list;
+        return fishesList;
     }
 
     public void setFishDestination(Fish fish, int destinationX, int destinationY, int movementDuration) {
@@ -33,7 +33,7 @@ public class Aquarium {
     }
 
     public Fish getFish(String name) throws IllegalArgumentException {
-        for (Fish fish : fishes_list) {
+        for (Fish fish : fishesList) {
             if (fish.getName().equals(name)) {
                 return fish;
             }
@@ -42,10 +42,10 @@ public class Aquarium {
     }
 
     public void status() {
-        System.out.println("-> OK : Connecté au contrôleur, " + fishes_list.size() + " poissons trouvés");
-        for (Fish fish : fishes_list) {
+        System.out.println("-> OK : Connecté au contrôleur, " + fishesList.size() + " poissons trouvés");
+        for (Fish fish : fishesList) {
             String status = fish.getStatus() == statusEnum.STOPPED ? "not started" : "started";
-            System.out.println("Fish " + fish.getName() + " at " + fish.getPositionX() + "x" + fish.getPositionY() + ", " + fish.getLength() + ", " + fish.getHeight() + " " + status);
+            System.out.println("Fish " + fish.getName() + " at " + fish.getPosition().getX() + "x" + fish.getPosition().getY() + ", " + fish.getLength() + ", " + fish.getHeight() + " " + status);
         }
     }
 
