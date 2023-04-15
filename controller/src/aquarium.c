@@ -1,7 +1,5 @@
 #include "aquarium.h"
 #include "utils.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 int add_fish(struct aquarium *a, struct fish *f) {
     // if the aquarium is empty, add the fish
@@ -183,13 +181,13 @@ int len_views(struct aquarium *a) {
     return nb_views;
 }
 
-void show_aquarium(struct aquarium *a) {
-    printf("%dx%d\n", a->width, a->height);
+void show_aquarium(struct aquarium *a, FILE *f) {
+    fprintf("%dx%d\n", a->width, a->height, f);
 
     struct view *current_view = a->views;
     struct view *next_view = current_view->next;
     for (int i = 0; i < len_views(a); i++) {
-        printf("%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
+        fprintf("%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height, f);
         current_view = next_view;
         next_view = current_view->next;
     }
@@ -210,4 +208,11 @@ int len_fishes(struct aquarium *a) {
     }
 
     return nb_fishes;
+}
+
+void save_aquarium(struct aquarium *a, const char *name) {
+    FILE* f = fopen(name, "w");
+    show_aquarium(a, f);
+    fclose(f);
+    return 0;
 }
