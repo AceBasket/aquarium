@@ -1,46 +1,10 @@
-// package utils;
+package utils;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.security.InvalidParameterException;
 
 
-
-class PromptParserResult {
-    private PromptCommandType command;
-    private ArrayList<String> args;
-
-    public PromptParserResult(PromptCommandType command, ArrayList<String> args) {
-        this.command = command;
-        this.args = args;
-    }
-    
-    public PromptCommandType getCommand() {
-        return command;
-    }
-
-    public ArrayList<String> getArgs() {
-        return args;
-    }
-}
-
-class ServerResponseParserResult {
-    private PossibleServerResponses response;
-    private ArrayList<String> args;
-
-    public ServerResponseParserResult(PossibleServerResponses response, ArrayList<String> args) {
-        this.response = response;
-        this.args = args;
-    }
-    
-    public PossibleServerResponses getResponse() {
-        return response;
-    }
-
-    public ArrayList<String> getArgs() {
-        return args;
-    }
-}
 
 enum PromptCommandType {
     STATUS, ADDFISH, DELFISH, STARTFISH
