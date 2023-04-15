@@ -11,7 +11,6 @@ void exit_if(int condition, const char *prefix) {
     }
 }
 
-
 void free_parser(struct parse *p) {
     for (int i = 0; i < p->size; i++) {
         free(p->tab[i]);
@@ -19,6 +18,7 @@ void free_parser(struct parse *p) {
     free(p->tab);
     free(p);
 }
+
 void adding_arg_to_parse(struct parse *p, char *arg) {
     p->tab = realloc(p->tab, sizeof(char *) * (p->size + 1));
     p->tab[p->size] = malloc(strlen(arg) + 1);
@@ -71,7 +71,6 @@ char *remove_spaces(char *str) {
     //printf("%s\n", string);
     return string;
 }
-
 
 struct parse *parse_prompt(char *str) {
 
@@ -273,6 +272,142 @@ struct parse *parse_prompt(char *str) {
         return p;
     }
     return NULL;
+}
+
+#define _GNU_SOURCE
+struct parse *parse_file(FILE *f) {
+    size_t size = 20;
+    char *line = malloc(size * sizeof(char));
+    ssize_t read = 0;
+
+    struct parse *p = malloc(sizeof(*p));
+    // p->size = 1;
+    // p->tab = malloc(sizeof(char *));
+
+    while (read != -1) {
+        read = getline(&line, &size, f);
+        if (read == -1) {
+            break;
+        }
+        for (int i = 0; i < size; i++) {
+            if (line[i] == '\n') {
+                line[i] = '\0';
+            }
+        }
+
+        if (isdigit(line[0])) {
+            // aquarium
+            char *arg1 = strtok(line, "x");
+            if (arg1 == NULL) {
+                printf("No 1st argument given\n");
+                printf("The information about the aquarium should be given like: 1000x1000\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg1, 0)) {
+                printf("The 1st argument of the aquarium should be an integer: <number>\n");
+                printf("Or the separation between 1st and 2nd argument sould be an x (times) symbol\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg1);
+
+            char *arg2 = strtok(NULL, "");
+            if (arg2 == NULL) {
+                printf("No 2nd argument given\n");
+                printf("The information about the aquarium should be given like: 1000x1000\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg2, 0)) {
+                printf("The 2nd argument of the aquarium must be an integer: <number>\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg2);
+
+            if (strtok(NULL, "") != NULL) {
+                printf("The information about the aquarium should be given like: 1000x1000\n");
+                return NULL;
+            }
+        }
+
+        else if (isalpha(line[0])) {
+            // view
+            char *arg1 = strtok(line, " ");
+            if (arg1 == NULL) {
+                printf("No view provided\n");
+                free_parser(p);
+                return NULL;
+            } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || !is_number(arg1, 1)) {
+                printf("No name provided for the view\n");
+                printf("The name of the view should be like: N<number>\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg1);
+
+            char *arg2 = strtok(NULL, "x");
+            if (arg2 == NULL) {
+                printf("No 1st argument given\n");
+                printf("The information about the view should be given like: N5 400x400+400+200\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg2, 0)) {
+                printf("The 1st argument of the view should be an integer: <number>\nInstead you gave the following :%s\n", arg2);
+                printf("Or the separation between 1st and 2nd argument sould be an x (times) symbol\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg2);
+
+            char *arg3 = strtok(NULL, "+");
+            if (arg2 == NULL) {
+                printf("No 2nd argument given\n");
+                printf("The information about the view should be given like: N5 400x400+400+200\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg3, 0)) {
+                printf("The 2nd argument of the view should be an integer: <number>\n");
+                printf("Or the separation between 2nd and 3rd argument should be a + (plus) symbol\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg3);
+
+            char *arg4 = strtok(NULL, "+");
+            if (arg4 == NULL) {
+                printf("No 3rd argument given\n");
+                printf("The information about the view should be given like: N5 400x400+400+200\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg4, 0)) {
+                printf("The 3rd argument of the view should be an integer: <number>\n");
+                printf("Or the separation between the 3rd and 4th argument should be a + (plus) symbol");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg4);
+
+            char *arg5 = strtok(NULL, "");
+            if (arg5 == NULL) {
+                printf("No 4th argument given\n");
+                printf("The information about the view should be given like: N5 400x400+400+200\n");
+                free_parser(p);
+                return NULL;
+            } else if (!is_number(arg5, 0)) {
+                printf("The 4th argument of the view must be an integer: <number>\n");
+                free_parser(p);
+                return NULL;
+            }
+            adding_arg_to_parse(p, arg5);
+
+            if (strtok(NULL, "") != NULL) {
+                printf("The information about the view should be given like: N5 400x400+400+200\n");
+                return NULL;
+            }
+        }
+    }
+
+    return p;
 }
 
 struct parse *parse_clients(char *str) {
