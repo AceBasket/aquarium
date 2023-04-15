@@ -32,6 +32,26 @@ struct parameters {
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
+    int *views_socket_fds = (int *)io;
+
+    char buffer[BUFFER_SIZE];
+    int recv_bytes, send_bytes;
+
+    for (int i = 0; i < MAX_VIEWS; i++) {
+        if (FD_ISSET(i, ))
+    }
+
+
+    // Mettre chaque thread en continu
+    bzero(buffer, BUFFER_SIZE);
+    recv_bytes = recv(socket_fd, buffer, BUFFER_SIZE, 0);
+    exit_if(recv_bytes < 0, "ERROR reading from socket");
+
+    printf("Here is the message: %s\n", buffer);
+    send_bytes = send(socket_fd, buffer, BUFFER_SIZE, 0);
+    exit_if(send_bytes < 0, "ERROR writing to socket");
+
+    parse_clients("toto");
 
     return 0;
 }
@@ -39,7 +59,7 @@ void *thread_io(void *io) {
 
 void *thread_prompt(void *argv) {
     struct parse *parse = parse_prompt(argv);
-    int function = (int) parse->func_name;
+    int function = (int)parse->func_name;
 
     switch (function) {
     case LOAD:
@@ -48,9 +68,9 @@ void *thread_prompt(void *argv) {
         struct coordinates coord;
         struct view *v;
         for (int i = 2; i < file->size; i += 5) {
-            coord.x = parse->tab[i+1];
-            coord.y = parse->tab[i+2];
-            v = create_view(file->tab[i], coord, file->tab[i+3], file->tab[i+4]);
+            coord.x = parse->tab[i + 1];
+            coord.y = parse->tab[i + 2];
+            v = create_view(file->tab[i], coord, file->tab[i + 3], file->tab[i + 4]);
             add_view(a, v);
         }
         printf("Aquarium loaded (%d display view)\n", len_views(a));
@@ -59,7 +79,7 @@ void *thread_prompt(void *argv) {
         show_aquarium(a, stdout);
         break;
     case ADD_VIEW:
-        struct coordinates coord = {parse->tab[1], parse->tab[2]};
+        struct coordinates coord = { parse->tab[1], parse->tab[2] };
         struct view *v = create_view(parse->tab[0], coord, parse->tab[3], parse->tab[4]);
         add_view(a, v);
         printf("View added\n");

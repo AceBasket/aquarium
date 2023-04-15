@@ -19,7 +19,6 @@ public class View {
 
     public View(File config) throws IOException {
         displayTimeoutValue = utils.Parse.parserTimeout(config);
-        // resources = utils.Parse.parserResources(config);
         id = utils.Parse.parserID(config);
         controllerAddress = utils.Parse.parserIP(config);
         portNumber = utils.Parse.parserPort(config);
@@ -29,69 +28,28 @@ public class View {
         
     }
 
-
-    private void init() {
-        if (!this.id.equals("")) {
-            this.output.println("hello in as " + this.id);
-        } else {
-            this.output.println("hello");
-        }
-    }
-    
-    private void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    private void getFishes() {
-        this.output.println("getFishes");
+    public String getId() {
+        return this.id;
     }
 
-    private void getFishesContinuously() {
-        this.output.println("getFishesContinuously");
+    public void talkToServer(String speech) {
+        this.output.println(speech);
     }
 
-    private void getListFishes() {
-        this.output.println("ls");
+    public String listenToServer() throws IOException {
+        return this.input.readLine();
     }
 
-    private void logOut() {
-        this.output.println("log out");
-    }
-
-    private void ping() {
-        this.output.println("ping " + this.id);
-    }
-
-    // prototype not fixed
-    private void addFish(String name, String destination, String size, String path) {
-        this.output.println("addFish  " + name + " at " + destination + ", " + size + ", " + path);
-    }
-
-    // prototype not fixed
-    private void delFish(String name) {
-        this.output.println("delFish " + name);
-    }
-
-    // prototype not fixed
-    private void startFish(String name) {
-        this.output.println("startFish " + name);
+    public void close() throws IOException {
+        this.input.close();
+        this.output.close();
+        this.socket.close();
     }
 
 
-    public static void main(String[] argv) {
-        try {
-
-            View view = new View(new File("../affichage.cfg"));
-
-            view.output.println("Testing connection");
-
-            System.out.println("END");
-            view.output.println("END");
-            view.input.close();
-            view.output.close();
-            view.socket.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+    
 }
