@@ -32,36 +32,43 @@ struct parameters {
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
-    int *views_socket_fds = (int *)io;
-
+    fd_set fds;
+    int *views_socket_fd = (int *)io;
+    int max_fd = 0;
+    int recv_bytes;
     char buffer[BUFFER_SIZE];
-    int recv_bytes, send_bytes;
+    FD_ZERO(&fds);
 
     for (int i = 0; i < MAX_VIEWS; i++) {
-        if (FD_ISSET(i, ))
+        FD_SET(views_socket_fd[i], &fds);
+        // for select, we need to know the highest file descriptor number
+        if (max_fd < views_socket_fd[i]) {
+            max_fd = views_socket_fd[i];
+        }
+    }
+
+    // Wait indefinitely for an activity on one of the sockets
+    exit_if(select(max_fd + 1, &fds, NULL, NULL, NULL) == -1, "ERROR on select");
+    for (int i = 0; i < MAX_VIEWS; i++) {
+        if (FD_ISSET(views_socket_fd[i], &fds)) {
+            recv_bytes = recv(views_socket_fd[i], buffer, BUFFER_SIZE, 0);
+            exit_if(recv_bytes == -1, "ERROR on recv");
+            // if (recv_bytes == 0), the client has closed the connection (TODO: remove the view from the list)
+            printf("Received %d bytes from view %d: %s\n", recv_bytes, i, buffer);
+        }
     }
 
 
-    // Mettre chaque thread en continu
-    bzero(buffer, BUFFER_SIZE);
-    recv_bytes = recv(socket_fd, buffer, BUFFER_SIZE, 0);
-    exit_if(recv_bytes < 0, "ERROR reading from socket");
-
-    printf("Here is the message: %s\n", buffer);
-    send_bytes = send(socket_fd, buffer, BUFFER_SIZE, 0);
-    exit_if(send_bytes < 0, "ERROR writing to socket");
-
-    parse_clients("toto");
 
     return 0;
 }
 
 
 void *thread_prompt(void *argv) {
-    struct parse *parse = parse_prompt(argv);
-    int function = (int)parse->func_name;
+    // struct parse *parse = parse_prompt(argv);
+    // int function = (int)parse->func_name;
 
-    switch (function) {
+    /* switch (function) {
     case LOAD:
         struct parse *file = parse_file(parse->tab[0]);
         struct aquarium *a = create_aquarium(file->tab[0], file->tab[1]);
@@ -94,7 +101,7 @@ void *thread_prompt(void *argv) {
         break;
     default:
         break;
-    }
+    } */
 
     return 0;
 }
@@ -102,54 +109,33 @@ void *thread_prompt(void *argv) {
 
 void *thread_accept(void *param) {
     struct parameters *p = param;
-
+    int new_socket_fd;
+    printf("Je suis dans accept\n");
     // Initialization of all views_socket[] to 0 so not checked
     memset(p->views_sockets, 0, sizeof(p->views_sockets));
 
     while (1) {
-        // Clearing the socket set
-        FD_ZERO(&p->fds);
-        // Adding the main socket to set
-        FD_SET(p->socket_fd, &p->fds);
-        int max_fd = p->socket_fd;
 
-        // Adding child sockets to set
-        for (int j = 0; j < p->nb_views; j++) {
-            // If valid socket descriptor then add to read list
-            if (p->views_sockets[j] > 0)
-                FD_SET(p->views_sockets[j], &p->fds);
-
-            // If highest file descriptor number, need it for the select function
-            if (p->views_sockets[j] > max_fd)
-                max_fd = p->views_sockets[j];
-        }
-
-        // Wait indefinitely for an activity on one of the sockets
-        exit_if(select(max_fd + 1, &p->fds, NULL, NULL, NULL) == -1, "ERROR on select");
-
-        // Something happened on the main socket => incoming connection
-        if (FD_ISSET(p->socket_fd, &p->fds)) {
-            p->view_addr_len = sizeof(p->view_addr);
-            p->new_socket_fd = accept(p->socket_fd, (struct sockaddr *)&p->view_addr, &p->view_addr_len);
-            exit_if(p->new_socket_fd < 0, "ERROR on accept");
-
-            printf("Welcome\n");
-
-            // Adding the new socket to the array of sockets
-            for (int k = 0; k < p->nb_views; k++) {
-                // If the position is empty
-                if (p->views_sockets[k] == 0) {
-                    p->views_sockets[k] = p->new_socket_fd;
-                    printf("Adding to list of sockets as %d\n", k);
-                    break;
-                }
+        printf("Waiting for a new connection...\n");
+        p->view_addr_len = sizeof(p->view_addr);
+        printf("%p %p\n", &p->view_addr, &p->view_addr_len);
+        printf("%d\n", p->view_addr_len);
+        new_socket_fd = accept(p->socket_fd, (struct sockaddr *)&p->view_addr, &p->view_addr_len);
+        exit_if(new_socket_fd < 0, "ERROR on accept");
+        printf("Welcome\n");
+        // Adding the new socket to the array of sockets
+        for (int k = 0; k < p->nb_views; k++) {
+            // If the position is empty
+            if (p->views_sockets[k] == 0) {
+                p->views_sockets[k] = new_socket_fd;
+                printf("Adding to list of sockets as %d\n", k);
+                break;
             }
-
-            pthread_t tid_io;
-            exit_if(pthread_create(&tid_io, NULL, thread_io, &p->views_sockets) < 0, "ERROR on thread creation");
-
-            exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
         }
+        pthread_t tid_io;
+        exit_if(pthread_create(&tid_io, NULL, thread_io, &p->views_sockets) < 0, "ERROR on thread creation");
+
+        exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
     }
 }
 
@@ -158,7 +144,7 @@ int main(int argc, char const *argv[]) {
     struct parameters param;
 
     // Checking the number of arguments
-    exit_if(argc < 3, "ERROR too few arguments");
+    exit_if(argc < 3, "ERROR too few arguments (need number of views and port number))");
     // Number of views
     param.nb_views = atoi(argv[1]);
     // Port number

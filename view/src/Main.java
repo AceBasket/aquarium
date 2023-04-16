@@ -14,7 +14,7 @@ public class Main {
             System.out.println("END");
             view.talkToServer("END");
             view.close();
-        } catch (IOException e) {
+        } catch (IOException | ParserException e) {
             System.out.println(e.getMessage());
         }
     }
