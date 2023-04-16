@@ -2,6 +2,7 @@ package aquarium;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Path;
+import utils.*;
 
 public class View {
     // for socket
@@ -17,12 +18,12 @@ public class View {
 
     // private Aquarium aquariumView;:
 
-    public View(File config) throws IOException {
-        displayTimeoutValue = utils.Parse.parserTimeout(config);
+    public View(File config) throws IOException, ParserException {
+        displayTimeoutValue = Parse.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
-        id = utils.Parse.parserID(config);
-        controllerAddress = utils.Parse.parserIP(config);
-        portNumber = utils.Parse.parserPort(config);
+        id = Parse.parserID(config);
+        controllerAddress = Parse.parserIP(config);
+        portNumber = Parse.parserPort(config);
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
@@ -90,7 +91,7 @@ public class View {
             view.input.close();
             view.output.close();
             view.socket.close();
-        } catch (IOException e) {
+        } catch (IOException | ParserException e) {
             System.out.println(e.getMessage());
         }
     }
