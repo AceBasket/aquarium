@@ -157,6 +157,8 @@ struct aquarium *create_aquarium(int height, int width) {
     exit_if(a == NULL, "malloc failed");
     a->fishes = NULL;
     a->views = NULL;
+    a->height = height;
+    a->width = width;
     return a;
 }
 

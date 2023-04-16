@@ -162,8 +162,8 @@ struct parse *parse_prompt(char *str) {
             free_parser(p);
             return NULL;
         } else if (!is_number(arg2, 0)) {
-            printf("The 1st cordinate of the view should be an integer: <number>\nInstead you gave the following :%s\n", arg2);
-            printf("or the separation between 1st and 2nd cordinate sould be an x (times) symbol\n");
+            printf("The 1st argument of the view should be an integer: <number>\nInstead you gave the following :%s\n", arg2);
+            printf("or the separation between 1st and 2nd argument sould be an x (times) symbol\n");
             free_parser(p);
             return NULL;
         }
@@ -176,8 +176,8 @@ struct parse *parse_prompt(char *str) {
             free_parser(p);
             return NULL;
         } else if (!is_number(arg3, 0)) {
-            printf("The 2nd cordinate of the view should be an integer: <number>\n");
-            printf("Or the separation between 2nd and 3rd cordinate should be a + (plus) symbol\n");
+            printf("The 2nd argument of the view should be an integer: <number>\n");
+            printf("Or the separation between 2nd and 3rd argument should be a + (plus) symbol\n");
             free_parser(p);
             return NULL;
         }
@@ -190,7 +190,7 @@ struct parse *parse_prompt(char *str) {
             free_parser(p);
             return NULL;
         } else if (!is_number(arg4, 0)) {
-            printf("The 3rd cordinate of the view should be an integer: <number>\n");
+            printf("The 3rd argument of the view should be an integer: <number>\n");
             printf("Or the separation between the 3rd and forth argument should be a + (plus) symbol");
             free_parser(p);
             return NULL;
@@ -204,7 +204,7 @@ struct parse *parse_prompt(char *str) {
             free_parser(p);
             return NULL;
         } else if (!is_number(arg5, 0)) {
-            printf("The 4th cordinate of the view must be an integer: <number>\n");
+            printf("The 4th argument of the view must be an integer: <number>\n");
             free_parser(p);
             return NULL;
         }
@@ -274,7 +274,6 @@ struct parse *parse_prompt(char *str) {
     return NULL;
 }
 
-#define _GNU_SOURCE
 struct parse *parse_file(FILE *f) {
     size_t size = 20;
     char *line = malloc(size * sizeof(char));
@@ -289,7 +288,7 @@ struct parse *parse_file(FILE *f) {
         if (read == -1) {
             break;
         }
-        for (int i = 0; i < size; i++) {
+        for (size_t i = 0; i < size; i++) {
             if (line[i] == '\n') {
                 line[i] = '\0';
             }

@@ -65,29 +65,40 @@ void *thread_io(void *io) {
 
 
 void *thread_prompt(void *argv) {
-    // struct parse *parse = parse_prompt(argv);
-    // int function = (int)parse->func_name;
+    struct parse *parse = parse_prompt(argv);
+    int function = (int)parse->func_name;
 
-    /* switch (function) {
+    FILE *f;
+    struct parse *file;
+    struct aquarium *a;
+    struct coordinates coord;
+    struct view *v;
+
+    switch (function) {
     case LOAD:
-        struct parse *file = parse_file(parse->tab[0]);
-        struct aquarium *a = create_aquarium(file->tab[0], file->tab[1]);
-        struct coordinates coord;
-        struct view *v;
+        f = fopen(parse->tab[0], "r");
+        file = parse_file(f);
+        a = create_aquarium(atoi(file->tab[0]), atoi(file->tab[1]));
+
         for (int i = 2; i < file->size; i += 5) {
-            coord.x = parse->tab[i + 1];
-            coord.y = parse->tab[i + 2];
-            v = create_view(file->tab[i], coord, file->tab[i + 3], file->tab[i + 4]);
+            coord.x = atoi(parse->tab[i+1]);
+            coord.y = atoi(parse->tab[i+2]);
+            v = create_view(file->tab[i], coord, atoi(file->tab[i+3]), atoi(file->tab[i+4]));
             add_view(a, v);
         }
         printf("Aquarium loaded (%d display view)\n", len_views(a));
         break;
     case SHOW:
+        if (a == NULL) {
+            printf("No aquarium");
+            return NULL;
+        }
         show_aquarium(a, stdout);
         break;
     case ADD_VIEW:
-        struct coordinates coord = { parse->tab[1], parse->tab[2] };
-        struct view *v = create_view(parse->tab[0], coord, parse->tab[3], parse->tab[4]);
+        coord.x = atoi(parse->tab[1]);
+        coord.y = atoi(parse->tab[2]);
+        v = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
         add_view(a, v);
         printf("View added\n");
         break;
@@ -101,7 +112,7 @@ void *thread_prompt(void *argv) {
         break;
     default:
         break;
-    } */
+    }
 
     return 0;
 }
@@ -144,7 +155,7 @@ int main(int argc, char const *argv[]) {
     struct parameters param;
 
     // Checking the number of arguments
-    exit_if(argc < 3, "ERROR too few arguments (need number of views and port number))");
+    exit_if(argc < 3, "ERROR too few arguments (need number of views and port number)");
     // Number of views
     param.nb_views = atoi(argv[1]);
     // Port number
@@ -171,10 +182,10 @@ int main(int argc, char const *argv[]) {
     listen(param.socket_fd, param.nb_views);
 
     exit_if(pthread_create(&tid_accept, NULL, thread_accept, &param) < 0, "ERROR on thread creation");
-    exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &argv) < 0, "ERROR on thread creation");
+    // exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &argv) < 0, "ERROR on thread creation");
 
     exit_if(pthread_join(tid_accept, NULL), "ERROR on thread join");
-    exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
+    // exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
 

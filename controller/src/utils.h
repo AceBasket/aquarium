@@ -1,8 +1,10 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
-#include <errno.h>
+#define  _GNU_SOURCE
+
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -20,6 +22,7 @@ struct parse {
 
 void exit_if(int condition, const char *prefix);
 struct parse *parse_prompt(char *str);
+struct parse *parse_file(FILE *f);
 struct parse *parse_clients(char *str);
 
 #endif // _UTILS_H_
