@@ -1,6 +1,8 @@
 #ifndef _AQUARIUM_H_
 #define _AQUARIUM_H_
 
+#include <stdio.h>
+
 enum movement_pattern { RANDOMWAYPOINT };
 enum status { STARTED, NOT_STARTED };
 
@@ -45,7 +47,7 @@ struct fish *create_fish(const char *name, struct coordinates top_left, int heig
 struct view *create_view(const char *name, struct coordinates top_left, int height, int width);
 int len_views(struct aquarium *a);
 int len_fishes(struct aquarium *a);
-void show_aquarium(struct aquarium *a, FILE* f);
+void show_aquarium(struct aquarium *a, FILE *f);
 void save_aquarium(struct aquarium *a, const char *name);
 
 
