@@ -29,33 +29,101 @@ struct parameters {
     fd_set fds;
 };
 
+struct aquarium *a; // global aquarium
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
-    fd_set fds;
+    // For communication with views
+    fd_set read_fds;
     int *views_socket_fd = (int *)io;
-    int max_fd = 0;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
-    FD_ZERO(&fds);
 
-    for (int i = 0; i < MAX_VIEWS; i++) {
-        FD_SET(views_socket_fd[i], &fds);
-        // for select, we need to know the highest file descriptor number
-        if (max_fd < views_socket_fd[i]) {
-            max_fd = views_socket_fd[i];
-        }
-    }
+    while (1) {
+        FD_ZERO(&read_fds);
+        int max_fd = 0;
 
-    // Wait indefinitely for an activity on one of the sockets
-    exit_if(select(max_fd + 1, &fds, NULL, NULL, NULL) == -1, "ERROR on select");
-    for (int i = 0; i < MAX_VIEWS; i++) {
-        if (FD_ISSET(views_socket_fd[i], &fds)) {
-            recv_bytes = recv(views_socket_fd[i], buffer, BUFFER_SIZE, 0);
-            exit_if(recv_bytes == -1, "ERROR on recv");
-            // if (recv_bytes == 0), the client has closed the connection (TODO: remove the view from the list)
-            printf("Received %d bytes from view %d: %s\n", recv_bytes, i, buffer);
+        for (int i = 0; i < MAX_VIEWS; i++) {
+            FD_SET(views_socket_fd[i], &read_fds);
+            // for select, we need to know the highest file descriptor number
+            if (max_fd < views_socket_fd[i]) {
+                max_fd = views_socket_fd[i];
+            }
         }
+
+        // Wait indefinitely for an activity on one of the sockets
+        exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
+        for (int i = 0; i < MAX_VIEWS; i++) {
+            if (FD_ISSET(views_socket_fd[i], &read_fds)) {
+                // we have data on the i-th socket
+
+                // read data until we get a \n
+                int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
+                while (1) {
+                    char c;
+                    int result = recv(views_socket_fd[i], &c, 1, 0);
+                    exit_if(result == -1, "ERROR on recv");
+                    if (result == 0) {
+                        printf("Client closed connection\n");
+                        break;
+                    } else {
+                        buffer[total_recv_bytes++] = c;
+                        if (c == '\n') {
+                            buffer[total_recv_bytes - 1] = '\0';
+                            // we have a full line
+                            printf("Received %d bytes from view %d: %s\n", total_recv_bytes, i, buffer);
+                            break;
+                        }
+                    }
+                }
+
+                struct parse *parser; // = parse_clients(buffer);
+                enum func function_called = parser->func_name;
+                switch (function_called) {
+                case HELLO:
+                    if (parser->size == 3) {
+                        if (get_view(a, parser->tab[2]) == NULL) { // might need to change the condition
+                            // view does not exist
+                        } else {
+                            // view already exists
+                        };
+                    }
+                    printf("Hello from view %d\n", i);
+                    break;
+                case GETFISHES:
+                    printf("Get fishes from view %d\n", i);
+                    break;
+                case GFCONTINUOUSLY:
+                    printf("Get fishes continuously from view %d\n", i);
+                    break;
+                case LS:
+                    printf("List fishes from view %d\n", i);
+                    break;
+                case PING:
+                    printf("Ping from view %d\n", i);
+                    dprintf(views_socket_fd[i], "pong %s\n", parser->tab[0]);
+                    break;
+                case ADDFISH:
+                    printf("Add fish from view %d\n", i);
+                    break;
+                case DELFISH:
+                    printf("Delete fish from view %d\n", i);
+                    break;
+                case STARTFISH:
+                    printf("Start fish from view %d\n", i);
+                    break;
+                case LOG:
+                    printf("LOGOUT out from view %d\n", i);
+                    dprintf(views_socket_fd[i], "bye\n");
+                    break;
+                case UNKNOWN:
+                    printf("Unknown command from view %d\n", i);
+                    break;
+                }
+                // free_parser(parser);
+            }
+        }
+
     }
 
 
@@ -65,6 +133,7 @@ void *thread_io(void *io) {
 
 
 void *thread_prompt(void *argv) {
+    parse_prompt(argv);
     // struct parse *parse = parse_prompt(argv);
     // int function = (int)parse->func_name;
 
@@ -118,8 +187,6 @@ void *thread_accept(void *param) {
 
         printf("Waiting for a new connection...\n");
         p->view_addr_len = sizeof(p->view_addr);
-        printf("%p %p\n", &p->view_addr, &p->view_addr_len);
-        printf("%d\n", p->view_addr_len);
         new_socket_fd = accept(p->socket_fd, (struct sockaddr *)&p->view_addr, &p->view_addr_len);
         exit_if(new_socket_fd < 0, "ERROR on accept");
         printf("Welcome\n");

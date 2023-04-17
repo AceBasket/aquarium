@@ -157,6 +157,8 @@ struct aquarium *create_aquarium(int height, int width) {
     exit_if(a == NULL, "malloc failed");
     a->fishes = NULL;
     a->views = NULL;
+    a->height = height;
+    a->width = width;
     return a;
 }
 
@@ -214,4 +216,15 @@ void save_aquarium(struct aquarium *a, const char *name) {
     FILE *f = fopen(name, "w");
     show_aquarium(a, f);
     fclose(f);
+}
+
+char *get_first_free_view_name(struct aquarium *a) {
+    char *name = malloc(sizeof(char) * 10);
+    exit_if(name == NULL, "malloc failed");
+    int i = 0;
+    while (get_view(a, name) != NULL) {
+        sprintf(name, "N%d", i);
+        i++;
+    }
+    return name;
 }

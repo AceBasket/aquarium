@@ -26,6 +26,7 @@ struct aquarium {
     struct view *views; // chained list to views
     int height;
     int width;
+    char **view_names; // list of view names ()
 };
 
 struct view {

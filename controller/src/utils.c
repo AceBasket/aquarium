@@ -289,7 +289,7 @@ struct parse *parse_file(FILE *f) {
         if (read == -1) {
             break;
         }
-        for (int i = 0; i < size; i++) {
+        for (size_t i = 0; i < size; i++) {
             if (line[i] == '\n') {
                 line[i] = '\0';
             }
