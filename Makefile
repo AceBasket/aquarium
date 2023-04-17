@@ -1,22 +1,18 @@
-flags = -Wall -Wextra -std=c99
-sourceJava = src/view/
-sourceC = src/controller/
-build = build/
+SUBDIRS = controller view
 
-build:
+.PHONY: all clean test $(SUBDIRS)
 
+all: $(SUBDIRS)
 
-view:
-	javac $(sourceJava)View.java
+$(SUBDIRS):
+	@$(MAKE) -C $@
 
-controller: 
-	gcc $(flags) $(sourceC)controller.c -o $(build)controller.exe -pthread
-
-parserC: 
-	gcc $(flags) $(sourceC)parser.c -o $(build)parser.exe
-
-parserJava:
-	javac $(sourceJava)Parse.java
+test:
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir test; \
+	done
 
 clean:
-	rm $(build)*.exe $(sourceJava)*.class $(build)*.o
+	for dir in $(SUBDIRS); do \
+		$(MAKE) -C $$dir clean; \
+	done
