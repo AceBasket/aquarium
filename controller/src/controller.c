@@ -30,6 +30,7 @@ struct parameters {
 };
 
 struct aquarium *a; // global aquarium
+struct coordinates c = { .x = 1, .y = 2 }; // global coordinates
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
@@ -61,9 +62,9 @@ void *thread_io(void *io) {
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
                     char c;
-                    int result = recv(views_socket_fd[i], &c, 1, 0);
-                    exit_if(result == -1, "ERROR on recv");
-                    if (result == 0) {
+                    recv_bytes = recv(views_socket_fd[i], &c, 1, 0);
+                    exit_if(recv_bytes == -1, "ERROR on recv");
+                    if (recv_bytes == 0) {
                         printf("Client closed connection\n");
                         break;
                     } else {
@@ -92,6 +93,14 @@ void *thread_io(void *io) {
                     break;
                 case GETFISHES:
                     printf("Get fishes from view %d\n", i);
+                    struct fish **fishes_in_view = get_fishes_in_view(a, get_view(a, parser->tab[0])); // need to change to be able to get name of view
+                    dprintf(views_socket_fd[i], "list");
+                    int k = 0;
+                    while (fishes_in_view[k] != NULL) {
+                        // dprintf(views_socket_fd[i], " [%s at %dx%d,%dx%d,%d]", fishes_in_view[k]->name, fishes_in_view[k]->top_left.x, fishes_in_view[k]->top_left.y, fishes_in_view[k]->destination.x, fishes_in_view[k]destination.y, fishes_in_view[k]->time_to_destination);
+                        k++;
+                    }
+                    dprintf(views_socket_fd[i], "\n");
                     break;
                 case GFCONTINUOUSLY:
                     printf("Get fishes continuously from view %d\n", i);
@@ -105,19 +114,48 @@ void *thread_io(void *io) {
                     break;
                 case ADDFISH:
                     printf("Add fish from view %d\n", i);
+                    if (get_fish(a, parser->tab[0]) != NULL) {
+                        dprintf(views_socket_fd[i], "NOK\n");
+                        break;
+                    }
+                    struct coordinates top_left_corner = { .x = atoi(parser->tab[1]), .y = atoi(parser->tab[2]) };
+                    add_fish(a, create_fish(parser->tab[0], top_left_corner, atoi(parser->tab[3]), atoi(parser->tab[4]), RANDOMWAYPOINT));
+                    dprintf(views_socket_fd[i], "OK\n");
                     break;
                 case DELFISH:
                     printf("Delete fish from view %d\n", i);
+                    if (remove_fish(a, get_fish(a, parser->tab[0]))) {
+                        dprintf(views_socket_fd[i], "OK\n");
+                    } else {
+                        dprintf(views_socket_fd[i], "NOK\n");
+                    }
                     break;
                 case STARTFISH:
                     printf("Start fish from view %d\n", i);
+                    if (start_fish(a, parser->tab[0])) {
+                        dprintf(views_socket_fd[i], "OK\n");
+                    } else {
+                        dprintf(views_socket_fd[i], "NOK\n");
+                    }
                     break;
                 case LOG:
                     printf("LOGOUT out from view %d\n", i);
                     dprintf(views_socket_fd[i], "bye\n");
                     break;
+                case STATUS:
+                    printf("Status from view %d\n", i);
+                    dprintf(views_socket_fd[i], "OK: Connected to controller, %d fishes found", len_fishes(a));
+                    struct fish **all_fishes_in_view = get_fishes_in_view(a, get_view(a, parser->tab[0])); // need to change to be able to get name of view
+                    int j = 0;
+                    while (fishes_in_view[j] != NULL) {
+                        dprintf(views_socket_fd[i], "\tFish %s at %dx%d,%dx%d %s", all_fishes_in_view[j]->name, all_fishes_in_view[j]->top_left.x, all_fishes_in_view[j]->top_left.y, all_fishes_in_view[j]->width, all_fishes_in_view[j]->height, all_fishes_in_view[j]->status == STARTED ? "started" : "notStarted");
+                        j++;
+                    }
+                    break;
                 case UNKNOWN:
+                default:
                     printf("Unknown command from view %d\n", i);
+                    dprintf(views_socket_fd[i], "NOK\n");
                     break;
                 }
                 // free_parser(parser);

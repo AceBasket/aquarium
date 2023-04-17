@@ -50,6 +50,8 @@ int len_views(struct aquarium *a);
 int len_fishes(struct aquarium *a);
 void show_aquarium(struct aquarium *a, FILE *f);
 void save_aquarium(struct aquarium *a, const char *name);
+int start_fish(struct aquarium *a, const char *name);
+struct fish **get_fishes_in_view(struct aquarium *a, struct view *v);
 
 
 #endif // _AQUARIUM_H_

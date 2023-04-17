@@ -218,6 +218,7 @@ void save_aquarium(struct aquarium *a, const char *name) {
     fclose(f);
 }
 
+/* Pas sûre de l'utilité de cette fonction */
 char *get_first_free_view_name(struct aquarium *a) {
     char *name = malloc(sizeof(char) * 10);
     exit_if(name == NULL, "malloc failed");
@@ -227,4 +228,33 @@ char *get_first_free_view_name(struct aquarium *a) {
         i++;
     }
     return name;
+}
+
+int start_fish(struct aquarium *a, const char *name) {
+    struct fish *f = get_fish(a, name);
+    if (f != NULL) {
+        f->status = STARTED;
+        return EXIT_SUCCESS;
+    }
+    return EXIT_FAILURE;
+}
+
+struct fish **get_fishes_in_view(struct aquarium *a, struct view *v) {
+    struct fish **fishes = malloc(sizeof(struct fish *) * len_fishes(a));
+    exit_if(fishes == NULL, "malloc failed");
+    int i = 0;
+    struct fish *current_fish = a->fishes;
+    while (current_fish->next != NULL) {
+        if (current_fish->status == STARTED) {
+            if (current_fish->top_left.x >= v->top_left.x && current_fish->top_left.x <= v->top_left.x + v->width) {
+                if (current_fish->top_left.y >= v->top_left.y && current_fish->top_left.y <= v->top_left.y + v->height) {
+                    fishes[i] = current_fish;
+                    i++;
+                }
+            }
+        }
+        current_fish = current_fish->next;
+    }
+    fishes[i] = NULL; // end of the array
+    return fishes;
 }
