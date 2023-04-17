@@ -161,18 +161,18 @@ public class Parse {
 
     public static String parserIP(File file) throws IOException, ParserException {
         String IP = parserManager(file, "controller-address");
-        String[] IPSplit = IP.split(".");
-        if (IPSplit.length != 4) {
-            // throws exception about wrong IP format
-            throw new ParserException("Wrong IP Format");
-        }
-        for (int i = 0 ; i < IPSplit.length ; i++) {
-            try {
-                Integer.parseInt(IPSplit[i]);
-            } catch (NumberFormatException e) {
-                System.out.println("Wrong IP Format");
-            }
-        }
+        // String[] IPSplit = IP.split(".");
+        // if (IPSplit.length != 4) {
+        //     // throws exception about wrong IP format
+        //     throw new ParserException("Wrong IP Format");
+        // }
+        // for (int i = 0 ; i < IPSplit.length ; i++) {
+        //     try {
+        //         Integer.parseInt(IPSplit[i]);
+        //     } catch (NumberFormatException e) {
+        //         System.out.println("Wrong IP Format");
+        //     }
+        // }
         return IP;
     }
 
