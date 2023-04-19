@@ -116,17 +116,16 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "show <aquarium name>");
             return NULL;
         }
-        p->tab = realloc(p->tab, sizeof(char *) * (p->size + 1));
-        p->tab[p->size] = malloc(strlen(command) + strlen(arg) + 1);
-        strcpy(p->tab[p->size], arg);
-        p->size++;
+
+        adding_arg_to_parse(p, arg);
+
         if (strtok(NULL, " ") != NULL) {
             too_much_arguments(p, "load show <aquaruim name>");
             return NULL;
         }
-        printf("show %s\n", arg);
         return p;
     }
+
     //add view
     else if (strcmp(command, "add") == 0) {
         p->func_name = ADD_VIEW;
@@ -221,9 +220,6 @@ struct parse *parse_prompt(char *str) {
         p->func_name = DEL_VIEW;
         char *command2 = strtok(NULL, " ");
         if (command2 == NULL) {
-            // printf("too fiew arguments! \n");
-            // printf("the command should be like: del view <view name>\n");
-            // free_parser(p);
             too_few_arguments(p, "del view <view name>");
             return NULL;
         }
@@ -237,9 +233,6 @@ struct parse *parse_prompt(char *str) {
 
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
-            // printf("too fiew arguments! \n");
-            // printf("the command should be like: del view <view name>\n");
-            // free_parser(p);
             too_few_arguments(p, "del view <view name>");
             return NULL;
         } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || !is_number(arg1, 1)) {
@@ -263,7 +256,11 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "save <aquarium name>");
             return NULL;
         }
-
+        else if (!is_alphanum(arg)){
+            printf("the name of the aquarium should be composed of numbers and/or alphabets\n");
+            free_parser(p);
+            return NULL;
+        }
         adding_arg_to_parse(p, arg);
 
         if (strtok(NULL, "") != NULL) {
@@ -292,13 +289,14 @@ struct parse *parse_clients(char *str) {
     p->tab = malloc(sizeof(char *));
     p->tab[p->size] = malloc(strlen(command) + 1);
     strcpy(p->tab[p->size], command);
-    p->size++;
+    p->size+=1;
 
     //status
     if (strcmp(command, "status") == 0) {
         p->func_name = STATUS;
         if (strtok(NULL, " ") != NULL) {
             too_much_arguments(p, "status");
+            return NULL;
         }
         return p;
     }
@@ -343,8 +341,7 @@ struct parse *parse_clients(char *str) {
         }
         adding_arg_to_parse(p, arg2);
 
-        char *arg3 = strtok(NULL, ",");
-        //arg3 = remove_spaces(arg3);
+        char *arg3 = strtok(NULL, ", ");
         if (arg3 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -363,21 +360,16 @@ struct parse *parse_clients(char *str) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
         }
-        //arg4 = remove_spaces(arg4); // allocation 
         if (!is_number(arg4, 1)) {
             printf("the 4th(%s) coord should be a number\n", arg4);
             printf("Or the separation between the 3nd argument and 4th should be an <x> symbol\n");
             free_parser(p);
-            //free(arg4);
             return NULL;
         }
 
-        // p->size++;
-        //adding_arg_to_parse(p, remove_spaces(arg4));
         adding_arg_to_parse(p, arg4);
-        //free(arg4);
 
-        char *arg5 = strtok(NULL, ", ");
+        char *arg5 = strtok(NULL, ",");
         if (arg5 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -396,15 +388,12 @@ struct parse *parse_clients(char *str) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
         }
-        //arg6 = remove_spaces(arg6);
         if (!is_alphanum(arg6)) {
             printf("the path(%s) name should be composed of alphabets and/or numbers\n", arg6);
             free_parser(p);
-            //free(arg6);
             return NULL;
         }
         adding_arg_to_parse(p, arg6);
-        //free(arg6);
         if (strtok(NULL, "") != NULL) {
             too_much_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return NULL;
@@ -480,6 +469,7 @@ struct parse *parse_clients(char *str) {
             return NULL;
         } else if (!is_number(ID, 0)) {
             printf("the ID(%s) should be a number!\n", ID);
+            free_parser(p);
             return NULL;
         } else if (strtok(NULL, "") != NULL) {
             too_much_arguments(p, "hello in as <ID> or a simple hello");
