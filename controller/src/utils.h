@@ -6,10 +6,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/types.h>
 #include <ctype.h>
 
 
-enum func { LOAD, SHOW, ADD_VIEW, DEL_VIEW, SAVE, STATUS, ADDFISH, DELFISH, STARTFISH, HELLO, GETFISHES, GFCONTINUOUSLY, LS, PING, LOG, UNKNOWN };
+enum func {LOAD, SHOW, ADD_VIEW, DEL_VIEW, SAVE, STATUS, ADDFISH, DELFISH, STARTFISH, HELLO, GETFISHES, GFCONTINUOUSLY, LS, PING, LOG, UNKNOWN};
 
 struct parse {
     char **tab; // a list of parsed elements
@@ -20,4 +21,5 @@ struct parse {
 void exit_if(int condition, const char *prefix);
 struct parse *parse_prompt(char *str);
 struct parse *parse_clients(char *str);
-#endif
+
+#endif // _UTILS_H_
