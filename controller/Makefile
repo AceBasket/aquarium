@@ -26,6 +26,15 @@ dir:
 
 build: ${BIN}
 
+parser.o: src/utils.c
+	${CC} ${CFLAGS} -c $^ -o $@
+
+parser_test.o: tst/parser_test.c
+	${CC} ${CFLAGS} -c $^ -o $@
+
+parser_test: parser.o parser_test.o
+	${CC} ${CFLAGS} $^ -o $@
+
 test: ${TEST}
 
 clean:
