@@ -19,6 +19,7 @@ struct parse {
 };
 
 void exit_if(int condition, const char *prefix);
+void free_parser(struct parse *p) ;
 struct parse *parse_prompt(char *str);
 struct parse *parse_clients(char *str);
 
