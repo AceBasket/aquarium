@@ -85,7 +85,7 @@ void test_status(){
  }
  
  void test_hello(){
-    struct parse *result1 = parse_clients("hello in as 12");
+    struct parse *result1 = parse_clients("hello in as N12");
     assert(result1->size == 4);
      int i=0;
     assert(!strcmp(result1->tab[i], "hello"));
@@ -94,7 +94,7 @@ void test_status(){
     i++;
     assert(!strcmp(result1->tab[i], "as"));
     i++;
-    assert(!strcmp(result1->tab[i], "12"));
+    assert(!strcmp(result1->tab[i], "N12"));
     free_parser(result1);
 
     struct parse *result2 = parse_clients("hello in as 12 HJK");

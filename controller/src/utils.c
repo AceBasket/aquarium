@@ -467,11 +467,12 @@ struct parse *parse_clients(char *str) {
         if (ID == NULL) {
             too_few_arguments(p, "hello in as <ID> or a simple hello");
             return NULL;
-        } else if (!is_number(ID, 0)) {
-            printf("the ID(%s) should be a number!\n", ID);
+        } else if (strlen(ID) < 2 || ID[0]!='N' || !is_number(ID, 1)) {
+            printf("The name of the ID should be like: N<number>\n");
             free_parser(p);
             return NULL;
-        } else if (strtok(NULL, "") != NULL) {
+        }
+         else if (strtok(NULL, "") != NULL) {
             too_much_arguments(p, "hello in as <ID> or a simple hello");
             return NULL;
         }
