@@ -8,7 +8,9 @@
 #include <arpa/inet.h>
 #include "utils.h"
 #include "aquarium.h"
-
+#include "socket_aquarium.h"
+#include "time.h"
+#include <assert.h>
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8
@@ -30,7 +32,19 @@ struct parameters {
 };
 
 struct aquarium *a; // global aquarium
-struct coordinates c = { .x = 1, .y = 2 }; // global coordinates
+
+// en attendant le code de Cassandra
+void init_aquarium() {
+    a = create_aquarium(100, 100);
+    struct view *v1 = create_view("N1", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *v2 = create_view("N2", (struct coordinates) { 50, 0 }, 50, 50);
+    struct view *v3 = create_view("N3", (struct coordinates) { 0, 50 }, 50, 50);
+    struct view *v4 = create_view("N4", (struct coordinates) { 50, 50 }, 50, 50);
+    add_view(a, v1);
+    add_view(a, v2);
+    add_view(a, v3);
+    add_view(a, v4);
+}
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
@@ -39,6 +53,9 @@ void *thread_io(void *io) {
     int *views_socket_fd = (int *)io;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
+
+    // for handling views
+    struct view *view;
 
     while (1) {
         FD_ZERO(&read_fds);
@@ -68,7 +85,10 @@ void *thread_io(void *io) {
                         printf("Client closed connection\n");
                         break;
                     } else {
-                        buffer[total_recv_bytes++] = c;
+                        if (c != '\r') {
+                            buffer[total_recv_bytes++] = c;
+                            // printf("%d ", c);
+                        }
                         if (c == '\n') {
                             buffer[total_recv_bytes - 1] = '\0';
                             // we have a full line
@@ -78,26 +98,36 @@ void *thread_io(void *io) {
                     }
                 }
 
-                struct parse *parser; // = parse_clients(buffer);
+
+                struct parse *parser = parse_clients(buffer);
                 enum func function_called = parser->func_name;
                 switch (function_called) {
                 case HELLO:
                     if (parser->size == 3) {
-                        if (get_view(a, parser->tab[2]) == NULL) { // might need to change the condition
-                            // view does not exist
+                        view = get_view(a, parser->tab[2]);
+                        if (view != NULL && view->socket_fd == -1) {
+                            view->socket_fd = views_socket_fd[i];
+                            dprintf(views_socket_fd[i], "greeting %s\n", view->name);
+                        }
+                    } else {
+                        view = get_first_free_view_socket(a);
+                        if (view == NULL) {
+                            dprintf(views_socket_fd[i], "no greeting\n");
                         } else {
-                            // view already exists
-                        };
+                            view->socket_fd = views_socket_fd[i];
+                            dprintf(views_socket_fd[i], "greeting %s\n", view->name);
+                        }
                     }
                     printf("Hello from view %d\n", i);
                     break;
                 case GETFISHES:
                     printf("Get fishes from view %d\n", i);
-                    struct fish **fishes_in_view = get_fishes_in_view(a, get_view(a, parser->tab[0])); // need to change to be able to get name of view
+                    view = get_view_from_socket(a, views_socket_fd[i]);
+                    struct fish **fishes_in_view = get_fishes_in_view(a, view);
                     dprintf(views_socket_fd[i], "list");
                     int k = 0;
                     while (fishes_in_view[k] != NULL) {
-                        // dprintf(views_socket_fd[i], " [%s at %dx%d,%dx%d,%d]", fishes_in_view[k]->name, fishes_in_view[k]->top_left.x, fishes_in_view[k]->top_left.y, fishes_in_view[k]->destination.x, fishes_in_view[k]destination.y, fishes_in_view[k]->time_to_destination);
+                        dprintf(views_socket_fd[i], " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[k]->name, x_coordinate_to_percentage(view, fishes_in_view[k]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[k]->top_left.y), x_coordinate_to_percentage(view, fishes_in_view[k]->destination.x), y_coordinate_to_percentage(view, fishes_in_view[k]->destination.y), fishes_in_view[k]->time_to_destination - time(NULL));
                         k++;
                     }
                     dprintf(views_socket_fd[i], "\n");
@@ -114,17 +144,21 @@ void *thread_io(void *io) {
                     break;
                 case ADDFISH:
                     printf("Add fish from view %d\n", i);
-                    if (get_fish(a, parser->tab[0]) != NULL) {
+                    // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
+                    if (get_fish_from_name(a, parser->tab[1]) != NULL) {
                         dprintf(views_socket_fd[i], "NOK\n");
                         break;
                     }
-                    struct coordinates top_left_corner = { .x = atoi(parser->tab[1]), .y = atoi(parser->tab[2]) };
-                    add_fish(a, create_fish(parser->tab[0], top_left_corner, atoi(parser->tab[3]), atoi(parser->tab[4]), RANDOMWAYPOINT));
+                    struct fish *f = create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT);
+                    add_fish(a, f);
+                    assert(get_fish_from_name(a, parser->tab[1]) != NULL);
+                    // add_fish(a, create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT));
+                    printf("addFish %s %s %s %s %s\n", parser->tab[1], parser->tab[3], parser->tab[4], (parser->tab[5]), (parser->tab[6]));
                     dprintf(views_socket_fd[i], "OK\n");
                     break;
                 case DELFISH:
                     printf("Delete fish from view %d\n", i);
-                    if (remove_fish(a, get_fish(a, parser->tab[0]))) {
+                    if (remove_fish(a, get_fish_from_name(a, parser->tab[1]))) {
                         dprintf(views_socket_fd[i], "OK\n");
                     } else {
                         dprintf(views_socket_fd[i], "NOK\n");
@@ -132,7 +166,7 @@ void *thread_io(void *io) {
                     break;
                 case STARTFISH:
                     printf("Start fish from view %d\n", i);
-                    if (start_fish(a, parser->tab[0])) {
+                    if (start_fish(a, parser->tab[1])) {
                         dprintf(views_socket_fd[i], "OK\n");
                     } else {
                         dprintf(views_socket_fd[i], "NOK\n");
@@ -145,7 +179,7 @@ void *thread_io(void *io) {
                 case STATUS:
                     printf("Status from view %d\n", i);
                     dprintf(views_socket_fd[i], "OK: Connected to controller, %d fishes found", len_fishes(a));
-                    struct fish **all_fishes_in_view = get_fishes_in_view(a, get_view(a, parser->tab[0])); // need to change to be able to get name of view
+                    struct fish **all_fishes_in_view = get_fishes_in_view(a, get_view_from_socket(a, views_socket_fd[i])); // need to change to be able to get name of view
                     int j = 0;
                     while (fishes_in_view[j] != NULL) {
                         dprintf(views_socket_fd[i], "\tFish %s at %dx%d,%dx%d %s", all_fishes_in_view[j]->name, all_fishes_in_view[j]->top_left.x, all_fishes_in_view[j]->top_left.y, all_fishes_in_view[j]->width, all_fishes_in_view[j]->height, all_fishes_in_view[j]->status == STARTED ? "started" : "notStarted");
@@ -158,7 +192,7 @@ void *thread_io(void *io) {
                     dprintf(views_socket_fd[i], "NOK\n");
                     break;
                 }
-                // free_parser(parser);
+                free_parser(parser);
             }
         }
 
@@ -218,6 +252,12 @@ void *thread_accept(void *param) {
     struct parameters *p = param;
     int new_socket_fd;
     printf("Je suis dans accept\n");
+
+    // en attendant le code de Cassandra
+    printf("J'initialize l'aquarium\n");
+    init_aquarium();
+
+
     // Initialization of all views_socket[] to 0 so not checked
     memset(p->views_sockets, 0, sizeof(p->views_sockets));
 
@@ -282,6 +322,19 @@ int main(int argc, char const *argv[]) {
     exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
+
+    while (1) {
+        time_t now = time(NULL);
+        struct fish *fishes = a->fishes;
+        struct fish *current_fish = fishes;
+        while (current_fish != NULL) {
+            if (current_fish->time_to_destination <= now) {
+                set_movement(a, current_fish);
+            }
+            current_fish = current_fish->next;
+        }
+        sleep(1);
+    }
 
 
     return EXIT_SUCCESS;

@@ -254,8 +254,7 @@ struct parse *parse_prompt(char *str) {
         if (arg == NULL) {
             too_few_arguments(p, "save <aquarium name>");
             return NULL;
-        }
-        else if (!is_alphanum(arg)){
+        } else if (!is_alphanum(arg)) {
             printf("the name of the aquarium should be composed of numbers and/or alphabets\n");
             free_parser(p);
             return NULL;
@@ -424,7 +423,7 @@ struct parse *parse_clients(char *str) {
     p->tab = malloc(sizeof(char *));
     p->tab[p->size] = malloc(strlen(command) + 1);
     strcpy(p->tab[p->size], command);
-    p->size+=1;
+    p->size += 1;
 
     //status
     if (strcmp(command, "status") == 0) {
