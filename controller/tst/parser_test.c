@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "../src/utils.h"
 
+
 void test_status(){
     struct parse *result1 = parse_clients("status");
     assert(!strcmp(result1->tab[0], "status"));
@@ -12,11 +13,11 @@ void test_status(){
     struct parse *result2 = parse_clients("status whatever");
     assert(result2==NULL);
 }
-
-void test_addFish(){
+ 
+ void test_addFish(){
     struct parse *result = parse_clients("addFish PoissonNain at 61x52, 4x3, RandomPathway");
-    assert(result->size == 8);
-    int i=0;
+     assert(result->size == 8);
+     int i=0;
     assert(!strcmp(result->tab[i], "addFish"));
     i++;
     assert(!strcmp(result->tab[i], "PoissonNain"));
@@ -41,57 +42,59 @@ void test_addFish(){
     struct parse *result6 = parse_clients("addFish PoissonNain at 678x677, 456x789 Rando3m");
     assert(result6==NULL);
     
-}
-
-void test_delFish(){
+ }
+ 
+ void test_delFish(){
     struct parse *result1 = parse_clients("delFish fishName");
     assert(result1->size == 2);
-    int i=0;
+     int i=0;
     assert(!strcmp(result1->tab[i], "delFish"));
     i++;
     assert(!strcmp(result1->tab[i], "fishName"));
     free_parser(result1);
-
+ 
     struct parse *result2 = parse_clients("delFish");
     assert(result2==NULL);
-    
+     
     struct parse *result3 = parse_clients("delFish fish'-(è1");
     assert(result3==NULL);
 
     struct parse *result4 = parse_clients("delFish fish1 fish2");
     assert(result4==NULL);
-}
-
-void test_startFish(){
+ }
+ 
+ void test_startFish(){
     struct parse *result1 = parse_clients("startFish fishName");
     assert(result1->size == 2);
-    int i=0;
+     int i=0;
     assert(!strcmp(result1->tab[i], "startFish"));
     i++;
     assert(!strcmp(result1->tab[i], "fishName"));
     free_parser(result1);
-    
+     
+
     struct parse *result2 = parse_clients("startFish");
     assert(result2==NULL);
-    
+     
+
     struct parse *result3 = parse_clients("startFish fish1 fish2");
     assert(result3==NULL);
 
     struct parse *result4 = parse_clients("delFish fish'-(è1");
     assert(result4==NULL);
-}
-
-void test_hello(){
-    struct parse *result1 = parse_clients("hello in as 12");
+ }
+ 
+ void test_hello(){
+    struct parse *result1 = parse_clients("hello in as N12");
     assert(result1->size == 4);
-    int i=0;
+     int i=0;
     assert(!strcmp(result1->tab[i], "hello"));
     i++;
     assert(!strcmp(result1->tab[i], "in"));
     i++;
     assert(!strcmp(result1->tab[i], "as"));
     i++;
-    assert(!strcmp(result1->tab[i], "12"));
+    assert(!strcmp(result1->tab[i], "N12"));
     free_parser(result1);
 
     struct parse *result2 = parse_clients("hello in as 12 HJK");
@@ -99,7 +102,7 @@ void test_hello(){
 
     struct parse *result3= parse_clients("hello 4567");
     assert(result3==NULL);
-
+ 
     struct parse *result4 = parse_clients("hello in as HJK");
     assert(result4==NULL);
 
@@ -128,14 +131,14 @@ void test_ls(){
     int i=0;
     assert(!strcmp(result1->tab[i], "ls"));
     free_parser(result1);
-
+ 
     struct parse *result2 = parse_clients("lsthis");
     assert(result2 == NULL);
-
+ 
     struct parse *result3 = parse_clients("ls this");
     assert(result3 == NULL);
-}
-
+ }
+ 
 void test_getFishesContinuously(){
     struct parse *result1 = parse_clients("getFishesContinuously");
     assert(result1->size == 1);
@@ -253,7 +256,7 @@ void test_add_view(){
     struct parse *result5 = parse_prompt("add view N");
     assert(result5==NULL);
 
-    struct parse *result6 = parse_prompt("add view N5 400x400+400200+456a");
+    struct parse *result6 = parse_prompt("add view N5 400x400400200456a");
     assert(result6==NULL);
 }
 
@@ -304,7 +307,7 @@ void test_save(){
     assert(result4==NULL);
 
 }
-int main(void) {
+ int main(void) {
     //parse clients tests
     test_status();
     test_addFish();
@@ -323,5 +326,5 @@ int main(void) {
     test_add_view();
     test_del_view();
     test_save();
-    return 0;
-}
+     return 0;
+ }
