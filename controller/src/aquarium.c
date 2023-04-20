@@ -5,38 +5,41 @@ int add_fish(struct aquarium *a, struct fish *f) {
     // if the aquarium is empty, add the fish
     if (a->fishes == NULL) {
         a->fishes = f;
-        return EXIT_SUCCESS;
+        return OK;
     }
 
     // if the aquarium is not empty, check if the fish is already in the aquarium
     struct fish *current = a->fishes;
 
+    //  if only one element in the list
     if (strcmp(current->name, f->name) == 0) {
-        return EXIT_FAILURE;
+        return NOK;
     }
+
+
 
     while (current->next != NULL) {
         current = current->next;
         if (strcmp(current->name, f->name) == 0) {
-            return EXIT_FAILURE;
+            return NOK;
         }
     }
     // if the fish is not in the aquarium, add it to the end of the list
     current->next = f;
-    return EXIT_SUCCESS;
+    return OK;
 }
 
 int remove_fish(struct aquarium *a, struct fish *f) {
     // if the aquarium is empty, return failure
     if (a->fishes == NULL) {
-        return EXIT_FAILURE;
+        return NOK;
     }
     // if the aquarium is not empty, check if the fish is in the aquarium
     struct fish *current = a->fishes;
 
     if (strcmp(current->name, f->name) == 0) {
         a->fishes = current->next;
-        return EXIT_SUCCESS;
+        return OK;
     }
 
     struct fish *previous = NULL;
@@ -48,20 +51,21 @@ int remove_fish(struct aquarium *a, struct fish *f) {
             } else {
                 previous->next = current->next;
             }
-            return EXIT_SUCCESS;
+            return OK;
         }
         previous = current;
         current = current->next;
     }
     // if the fish is not in the aquarium, return failure
-    return EXIT_FAILURE;
+    return NOK;
 }
 
-struct fish *create_fish(const char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt) {
+struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt) {
     // create a new fish
     struct fish *f = malloc(sizeof(struct fish));
     exit_if(f == NULL, "malloc failed");
-    f->name = name;
+    f->name = malloc(sizeof(char) * (strlen(name) + 1));
+    strcpy(f->name, name);
     f->top_left = top_left;
     f->height = height;
     f->width = width;
@@ -73,7 +77,8 @@ struct fish *create_fish(const char *name, struct coordinates top_left, int heig
     return f;
 }
 
-struct fish *get_fish_from_name(struct aquarium *a, const char *name) {
+struct fish *get_fish_from_name(struct aquarium *a, char *name) {
+    printf("get_fish_from_name(%s)\n", name);
     // if the aquarium is empty, return NULL
     if (a->fishes == NULL) {
         return NULL;
@@ -81,29 +86,28 @@ struct fish *get_fish_from_name(struct aquarium *a, const char *name) {
     // if the aquarium is not empty, check if the fish is in the aquarium
     struct fish *current = a->fishes;
 
-    if (strcmp(current->name, name) == 0) {
-        return current;
-    }
-
-    while (current->next != NULL) {
+    do {
+        printf("current->name = %s\n", current->name);
         if (strcmp(current->name, name) == 0) {
             // if the fish is in the aquarium, return it
             return current;
         }
         current = current->next;
-    }
+    } while (current != NULL);
+
     // if the fish is not in the aquarium, return NULL
     return NULL;
 }
 
-struct view *create_view(const char *name, struct coordinates top_left, int height, int width) {
+struct view *create_view(char *name, struct coordinates top_left, int height, int width) {
     // create a new view
     struct view *v = malloc(sizeof(struct view));
     exit_if(v == NULL, "malloc failed");
     v->top_left = top_left;
     v->height = height;
     v->width = width;
-    v->name = name;
+    v->name = malloc(sizeof(char) * (strlen(name) + 1));
+    strcpy(v->name, name);
     v->next = NULL;
     v->socket_fd = -1; //to store the socket file descriptor
     return v;
@@ -113,38 +117,38 @@ int add_view(struct aquarium *a, struct view *v) {
     // if the aquarium is empty, add the view
     if (a->views == NULL) {
         a->views = v;
-        return EXIT_SUCCESS;
+        return OK;
     }
     // if the aquarium is not empty, check if the view is already in the aquarium
 
     struct view *current = a->views;
 
     if (strcmp(current->name, v->name) == 0) {
-        return EXIT_FAILURE;
+        return NOK;
     }
 
     while (current->next != NULL) {
         current = current->next;
         if (strcmp(current->name, v->name) == 0) {
-            return EXIT_FAILURE;
+            return NOK;
         }
     }
     // if the view is not in the aquarium, add it to the end of the list
     current->next = v;
-    return EXIT_SUCCESS;
+    return OK;
 }
 
 int remove_view(struct aquarium *a, struct view *v) {
     // if the aquarium is empty, return failure
     if (a->views == NULL) {
-        return EXIT_FAILURE;
+        return NOK;
     }
     // if the aquarium is not empty, check if the view is in the aquarium
     struct view *current = a->views;
     if (strcmp(current->name, v->name) == 0) {
         // if the view is in the aquarium, remove it
         a->views = current->next;
-        return EXIT_SUCCESS;
+        return OK;
     }
     struct view *previous = NULL;
     while (current->next != NULL) {
@@ -155,29 +159,31 @@ int remove_view(struct aquarium *a, struct view *v) {
             } else {
                 previous->next = current->next;
             }
-            return EXIT_SUCCESS;
+            return OK;
         }
         previous = current;
         current = current->next;
     }
     // if the view is not in the aquarium, return failure
-    return EXIT_FAILURE;
+    return NOK;
 }
 
-struct view *get_view(struct aquarium *a, const char *name) {
+struct view *get_view(struct aquarium *a, char *name) {
     // if the aquarium is empty, return NULL
     if (a->views == NULL) {
         return NULL;
     }
     // if the aquarium is not empty, check if the view is in the aquarium
     struct view *current = a->views;
-    while (current->next != NULL) {
+
+    do {
         if (strcmp(current->name, name) == 0) {
             // if the view is in the aquarium, return it
             return current;
         }
         current = current->next;
-    }
+    } while (current != NULL);
+
     // if the view is not in the aquarium, return NULL
     return NULL;
 }
@@ -227,18 +233,14 @@ void show_aquarium(struct aquarium *a, FILE *f) {
 }
 
 int len_fishes(struct aquarium *a) {
-    int nb_fishes;
 
     // if the aquarium is empty
     if (a->fishes == NULL) {
         return 0;
     }
+    int nb_fishes = 1;
     // if the aquarium is not empty
     struct fish *current = a->fishes;
-
-    if (current->next == NULL) {
-        return 1;
-    }
 
     while (current->next != NULL) {
         current = current->next;
@@ -248,7 +250,7 @@ int len_fishes(struct aquarium *a) {
     return nb_fishes;
 }
 
-void save_aquarium(struct aquarium *a, const char *name) {
+void save_aquarium(struct aquarium *a, char *name) {
     FILE *f = fopen(name, "w");
     show_aquarium(a, f);
     fclose(f);
@@ -266,18 +268,19 @@ char *get_first_free_view_name(struct aquarium *a) {
     return name;
 }
 
-int start_fish(struct aquarium *a, const char *name) {
+int start_fish(struct aquarium *a, char *name) {
     struct fish *f = get_fish_from_name(a, name);
     if (f != NULL) {
         f->status = STARTED;
-        return EXIT_SUCCESS;
+        return OK;
     }
-    return EXIT_FAILURE;
+    return NOK;
 }
 
 struct fish **get_fishes_in_view(struct aquarium *a, struct view *v) {
     struct fish **fishes = malloc(sizeof(struct fish *) * len_fishes(a));
     exit_if(fishes == NULL, "malloc failed");
+    exit_if(v == NULL, "view is NULL");
     int i = 0;
     struct fish *current_fish = a->fishes;
 
@@ -286,16 +289,7 @@ struct fish **get_fishes_in_view(struct aquarium *a, struct view *v) {
         return fishes;
     }
 
-    if (current_fish->status == STARTED && current_fish->next == NULL) { // if we won't go in the while loop
-        if (current_fish->top_left.x >= v->top_left.x && current_fish->top_left.x <= v->top_left.x + v->width) {
-            if (current_fish->top_left.y >= v->top_left.y && current_fish->top_left.y <= v->top_left.y + v->height) {
-                fishes[i] = current_fish;
-                i++;
-            }
-        }
-    }
-
-    while (current_fish->next != NULL) {
+    do {
         if (current_fish->status == STARTED) {
             if (current_fish->top_left.x >= v->top_left.x && current_fish->top_left.x <= v->top_left.x + v->width) {
                 if (current_fish->top_left.y >= v->top_left.y && current_fish->top_left.y <= v->top_left.y + v->height) {
@@ -305,7 +299,8 @@ struct fish **get_fishes_in_view(struct aquarium *a, struct view *v) {
             }
         }
         current_fish = current_fish->next;
-    }
+    } while (current_fish != NULL);
+
     fishes[i] = NULL; // end of the array
     return fishes;
 }

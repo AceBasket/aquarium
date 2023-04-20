@@ -13,7 +13,7 @@
 #include <assert.h>
 
 #define BUFFER_SIZE 256
-#define MAX_VIEWS 8
+#define MAX_VIEWS 8 
 
 struct parameters {
     int nb_views;
@@ -56,6 +56,7 @@ void *thread_io(void *io) {
 
     // for handling views
     struct view *view;
+
 
     while (1) {
         FD_ZERO(&read_fds);
@@ -122,8 +123,14 @@ void *thread_io(void *io) {
                     break;
                 case GETFISHES:
                     printf("Get fishes from view %d\n", i);
-                    view = get_view_from_socket(a, views_socket_fd[i]);
-                    struct fish **fishes_in_view = get_fishes_in_view(a, view);
+                    struct fish **fishes_in_view = get_fishes_in_view(a, get_view_from_socket(a, views_socket_fd[i]));
+                    // view = get_view_from_socket(a, views_socket_fd[i]);
+                    // struct fish **fishes_in_view = get_fishes_in_view(a, view);
+                    printf("fishes_in_view = %p\n", fishes_in_view);
+                    printf("fishes_in_view[0] = %p\n", fishes_in_view[0]);
+                    struct fish *poissonRouge = get_fish_from_name(a, "PoissonRouge");
+                    assert(poissonRouge != NULL);
+                    printf("poissonRouge = %s\n", poissonRouge->name);
                     dprintf(views_socket_fd[i], "list");
                     int k = 0;
                     while (fishes_in_view[k] != NULL) {
@@ -131,6 +138,7 @@ void *thread_io(void *io) {
                         k++;
                     }
                     dprintf(views_socket_fd[i], "\n");
+                    free(fishes_in_view);
                     break;
                 case GFCONTINUOUSLY:
                     printf("Get fishes continuously from view %d\n", i);
@@ -152,8 +160,18 @@ void *thread_io(void *io) {
                     struct fish *f = create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT);
                     add_fish(a, f);
                     assert(get_fish_from_name(a, parser->tab[1]) != NULL);
+                    printf("nb char in fish name = %ld\n", strlen(parser->tab[1]));
+                    for (int a = 0; a < strlen(parser->tab[1]); a++) {
+                        printf("%d ", parser->tab[1][a]);
+                    }
+                    printf("\n");
+                    for (int a = 0; a < strlen(parser->tab[1]); a++) {
+                        printf("%c ", parser->tab[1][a]);
+                    }
+                    printf("\n");
+                    printf("PoissonRouge = %s of size %ld\n", "PoissonRouge", strlen("PoissonRouge"));
                     // add_fish(a, create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT));
-                    printf("addFish %s %s %s %s %s\n", parser->tab[1], parser->tab[3], parser->tab[4], (parser->tab[5]), (parser->tab[6]));
+                    // printf("addFish %s %s %s %s %s\n", parser->tab[1], parser->tab[3], parser->tab[4], (parser->tab[5]), (parser->tab[6]));
                     dprintf(views_socket_fd[i], "OK\n");
                     break;
                 case DELFISH:
@@ -165,7 +183,7 @@ void *thread_io(void *io) {
                     }
                     break;
                 case STARTFISH:
-                    printf("Start fish from view %d\n", i);
+                    printf("Start fish (%s) from view %d\n", parser->tab[1], i);
                     if (start_fish(a, parser->tab[1])) {
                         dprintf(views_socket_fd[i], "OK\n");
                     } else {
@@ -180,8 +198,11 @@ void *thread_io(void *io) {
                     printf("Status from view %d\n", i);
                     dprintf(views_socket_fd[i], "OK: Connected to controller, %d fishes found", len_fishes(a));
                     struct fish **all_fishes_in_view = get_fishes_in_view(a, get_view_from_socket(a, views_socket_fd[i])); // need to change to be able to get name of view
+                    printf("all_fishes_in_view = %p\n", all_fishes_in_view);
+                    // printf("all_fishes_in_view[0] = %p\n", all_fishes_in_view[0]);
                     int j = 0;
-                    while (fishes_in_view[j] != NULL) {
+                    while (all_fishes_in_view[j] != NULL) {
+                        printf("all_fishes_in_view[%d] = %p\n", j, all_fishes_in_view[j]);
                         dprintf(views_socket_fd[i], "\tFish %s at %dx%d,%dx%d %s", all_fishes_in_view[j]->name, all_fishes_in_view[j]->top_left.x, all_fishes_in_view[j]->top_left.y, all_fishes_in_view[j]->width, all_fishes_in_view[j]->height, all_fishes_in_view[j]->status == STARTED ? "started" : "notStarted");
                         j++;
                     }

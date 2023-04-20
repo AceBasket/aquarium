@@ -7,17 +7,15 @@ struct view *get_view_from_socket(struct aquarium *a, int socket_fd) {
     }
     // if the aquarium is not empty, check if the view is in the aquarium
     struct view *current = a->views;
-    if (current->socket_fd == socket_fd) {
-        // if the view is in the aquarium, return it
-        return current;
-    }
-    while (current->next != NULL) {
+
+    do {
         if (current->socket_fd == socket_fd) {
             // if the view is in the aquarium, return it
             return current;
         }
         current = current->next;
-    }
+    } while (current != NULL);
+
     // if the view is not in the aquarium, return NULL
     return NULL;
 }
