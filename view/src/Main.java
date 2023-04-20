@@ -5,12 +5,24 @@ public class Main {
     public static void main(String[] argv) {
         try {
 
-            View view = new View(new File("affichage.cfg"));
+            View view = new View(new File("src/affichage.cfg"));
 
             // view.talkToServer("Testing connection");
             // view.talkToServer("hello in as " + view.getId());
-            view.talkToServer("hello");
-            // ServerResponseParserResult answer = Parse.parserServerResponse(view.listenToServer());
+            // view.talkToServer("hello");
+            ParserResult answer = Parse.parserServerResponse(view.listenToServer());
+            switch (answer.getFunction()) {
+                case GREETING:
+                    view.setId(answer.getArgs().get(0));
+                    break;
+                case NOGREETING:
+                    System.out.println("Server is full");
+                    break;
+                case 
+            
+                default:
+                    break;
+            }
 
             System.out.println("END");
             // view.talkToServer("END");

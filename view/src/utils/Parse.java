@@ -6,14 +6,6 @@ import java.security.InvalidParameterException;
 
 
 
-enum PromptCommandType {
-    STATUS, ADDFISH, DELFISH, STARTFISH
-}
-
-enum PossibleServerResponses {
-    GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG
-}
-
 
 public class Parse {
     public static void main(String[] argv) throws IOException {
@@ -37,22 +29,22 @@ public class Parse {
             
     }
     
-    public static PromptParserResult parserCommand(String command) {
+    public static ParserResult parserCommand(String command) {
         ArrayList<String> args = new ArrayList<String>();
         String[] commandSplit = command.split(" : |, |,| |x| at ");
         if (commandSplit[0].equals("status")) {
-            return new PromptParserResult(PromptCommandType.STATUS, args );
+            return new ParserResult(ParsedFunctionTypes.STATUS, args );
         }
         else if (commandSplit[0].equals("addFish")) {
             for (int i = 1 ; i < commandSplit.length ; i++) {
                 args.add(commandSplit[i]);
             }
-            return new PromptParserResult(PromptCommandType.ADDFISH, args);
+            return new ParserResult(ParsedFunctionTypes.ADDFISH, args);
         }
         else if (commandSplit[0].equals("delFish")) {
             if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
-                return new PromptParserResult(PromptCommandType.DELFISH, args);
+                return new ParserResult(ParsedFunctionTypes.DELFISH, args);
             }
             else {
                 throw new InvalidParameterException("Unknown command");
@@ -61,7 +53,7 @@ public class Parse {
         else if (commandSplit[0].equals("startFish")) {
             if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
-                return new PromptParserResult(PromptCommandType.STARTFISH, args);
+                return new ParserResult(ParsedFunctionTypes.STARTFISH, args);
             }
             else {
                 throw new InvalidParameterException("Unknown command");
@@ -73,7 +65,7 @@ public class Parse {
         
     }
 
-    public static ServerResponseParserResult parserServerResponse(String response) throws ParserException {
+    public static ParserResult parserServerResponse(String response) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
         // for (int i = 0 ; i < responseSplit.length ; i++) {
@@ -82,7 +74,7 @@ public class Parse {
         if (responseSplit[0].equals("NOK")) {
             if (responseSplit.length >= 2) {
                 args.add(responseSplit[1]);
-                return new ServerResponseParserResult(PossibleServerResponses.NOK, args);
+                return new ParserResult(ParsedFunctionTypes.NOK, args);
             }
             else {
                 throw new InvalidParameterException("Unknown response");
@@ -92,7 +84,7 @@ public class Parse {
             for (int i = 1 ; i < responseSplit.length ; i++) {
                 args.add(responseSplit[i]);
             }
-            return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+            return new ParserResult(ParsedFunctionTypes.OK, args);
         }
         else if (responseSplit[0].equals("greeting")) {
             args.add(responseSplit[1]);
@@ -108,10 +100,10 @@ public class Parse {
                 System.out.println("Invalid ID Format");
             }
 
-            return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
+            return new ParserResult(ParsedFunctionTypes.GREETING, args);
         }
         else if (responseSplit[0].equals("no greeting")) {
-            return new ServerResponseParserResult(PossibleServerResponses.NOGREETING, args);
+            return new ParserResult(ParsedFunctionTypes.NOGREETING, args);
         }
         else if (responseSplit[0].equals("list")) {
             //Vérifier le nombre d'arguments, que le premier c'est Poisson* et les suivants sont des numéros
@@ -119,10 +111,10 @@ public class Parse {
             for (int i = 1 ; i < responseSplit.length ; i++) {
                 args.add(responseSplit[i]);
             }
-            return new ServerResponseParserResult(PossibleServerResponses.LISTFISHES, args);
+            return new ParserResult(ParsedFunctionTypes.LISTFISHES, args);
         }
         else if (responseSplit[0].equals("bye")) {
-            return new ServerResponseParserResult(PossibleServerResponses.BYE, args);
+            return new ParserResult(ParsedFunctionTypes.BYE, args);
         }
         else if (responseSplit[0].equals("pong")) {
             try {
@@ -131,7 +123,7 @@ public class Parse {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid Response to ping");
             }
-            return new ServerResponseParserResult(PossibleServerResponses.PONG, args);
+            return new ParserResult(ParsedFunctionTypes.PONG, args);
         }
         else {
             throw new InvalidParameterException("Unknown response");
