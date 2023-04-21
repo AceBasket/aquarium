@@ -271,7 +271,7 @@ int start_fish(struct aquarium *aquarium, char *name) {
     return NOK;
 }
 
-struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view) {
+struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, int started) {
     struct fish **fishes = malloc(sizeof(struct fish *) * (len_fishes(aquarium) + 1));
     exit_if(fishes == NULL, "malloc failed");
     exit_if(view == NULL, "view is NULL");
@@ -284,7 +284,7 @@ struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view) {
     }
 
     do {
-        if (current_fish->status == STARTED) {
+        if ((started && current_fish->status == STARTED) || !started) {
             if (current_fish->top_left.x >= view->top_left.x && current_fish->top_left.x <= view->top_left.x + view->width) {
                 if (current_fish->top_left.y >= view->top_left.y && current_fish->top_left.y <= view->top_left.y + view->height) {
                     fishes[i] = current_fish;

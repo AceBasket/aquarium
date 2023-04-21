@@ -22,7 +22,7 @@ void hello_handler(struct parse *parser, int socket_fd, struct aquarium *aquariu
 
 void get_fishes_handler(__attribute__((unused))struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    struct fish **fishes_in_view = get_fishes_in_view(aquarium, view);
+    struct fish **fishes_in_view = get_fishes_in_view(aquarium, view, 1);
     dprintf(socket_fd, "list");
     int iter = 0;
     while (fishes_in_view[iter] != NULL) {
@@ -72,7 +72,7 @@ void log_out_handler(__attribute__((unused))struct parse *parser, int socket_fd,
 
 void status_handler(__attribute__((unused))struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
-    struct fish **fishes_in_view = get_fishes_in_view(aquarium, get_view_from_socket(aquarium, socket_fd));
+    struct fish **fishes_in_view = get_fishes_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
     int iter = 0;
     while (fishes_in_view[iter] != NULL) {
         dprintf(socket_fd, "\tFish %s at %dx%d,%dx%d %s", fishes_in_view[iter]->name, fishes_in_view[iter]->top_left.x, fishes_in_view[iter]->top_left.y, fishes_in_view[iter]->width, fishes_in_view[iter]->height, fishes_in_view[iter]->status == STARTED ? "started" : "notStarted");

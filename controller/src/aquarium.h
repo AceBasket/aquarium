@@ -58,7 +58,7 @@ int len_fishes(struct aquarium *aquarium);
 void show_aquarium(struct aquarium *aquarium, FILE *f);
 void save_aquarium(struct aquarium *aquarium, char *name);
 int start_fish(struct aquarium *aquarium, char *name);
-struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view);
+struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, int started);
 void set_movement(struct aquarium *aquarium, struct fish *fish);
 int free_aquarium(struct aquarium *aquarium);
 

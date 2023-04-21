@@ -15,6 +15,7 @@ public class ServerThread implements Runnable {
             answer = Parse.parserServerResponse(view.listenToServer());
             if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.GREETING) {
                 view.setId(answer.getArgs().get(0));
+                System.out.println("Connected as " + view.getId());
             }
             else if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOGREETING) {
                 System.out.println("Server is full");
@@ -25,6 +26,8 @@ public class ServerThread implements Runnable {
             
         } catch (IOException|ParserException e) {
             // TODO: handle exception
+        } catch(NullPointerException e) {
+            System.out.println("answer is null");
         }
     }
 

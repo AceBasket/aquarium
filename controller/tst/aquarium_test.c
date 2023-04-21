@@ -171,13 +171,13 @@ void test_get_fishes_in_view() {
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish2) == OK);
-    struct fish **fishes = get_fishes_in_view(aquarium, view);
+    struct fish **fishes = get_fishes_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL); // fish not started
     assert(start_fish(aquarium, fish->name) == OK);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(add_view(aquarium, view) == OK);
     free(fishes); // free previous fishes to call get_fishes_in_view again
-    fishes = get_fishes_in_view(aquarium, view);
+    fishes = get_fishes_in_view(aquarium, view, 1);
     assert(fishes[0] == fish);
     assert(fishes[1] == fish2);
     assert(fishes[2] == NULL);
@@ -188,7 +188,7 @@ void test_get_fishes_in_view() {
 void test_get_fishes_in_view_not_in_aquarium() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    struct fish **fishes = get_fishes_in_view(aquarium, view);
+    struct fish **fishes = get_fishes_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL);
     free(fishes);
     free(view->name);

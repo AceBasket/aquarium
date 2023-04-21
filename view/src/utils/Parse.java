@@ -29,13 +29,16 @@ public class Parse {
             
     }
     
-    public static PromptParserResult parserCommand(String command) {
+    public static PromptParserResult parserCommand(String command) throws ParserException{
         ArrayList<String> args = new ArrayList<String>();
         String[] commandSplit = command.split(" : |, |,| |x| at ");
         if (commandSplit[0].equals("status")) {
             return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.STATUS, args );
         }
         else if (commandSplit[0].equals("addFish")) {
+            if (commandSplit.length != 7) {
+                throw new ParserException("Invalid number of arguments in addFish command : there are " + commandSplit.length + " arguments instead of 6");
+            }
             for (int i = 1 ; i < commandSplit.length ; i++) {
                 args.add(commandSplit[i]);
             }
@@ -47,7 +50,7 @@ public class Parse {
                 return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.DELFISH, args);
             }
             else {
-                throw new InvalidParameterException("Unknown command");
+                throw new ParserException("Not enough arguments in delFish command");
             }
         }
         else if (commandSplit[0].equals("startFish")) {
@@ -56,11 +59,11 @@ public class Parse {
                 return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.STARTFISH, args);
             }
             else {
-                throw new InvalidParameterException("Unknown command");
+                throw new ParserException("Not enough arguments in startFish command");
             }
         }
         else {
-            throw new InvalidParameterException("Unknown command");
+            throw new ParserException("Unknown command");
         }
         
     }

@@ -37,11 +37,11 @@ public class View {
         return this.id;
     }
 
-    public void talkToServer(String speech) {
+    public synchronized void talkToServer(String speech) {
         this.output.println(speech);
     }
 
-    public String listenToServer() throws IOException {
+    public synchronized String listenToServer() throws IOException {
         return this.input.readLine();
     }
 
