@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-LDFLAGS = -pthread
+CFLAGS += -Wall -Wextra
+LDFLAGS += -pthread
 
 
 #This finds all c files and places then into SRC. It's equivalent would be
