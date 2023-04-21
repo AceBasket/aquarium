@@ -1,5 +1,9 @@
 CC = gcc
+<<<<<<< HEAD
 CFLAGS += -Wall -Wextra -Werror -g -O0
+=======
+CFLAGS += -Wall -Wextra -g -O0
+>>>>>>> e070ce14cc5b03b24a298aea2b858f2094b85d3e
 LDFLAGS += -pthread
 
 
@@ -44,12 +48,6 @@ build/%.o: %.c
 
 
 #################### TESTS ####################
-
-# Compile and run each test executable
-# build/%: build/tst/%.o build/src/utils.o
-# 	${CC} ${CFLAGS} $^ -o $@
-# 	echo 1
-# 	$@
 
 # each test object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/tst/%.o: tst/%.c
