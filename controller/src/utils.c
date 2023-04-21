@@ -48,11 +48,11 @@ int is_alphanum(char *str) {
 }
 
 void too_much_arguments(struct parse *p, char *str) {
-    sprintf(p->status, "ERROR: too much arguments!\nthe commande should be like : %s\n", str);
+    sprintf(p->status, "ERROR: too much arguments!@@the commande should be like : %s\n", str);
 }
 
 void too_few_arguments(struct parse *p, char *str) {
-    sprintf(p->status, "ERROR: too few arguments!\nthe commande should be like : %s\n", str);
+    sprintf(p->status, "ERROR: too few arguments!@@the commande should be like : %s\n", str);
 }
 
 char *remove_spaces(char *str) {
@@ -135,7 +135,7 @@ struct parse *parse_prompt(char *str) {
             return p;
         }
         if (strcmp(command2, "view") != 0) {
-            strcpy(p->status, "ERROR: Wrong command\nthe command should be like: add view N5 400x400+400+200\n");
+            strcpy(p->status, "ERROR: Wrong command@@the command should be like: add view N5 400x400+400+200\n");
             return p;
         }
         adding_arg_to_parse(p, command2);
@@ -155,7 +155,7 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "add view N5 400x400+400+200");
             return p;
         } else if (!is_number(arg2, 0)) {
-            sprintf(p->status, "ERROR: The 1st cordinate of the view should be an integer: <number>\nInstead you gave the following :%s\nor the separation between 1st and 2nd cordinate sould be an x (times) symbol\n", arg2);
+            sprintf(p->status, "ERROR: The 1st cordinate of the view should be an integer: <number>@@Instead you gave the following :%s@@or the separation between 1st and 2nd cordinate sould be an x (times) symbol\n", arg2);
             return p;
         }
         adding_arg_to_parse(p, arg2);
@@ -165,7 +165,7 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "add view N5 400x400+400+200");
             return p;
         } else if (!is_number(arg3, 0)) {
-            strcpy(p->status, "ERROR: The 2nd cordinate of the view should be an integer: <number>\nOr the separation between 2nd and 3rd cordinate should be a + (plus) symbol\n");
+            strcpy(p->status, "ERROR: The 2nd cordinate of the view should be an integer: <number>@@Or the separation between 2nd and 3rd cordinate should be a + (plus) symbol\n");
             return p;
         }
         adding_arg_to_parse(p, arg3);
@@ -175,7 +175,7 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "add view N5 400x400+400+200");
             return p;
         } else if (!is_number(arg4, 0)) {
-            strcpy(p->status, "ERROR: The 3rd cordinate of the view should be an integer: <number>\nOr the separation between the 3rd and forth argument should be a + (plus) symbol");
+            strcpy(p->status, "ERROR: The 3rd cordinate of the view should be an integer: <number>@@Or the separation between the 3rd and forth argument should be a + (plus) symbol");
             return p;
         }
         adding_arg_to_parse(p, arg4);
@@ -204,7 +204,7 @@ struct parse *parse_prompt(char *str) {
             return p;
         }
         if (strcmp(command2, "view") != 0) {
-            strcpy(p->status, "ERROR: Wrong command\nthe command should be like: del view <view name>\n");
+            strcpy(p->status, "ERROR: Wrong command@@the command should be like: del view <view name>\n");
             return p;
         }
         adding_arg_to_parse(p, command2);
@@ -414,7 +414,7 @@ struct parse *parse_clients(char *str) {
             return p;
         }
         if (strcmp(command2, "at") != 0) {
-            strcpy(p->status, "ERROR: Wrong command\ncommand should be like : addFish <nameFish> at <number>x<number>, <number>x<number>, <path>\n");
+            strcpy(p->status, "ERROR: Wrong command@@command should be like : addFish <nameFish> at <number>x<number>, <number>x<number>, <path>\n");
             return p;
         }
         adding_arg_to_parse(p, command2);
@@ -425,7 +425,7 @@ struct parse *parse_clients(char *str) {
             return p;
         }
         if (!is_number(arg2, 0)) {
-            strcpy(p->status, "ERROR: the first coord should be a number\nOr the separation between the 1st argument and 2nd should be an <x> symbol\n");
+            strcpy(p->status, "ERROR: the first coord should be a number@@Or the separation between the 1st argument and 2nd should be an <x> symbol\n");
             return p;
         }
         adding_arg_to_parse(p, arg2);
@@ -436,7 +436,7 @@ struct parse *parse_clients(char *str) {
             return p;
         }
         if (!is_number(arg3, 0)) {
-            sprintf(p->status, "ERROR: the second(%s) coord should be a number\nOr the separation between the 2nd argument and 3rd should be an <, > symbol\n", arg3);
+            sprintf(p->status, "ERROR: the second(%s) coord should be a number@@Or the separation between the 2nd argument and 3rd should be an <, > symbol\n", arg3);
             return p;
         }
         adding_arg_to_parse(p, arg3);
@@ -448,7 +448,7 @@ struct parse *parse_clients(char *str) {
             return p;
         }
         if (!is_number(arg4, 1)) {
-            sprintf(p->status, "ERROR: the 4th(%s) coord should be a number\nOr the separation between the 3nd argument and 4th should be an <x> symbol\n", arg4);
+            sprintf(p->status, "ERROR: the 4th(%s) coord should be a number@@Or the separation between the 3nd argument and 4th should be an <x> symbol\n", arg4);
             return p;
         }
 
@@ -460,7 +460,7 @@ struct parse *parse_clients(char *str) {
             return p;
         }
         if (!is_number(arg5, 0)) {
-            sprintf(p->status, "ERROR: the 5th(%s) coordinate should be a number\nOr the separation between the 4th argument and 5th should be an <, > symbol\n", arg5);
+            sprintf(p->status, "ERROR: the 5th(%s) coordinate should be a number@@Or the separation between the 4th argument and 5th should be an <, > symbol\n", arg5);
             return p;
         }
         adding_arg_to_parse(p, arg5);

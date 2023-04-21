@@ -179,7 +179,7 @@ public class Parse {
         if (!IDN.equals("N")) {
             throw new ParserException("ID do not begin with N");
         }
-        try {
+        try { 
             Integer.parseInt(IDNb);
         } catch (NumberFormatException e) {
             System.out.println("Invalid ID Format");

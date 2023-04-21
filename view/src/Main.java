@@ -6,6 +6,8 @@ import threads.*;
 public class Main {
     public static void main(String[] argv) {
         System.out.println("Main");
+        String hello = "Hello\rworld";
+        System.out.println(hello.replace('\r', '\n'));
         try {
             View view = new View(new File("src/affichage.cfg"));
             Runnable serverThread = new ServerThread(view);

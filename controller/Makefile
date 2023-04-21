@@ -1,9 +1,5 @@
 CC = gcc
-<<<<<<< HEAD
 CFLAGS += -Wall -Wextra -Werror -g -O0
-=======
-CFLAGS += -Wall -Wextra -g -O0
->>>>>>> e070ce14cc5b03b24a298aea2b858f2094b85d3e
 LDFLAGS += -pthread
 
 

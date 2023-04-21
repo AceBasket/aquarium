@@ -141,9 +141,11 @@ void *thread_io(void *io) {
                     status_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case UNKNOWN:
-                default:
                     printf("Unknown command from view %d\n", i);
                     dprintf(views_socket_fd[i], "NOK: Unknown command\n");
+                    break;
+                default:
+                    dprintf(views_socket_fd[i], "%s", parser->status);
                     break;
                 }
                 free_parser(parser);

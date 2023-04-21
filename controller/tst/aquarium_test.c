@@ -216,7 +216,7 @@ void test_add_fish_start_fish_get_fishes() {
     view->socket_fd = 6;
     assert(add_fish(aquarium, fish) == OK);
     assert(start_fish(aquarium, fish->name) == OK);
-    struct fish **fishes = get_fishes_in_view(aquarium, get_view(aquarium, view->name));
+    struct fish **fishes = get_fishes_in_view(aquarium, get_view(aquarium, view->name), 1); // true
     assert(fishes[0] == fish);
     assert(fishes[1] == NULL);
     free(fishes);

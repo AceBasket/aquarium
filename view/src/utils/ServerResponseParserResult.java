@@ -6,7 +6,7 @@ public class ServerResponseParserResult {
     private ArrayList<String> args;
 
     public enum ServerResponseParsedFunctionTypes {
-        GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG
+        GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG // TODO : add ERROR
     }
 
     public ServerResponseParserResult(ServerResponseParsedFunctionTypes function, ArrayList<String> args) {

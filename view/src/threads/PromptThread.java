@@ -13,30 +13,6 @@ public class PromptThread implements Runnable {
         while (true) {
             command = System.console().readLine();
             System.out.println(transferCommand(command));
-            // try {
-            //     answer = Parse.parserCommand(command);
-            //     switch (answer.getFunction()) {
-            //         case STATUS:
-            //             System.out.println("STATUS");
-
-            //             break;
-            //         case ADDFISH:
-            //             System.out.println("ADDFISH");
-            //             break;
-            //         case DELFISH:
-            //             System.out.println("DELFISH");
-            //             break;
-            //         case STARTFISH: 
-            //             System.out.println("STARTFISH");
-            //             break;
-            //         default:
-            //             break;
-            //     }
-            // } catch (ParserException e) {
-            //     System.out.println(e);
-            // } catch (Exception e) {
-            //     System.out.println(e);
-            // } 
         }
     }
 

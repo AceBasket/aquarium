@@ -42,7 +42,11 @@ public class View {
     }
 
     public synchronized String listenToServer() throws IOException {
-        return this.input.readLine();
+        String answer = this.input.readLine();
+        if (answer == null) {
+            throw new IOException("Server is down");
+        }
+        return answer.replace("@@", "\n");
     }
 
     public void close() throws IOException {

@@ -12,7 +12,8 @@ public class ServerThread implements Runnable {
         try {
             // view.talkToServer("Testing connection");
             view.talkToServer("hello in as " + view.getId());
-            answer = Parse.parserServerResponse(view.listenToServer());
+            String response = view.listenToServer();
+            answer = Parse.parserServerResponse(response);
             if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.GREETING) {
                 view.setId(answer.getArgs().get(0));
                 System.out.println("Connected as " + view.getId());
@@ -22,6 +23,7 @@ public class ServerThread implements Runnable {
             }
             else {
                 System.out.println("Unknown error");
+                System.out.println(response);
             }
             
         } catch (IOException|ParserException e) {
