@@ -18,7 +18,7 @@ CLASSES = ${SRCS:src/%.java=build/%.class}
 TST_CLASSES = ${TSTS:tst/%.java=build/%.class}
 FX_CLASSES = ${FX:src/%.java=build/%.class}
 
-default: source visual
+default: source
 
 source: ${CLASSES}
 	${J} ${JFLAGS} Main

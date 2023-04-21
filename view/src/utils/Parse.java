@@ -29,22 +29,22 @@ public class Parse {
             
     }
     
-    public static ParserResult parserCommand(String command) {
+    public static PromptParserResult parserCommand(String command) {
         ArrayList<String> args = new ArrayList<String>();
         String[] commandSplit = command.split(" : |, |,| |x| at ");
         if (commandSplit[0].equals("status")) {
-            return new ParserResult(ParsedFunctionTypes.STATUS, args );
+            return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.STATUS, args );
         }
         else if (commandSplit[0].equals("addFish")) {
             for (int i = 1 ; i < commandSplit.length ; i++) {
                 args.add(commandSplit[i]);
             }
-            return new ParserResult(ParsedFunctionTypes.ADDFISH, args);
+            return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.ADDFISH, args);
         }
         else if (commandSplit[0].equals("delFish")) {
             if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
-                return new ParserResult(ParsedFunctionTypes.DELFISH, args);
+                return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.DELFISH, args);
             }
             else {
                 throw new InvalidParameterException("Unknown command");
@@ -53,7 +53,7 @@ public class Parse {
         else if (commandSplit[0].equals("startFish")) {
             if (commandSplit.length >= 2) {
                 args.add(commandSplit[1]);
-                return new ParserResult(ParsedFunctionTypes.STARTFISH, args);
+                return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.STARTFISH, args);
             }
             else {
                 throw new InvalidParameterException("Unknown command");
@@ -65,7 +65,7 @@ public class Parse {
         
     }
 
-    public static ParserResult parserServerResponse(String response) throws ParserException {
+    public static ServerResponseParserResult parserServerResponse(String response) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
         // for (int i = 0 ; i < responseSplit.length ; i++) {
@@ -74,7 +74,7 @@ public class Parse {
         if (responseSplit[0].equals("NOK")) {
             if (responseSplit.length >= 2) {
                 args.add(responseSplit[1]);
-                return new ParserResult(ParsedFunctionTypes.NOK, args);
+                return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOK, args);
             }
             else {
                 throw new InvalidParameterException("Unknown response");
@@ -84,7 +84,7 @@ public class Parse {
             for (int i = 1 ; i < responseSplit.length ; i++) {
                 args.add(responseSplit[i]);
             }
-            return new ParserResult(ParsedFunctionTypes.OK, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.OK, args);
         }
         else if (responseSplit[0].equals("greeting")) {
             args.add(responseSplit[1]);
@@ -100,10 +100,10 @@ public class Parse {
                 System.out.println("Invalid ID Format");
             }
 
-            return new ParserResult(ParsedFunctionTypes.GREETING, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.GREETING, args);
         }
         else if (responseSplit[0].equals("no greeting")) {
-            return new ParserResult(ParsedFunctionTypes.NOGREETING, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOGREETING, args);
         }
         else if (responseSplit[0].equals("list")) {
             //Vérifier le nombre d'arguments, que le premier c'est Poisson* et les suivants sont des numéros
@@ -111,10 +111,10 @@ public class Parse {
             for (int i = 1 ; i < responseSplit.length ; i++) {
                 args.add(responseSplit[i]);
             }
-            return new ParserResult(ParsedFunctionTypes.LISTFISHES, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.LISTFISHES, args);
         }
         else if (responseSplit[0].equals("bye")) {
-            return new ParserResult(ParsedFunctionTypes.BYE, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.BYE, args);
         }
         else if (responseSplit[0].equals("pong")) {
             try {
@@ -123,7 +123,7 @@ public class Parse {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid Response to ping");
             }
-            return new ParserResult(ParsedFunctionTypes.PONG, args);
+            return new ServerResponseParserResult(ServerResponseParserResult.ServerResponseParsedFunctionTypes.PONG, args);
         }
         else {
             throw new InvalidParameterException("Unknown response");
