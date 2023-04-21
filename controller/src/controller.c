@@ -114,7 +114,7 @@ void *thread_io(void *io) {
                     break;
                 case LS:
                     printf("List fishes from view %d\n", i);
-                    list_fishes_handler(parser, views_socket_fd[i], aquarium);
+                    ls_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case PING:
                     printf("Ping from view %d\n", i);
@@ -149,10 +149,7 @@ void *thread_io(void *io) {
                 free_parser(parser);
             }
         }
-
     }
-
-
 
     return 0;
 }
@@ -277,18 +274,18 @@ int main(int argc, char const *argv[]) {
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
 
-    while (1) {
-        time_t now = time(NULL);
-        struct fish *fishes = aquarium->fishes;
-        struct fish *current_fish = fishes;
-        while (current_fish != NULL) {
-            if (current_fish->time_to_destination <= now) {
-                set_movement(aquarium, current_fish);
-            }
-            current_fish = current_fish->next;
-        }
-        sleep(1);
-    }
+    // while (1) {
+    //     time_t now = time(NULL);
+    //     struct fish *fishes = aquarium->fishes;
+    //     struct fish *current_fish = fishes;
+    //     while (current_fish != NULL) {
+    //         if (current_fish->time_to_destination <= now) {
+    //             set_movement(aquarium, current_fish);
+    //         }
+    //         current_fish = current_fish->next;
+    //     }
+    //     sleep(1);
+    // }
 
 
     return EXIT_SUCCESS;

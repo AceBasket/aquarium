@@ -20,7 +20,7 @@ void hello_handler(struct parse *parser, int socket_fd, struct aquarium *aquariu
     }
 }
 
-void get_fishes_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void get_fishes_handler(__attribute__((unused))struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     struct fish **fishes_in_view = get_fishes_in_view(aquarium, view);
     dprintf(socket_fd, "list");
@@ -33,13 +33,12 @@ void get_fishes_handler(struct parse *parser, int socket_fd, struct aquarium *aq
     free(fishes_in_view);
 }
 
-void ping_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void ping_handler(struct parse *parser, int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
     dprintf(socket_fd, "pong %s\n", parser->tab[1]);
 }
 
 
 void add_fish_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
-    struct view *view = get_view_from_socket(aquarium, socket_fd);
     // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
     if (get_fish_from_name(aquarium, parser->tab[1]) != NULL) {
         dprintf(socket_fd, "NOK\n");
@@ -65,13 +64,13 @@ void start_fish_handler(struct parse *parser, int socket_fd, struct aquarium *aq
     }
 }
 
-void log_out_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void log_out_handler(__attribute__((unused))struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     view->socket_fd = -1;
     dprintf(socket_fd, "bye\n");
 }
 
-void status_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void status_handler(__attribute__((unused))struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
     struct fish **fishes_in_view = get_fishes_in_view(aquarium, get_view_from_socket(aquarium, socket_fd));
     int iter = 0;
@@ -83,10 +82,10 @@ void status_handler(struct parse *parser, int socket_fd, struct aquarium *aquari
     free(fishes_in_view);
 }
 
-void ls_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void ls_handler(__attribute__((unused))struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
     ;
 }
 
-void get_fishes_continuously_handler(struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+void get_fishes_continuously_handler(__attribute__((unused))struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
     ;
 }
