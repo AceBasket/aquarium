@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "aquarium.h"
 #include "socket_aquarium.h"
+#include "io_handler_functions.h"
 #include "time.h"
 #include <assert.h>
 
@@ -31,19 +32,19 @@ struct parameters {
     fd_set fds;
 };
 
-struct aquarium *a; // global aquarium
+struct aquarium *aquarium; // global aquarium
 
 // en attendant le code de Cassandra
 void init_aquarium() {
-    a = create_aquarium(100, 100);
-    struct view *v1 = create_view("N1", (struct coordinates) { 0, 0 }, 50, 50);
-    struct view *v2 = create_view("N2", (struct coordinates) { 50, 0 }, 50, 50);
-    struct view *v3 = create_view("N3", (struct coordinates) { 0, 50 }, 50, 50);
-    struct view *v4 = create_view("N4", (struct coordinates) { 50, 50 }, 50, 50);
-    add_view(a, v1);
-    add_view(a, v2);
-    add_view(a, v3);
-    add_view(a, v4);
+    aquarium = create_aquarium(100, 100);
+    struct view *view1 = create_view("N1", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *view2 = create_view("N2", (struct coordinates) { 50, 0 }, 50, 50);
+    struct view *view3 = create_view("N3", (struct coordinates) { 0, 50 }, 50, 50);
+    struct view *view4 = create_view("N4", (struct coordinates) { 50, 50 }, 50, 50);
+    add_view(aquarium, view1);
+    add_view(aquarium, view2);
+    add_view(aquarium, view3);
+    add_view(aquarium, view4);
 }
 
 void *thread_io(void *io) {
@@ -53,10 +54,6 @@ void *thread_io(void *io) {
     int *views_socket_fd = (int *)io;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
-
-    // for handling views
-    struct view *view;
-
 
     while (1) {
         FD_ZERO(&read_fds);
@@ -104,113 +101,49 @@ void *thread_io(void *io) {
                 enum func function_called = parser->func_name;
                 switch (function_called) {
                 case HELLO:
-                    if (parser->size == 3) {
-                        view = get_view(a, parser->tab[2]);
-                        if (view != NULL && view->socket_fd == -1) {
-                            view->socket_fd = views_socket_fd[i];
-                            dprintf(views_socket_fd[i], "greeting %s\n", view->name);
-                        }
-                    } else {
-                        view = get_first_free_view_socket(a);
-                        if (view == NULL) {
-                            dprintf(views_socket_fd[i], "no greeting\n");
-                        } else {
-                            view->socket_fd = views_socket_fd[i];
-                            dprintf(views_socket_fd[i], "greeting %s\n", view->name);
-                        }
-                    }
                     printf("Hello from view %d\n", i);
+                    hello_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case GETFISHES:
                     printf("Get fishes from view %d\n", i);
-                    struct fish **fishes_in_view = get_fishes_in_view(a, get_view_from_socket(a, views_socket_fd[i]));
-                    // view = get_view_from_socket(a, views_socket_fd[i]);
-                    // struct fish **fishes_in_view = get_fishes_in_view(a, view);
-                    printf("fishes_in_view = %p\n", fishes_in_view);
-                    printf("fishes_in_view[0] = %p\n", fishes_in_view[0]);
-                    struct fish *poissonRouge = get_fish_from_name(a, "PoissonRouge");
-                    assert(poissonRouge != NULL);
-                    printf("poissonRouge = %s\n", poissonRouge->name);
-                    dprintf(views_socket_fd[i], "list");
-                    int k = 0;
-                    while (fishes_in_view[k] != NULL) {
-                        dprintf(views_socket_fd[i], " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[k]->name, x_coordinate_to_percentage(view, fishes_in_view[k]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[k]->top_left.y), x_coordinate_to_percentage(view, fishes_in_view[k]->destination.x), y_coordinate_to_percentage(view, fishes_in_view[k]->destination.y), fishes_in_view[k]->time_to_destination - time(NULL));
-                        k++;
-                    }
-                    dprintf(views_socket_fd[i], "\n");
-                    free(fishes_in_view);
+                    get_fishes_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case GFCONTINUOUSLY:
                     printf("Get fishes continuously from view %d\n", i);
+                    get_fishes_continuously_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case LS:
                     printf("List fishes from view %d\n", i);
+                    list_fishes_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case PING:
                     printf("Ping from view %d\n", i);
-                    dprintf(views_socket_fd[i], "pong %s\n", parser->tab[0]);
+                    ping_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case ADDFISH:
                     printf("Add fish from view %d\n", i);
-                    // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
-                    if (get_fish_from_name(a, parser->tab[1]) != NULL) {
-                        dprintf(views_socket_fd[i], "NOK\n");
-                        break;
-                    }
-                    struct fish *f = create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT);
-                    add_fish(a, f);
-                    assert(get_fish_from_name(a, parser->tab[1]) != NULL);
-                    printf("nb char in fish name = %ld\n", strlen(parser->tab[1]));
-                    for (int a = 0; a < strlen(parser->tab[1]); a++) {
-                        printf("%d ", parser->tab[1][a]);
-                    }
-                    printf("\n");
-                    for (int a = 0; a < strlen(parser->tab[1]); a++) {
-                        printf("%c ", parser->tab[1][a]);
-                    }
-                    printf("\n");
-                    printf("PoissonRouge = %s of size %ld\n", "PoissonRouge", strlen("PoissonRouge"));
-                    // add_fish(a, create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT));
-                    // printf("addFish %s %s %s %s %s\n", parser->tab[1], parser->tab[3], parser->tab[4], (parser->tab[5]), (parser->tab[6]));
-                    dprintf(views_socket_fd[i], "OK\n");
+                    add_fish_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case DELFISH:
                     printf("Delete fish from view %d\n", i);
-                    if (remove_fish(a, get_fish_from_name(a, parser->tab[1]))) {
-                        dprintf(views_socket_fd[i], "OK\n");
-                    } else {
-                        dprintf(views_socket_fd[i], "NOK\n");
-                    }
+                    del_fish_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case STARTFISH:
                     printf("Start fish (%s) from view %d\n", parser->tab[1], i);
-                    if (start_fish(a, parser->tab[1])) {
-                        dprintf(views_socket_fd[i], "OK\n");
-                    } else {
-                        dprintf(views_socket_fd[i], "NOK\n");
-                    }
+                    start_fish_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case LOG:
                     printf("LOGOUT out from view %d\n", i);
-                    dprintf(views_socket_fd[i], "bye\n");
+                    log_out_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case STATUS:
                     printf("Status from view %d\n", i);
-                    dprintf(views_socket_fd[i], "OK: Connected to controller, %d fishes found", len_fishes(a));
-                    struct fish **all_fishes_in_view = get_fishes_in_view(a, get_view_from_socket(a, views_socket_fd[i])); // need to change to be able to get name of view
-                    printf("all_fishes_in_view = %p\n", all_fishes_in_view);
-                    // printf("all_fishes_in_view[0] = %p\n", all_fishes_in_view[0]);
-                    int j = 0;
-                    while (all_fishes_in_view[j] != NULL) {
-                        printf("all_fishes_in_view[%d] = %p\n", j, all_fishes_in_view[j]);
-                        dprintf(views_socket_fd[i], "\tFish %s at %dx%d,%dx%d %s", all_fishes_in_view[j]->name, all_fishes_in_view[j]->top_left.x, all_fishes_in_view[j]->top_left.y, all_fishes_in_view[j]->width, all_fishes_in_view[j]->height, all_fishes_in_view[j]->status == STARTED ? "started" : "notStarted");
-                        j++;
-                    }
+                    status_handler(parser, views_socket_fd[i], aquarium);
                     break;
                 case UNKNOWN:
                 default:
                     printf("Unknown command from view %d\n", i);
-                    dprintf(views_socket_fd[i], "NOK\n");
+                    dprintf(views_socket_fd[i], "NOK: Unknown command\n");
                     break;
                 }
                 free_parser(parser);
@@ -233,33 +166,33 @@ void *thread_prompt(void *argv) {
     /* switch (function) {
     case LOAD:
         struct parse *file = parse_file(parse->tab[0]);
-        struct aquarium *a = create_aquarium(file->tab[0], file->tab[1]);
+        struct aquarium *aquarium = create_aquarium(file->tab[0], file->tab[1]);
         struct coordinates coord;
-        struct view *v;
+        struct view *view;
         for (int i = 2; i < file->size; i += 5) {
             coord.x = parse->tab[i + 1];
             coord.y = parse->tab[i + 2];
-            v = create_view(file->tab[i], coord, file->tab[i + 3], file->tab[i + 4]);
-            add_view(a, v);
+            view = create_view(file->tab[i], coord, file->tab[i + 3], file->tab[i + 4]);
+            add_view(aquarium, view);
         }
-        printf("Aquarium loaded (%d display view)\n", len_views(a));
+        printf("Aquarium loaded (%d display view)\n", len_views(aquarium));
         break;
     case SHOW:
-        show_aquarium(a, stdout);
+        show_aquarium(aquarium, stdout);
         break;
     case ADD_VIEW:
         struct coordinates coord = { parse->tab[1], parse->tab[2] };
-        struct view *v = create_view(parse->tab[0], coord, parse->tab[3], parse->tab[4]);
-        add_view(a, v);
+        struct view *view = create_view(parse->tab[0], coord, parse->tab[3], parse->tab[4]);
+        add_view(aquarium, view);
         printf("View added\n");
         break;
     case DEL_VIEW:
-        remove_view(a, get_view(a, parse->tab[0]));
+        remove_view(aquarium, get_view(aquarium, parse->tab[0]));
         printf("View %s deleted\n", parse->tab[0]);
         break;
     case SAVE:
-        save_aquarium(a, parse->tab[0]);
-        printf("Aquarium saved (%d display view)\n", len_views(a));
+        save_aquarium(aquarium, parse->tab[0]);
+        printf("Aquarium saved (%d display view)\n", len_views(aquarium));
         break;
     default:
         break;
@@ -346,11 +279,11 @@ int main(int argc, char const *argv[]) {
 
     while (1) {
         time_t now = time(NULL);
-        struct fish *fishes = a->fishes;
+        struct fish *fishes = aquarium->fishes;
         struct fish *current_fish = fishes;
         while (current_fish != NULL) {
             if (current_fish->time_to_destination <= now) {
-                set_movement(a, current_fish);
+                set_movement(aquarium, current_fish);
             }
             current_fish = current_fish->next;
         }

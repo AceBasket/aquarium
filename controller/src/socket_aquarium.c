@@ -1,12 +1,12 @@
 #include "aquarium.h"
 #include <stdlib.h>
-struct view *get_view_from_socket(struct aquarium *a, int socket_fd) {
+struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd) {
     // if the aquarium is empty, return NULL
-    if (a->views == NULL) {
+    if (aquarium->views == NULL) {
         return NULL;
     }
     // if the aquarium is not empty, check if the view is in the aquarium
-    struct view *current = a->views;
+    struct view *current = aquarium->views;
 
     do {
         if (current->socket_fd == socket_fd) {
@@ -20,28 +20,28 @@ struct view *get_view_from_socket(struct aquarium *a, int socket_fd) {
     return NULL;
 }
 
-int x_coordinate_to_percentage(struct view *v, int x) {
-    return (x - v->top_left.x) * 100 / v->width;
+int x_coordinate_to_percentage(struct view *view, int x) {
+    return (x - view->top_left.x) * 100 / view->width;
 }
 
-int y_coordinate_to_percentage(struct view *v, int y) {
-    return (y - v->top_left.y) * 100 / v->height;
+int y_coordinate_to_percentage(struct view *view, int y) {
+    return (y - view->top_left.y) * 100 / view->height;
 }
 
-struct coordinates choose_random_coordinates(struct aquarium *a) {
+struct coordinates choose_random_coordinates(struct aquarium *aquarium) {
     struct coordinates c;
-    c.x = rand() % a->width;
-    c.y = rand() % a->height;
+    c.x = rand() % aquarium->width;
+    c.y = rand() % aquarium->height;
     return c;
 }
 
-struct view *get_first_free_view_socket(struct aquarium *a) {
-    struct view *v = a->views;
-    while (v != NULL) {
-        if (v->socket_fd == -1) {
-            return v;
+struct view *get_first_free_view_socket(struct aquarium *aquarium) {
+    struct view *view = aquarium->views;
+    while (view != NULL) {
+        if (view->socket_fd == -1) {
+            return view;
         }
-        v = v->next;
+        view = view->next;
     }
     return NULL;
 }

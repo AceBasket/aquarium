@@ -5,28 +5,31 @@
 
 
 void test_get_view_from_socket() {
-    struct aquarium *a = create_aquarium(100, 100);
-    struct view *v = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    struct view *v2 = create_view("view2", (struct coordinates) { 0, 0 }, 50, 50);
-    v->socket_fd = 1;
-    v2->socket_fd = 6;
-    assert(add_view(a, v) == OK);
-    assert(add_view(a, v2) == OK);
-    assert(get_view_from_socket(a, 1) == v);
-    assert(get_view_from_socket(a, 6) == v2);
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *view2 = create_view("view2", (struct coordinates) { 0, 0 }, 50, 50);
+    view->socket_fd = 1;
+    view2->socket_fd = 6;
+    assert(add_view(aquarium, view) == OK);
+    assert(add_view(aquarium, view2) == OK);
+    assert(get_view_from_socket(aquarium, 1) == view);
+    assert(get_view_from_socket(aquarium, 6) == view2);
+    free_aquarium(aquarium);
 }
 
 void test_get_view_from_socket_not_in_aquarium() {
-    struct aquarium *a = create_aquarium(100, 100);
-    struct view *v = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    v->socket_fd = 1;
-    assert(add_view(a, v) == OK);
-    assert(get_view_from_socket(a, 2) == NULL);
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
+    view->socket_fd = 1;
+    assert(add_view(aquarium, view) == OK);
+    assert(get_view_from_socket(aquarium, 2) == NULL);
+    free_aquarium(aquarium);
 }
 
 void test_get_view_from_socket_no_views() {
-    struct aquarium *a = create_aquarium(100, 100);
-    assert(get_view_from_socket(a, 1) == NULL);
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    assert(get_view_from_socket(aquarium, 1) == NULL);
+    free_aquarium(aquarium);
 }
 
 int main() {

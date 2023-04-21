@@ -16,7 +16,7 @@ struct coordinates {
 };
 
 struct fish {
-    const char *name;
+    char *name;
     struct coordinates top_left;
     struct coordinates destination;
     time_t time_to_destination;
@@ -36,7 +36,7 @@ struct aquarium {
 };
 
 struct view {
-    const char *name;
+    char *name;
     int socket_fd;
     struct coordinates top_left;
     int height;
@@ -45,21 +45,21 @@ struct view {
 };
 
 struct aquarium *create_aquarium(int height, int width);
-struct view *get_view(struct aquarium *a, char *name);
-struct fish *get_fish_from_name(struct aquarium *a, char *name);
-int remove_view(struct aquarium *a, struct view *v);
-int remove_fish(struct aquarium *a, struct fish *f);
-int add_view(struct aquarium *a, struct view *v);
-int add_fish(struct aquarium *a, struct fish *f);
+struct view *get_view(struct aquarium *aquarium, char *name);
+struct fish *get_fish_from_name(struct aquarium *aquarium, char *name);
+int remove_view(struct aquarium *aquarium, struct view *view);
+int remove_fish(struct aquarium *aquarium, struct fish *fish);
+int add_view(struct aquarium *aquarium, struct view *view);
+int add_fish(struct aquarium *aquarium, struct fish *fish);
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt);
 struct view *create_view(char *name, struct coordinates top_left, int height, int width);
-int len_views(struct aquarium *a);
-int len_fishes(struct aquarium *a);
-void show_aquarium(struct aquarium *a, FILE *f);
-void save_aquarium(struct aquarium *a, char *name);
-int start_fish(struct aquarium *a, char *name);
-struct fish **get_fishes_in_view(struct aquarium *a, struct view *v);
-void set_movement(struct aquarium *a, struct fish *f);
-
+int len_views(struct aquarium *aquarium);
+int len_fishes(struct aquarium *aquarium);
+void show_aquarium(struct aquarium *aquarium, FILE *f);
+void save_aquarium(struct aquarium *aquarium, char *name);
+int start_fish(struct aquarium *aquarium, char *name);
+struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view);
+void set_movement(struct aquarium *aquarium, struct fish *fish);
+int free_aquarium(struct aquarium *aquarium);
 
 #endif // _AQUARIUM_H_
