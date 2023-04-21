@@ -16,10 +16,11 @@ struct parse {
     char **tab; // a list of parsed elements
     int size; // the number of elements(words, numbers...) in the tab
     enum func func_name;
+    char *status;
 };
 
 void exit_if(int condition, const char *prefix);
-void free_parser(struct parse *p) ;
+void free_parser(struct parse *p);
 struct parse *parse_prompt(char *str);
 struct parse *parse_clients(char *str);
 
