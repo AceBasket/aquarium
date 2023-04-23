@@ -52,6 +52,7 @@ void *thread_io(void *io) {
     for (int i = 0; i < MAX_VIEWS; i++) {
         if (FD_ISSET(views_socket_fd[i], &fds)) {
             recv_bytes = recv(views_socket_fd[i], buffer, BUFFER_SIZE, 0);
+            printf("%d\n", buffer[i]);
             exit_if(recv_bytes == -1, "ERROR on recv");
             // if (recv_bytes == 0), the client has closed the connection (TODO: remove the view from the list)
             printf("Received %d bytes from view %d: %s\n", recv_bytes, i, buffer);
@@ -129,8 +130,6 @@ void *thread_accept(void *param) {
 
         printf("Waiting for a new connection...\n");
         p->view_addr_len = sizeof(p->view_addr);
-        printf("%p %p\n", &p->view_addr, &p->view_addr_len);
-        printf("%d\n", p->view_addr_len);
         new_socket_fd = accept(p->socket_fd, (struct sockaddr *)&p->view_addr, &p->view_addr_len);
         exit_if(new_socket_fd < 0, "ERROR on accept");
         printf("Welcome\n");
