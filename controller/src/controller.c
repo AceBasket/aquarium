@@ -157,42 +157,42 @@ void *thread_io(void *io) {
 }
 
 
-void *thread_prompt(void *argv) {
-    struct parse *parse = parse_prompt(argv);
+void *thread_prompt(void *argview) {
+    struct parse *parse = parse_prompt(argview);
     int function = (int)parse->func_name;
 
-    FILE *f;
+    FILE *fd;
     struct parse *file;
-    struct aquarium *a;
+    struct aquarium *aquarium;
     struct coordinates coord;
-    struct view *v;
+    struct view *view;
 
     switch (function) {
     case LOAD:
-        f = fopen(parse->tab[0], "r");
-        file = parse_file(f);
-        a = create_aquarium(atoi(file->tab[0]), atoi(file->tab[1]));
+        fd= fopen(parse->tab[0], "r");
+        file = parse_file(fd);
+        aquarium = create_aquarium(atoi(file->tab[0]), atoi(file->tab[1]));
 
         for (int i = 2; i < file->size; i += 5) {
             coord.x = atoi(parse->tab[i+1]);
             coord.y = atoi(parse->tab[i+2]);
-            v = create_view(file->tab[i], coord, atoi(file->tab[i+3]), atoi(file->tab[i+4]));
-            add_view(a, v);
+            view = create_view(file->tab[i], coord, atoi(file->tab[i+3]), atoi(file->tab[i+4]));
+            add_view(aquarium, view);
         }
         printf("Aquarium loaded (%d display view)\n", len_views(aquarium));
         break;
     case SHOW:
-        if (a == NULL) {
+        if (aquarium == NULL) {
             printf("No aquarium");
             return NULL;
         }
-        show_aquarium(a, stdout);
+        show_aquarium(aquarium, stdout);
         break;
     case ADD_VIEW:
         coord.x = atoi(parse->tab[1]);
         coord.y = atoi(parse->tab[2]);
-        v = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
-        add_view(a, v);
+        view = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
+        add_view(aquarium, view);
         printf("View added\n");
         break;
     case DEL_VIEW:
@@ -279,10 +279,10 @@ int main(int argc, char const *argv[]) {
     listen(param.socket_fd, param.nb_views);
 
     exit_if(pthread_create(&tid_accept, NULL, thread_accept, &param) < 0, "ERROR on thread creation");
-    // exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &argv) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, &argv) < 0, "ERROR on thread creation");
 
     exit_if(pthread_join(tid_accept, NULL), "ERROR on thread join");
-    // exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
+    exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
 
