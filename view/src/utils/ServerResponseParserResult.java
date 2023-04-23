@@ -1,18 +1,21 @@
 package utils;
 import java.util.ArrayList;
 
-
 public class ServerResponseParserResult {
-    private PossibleServerResponses response;
+    private ServerResponseParsedFunctionTypes function;
     private ArrayList<String> args;
 
-    public ServerResponseParserResult(PossibleServerResponses response, ArrayList<String> args) {
-        this.response = response;
+    public enum ServerResponseParsedFunctionTypes {
+        GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG // TODO : add ERROR
+    }
+
+    public ServerResponseParserResult(ServerResponseParsedFunctionTypes function, ArrayList<String> args) {
+        this.function = function;
         this.args = args;
     }
     
-    public PossibleServerResponses getResponse() {
-        return response;
+    public ServerResponseParsedFunctionTypes getFunction() {
+        return function;
     }
 
     public ArrayList<String> getArgs() {

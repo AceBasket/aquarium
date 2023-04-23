@@ -8,10 +8,13 @@
 #include <arpa/inet.h>
 #include "utils.h"
 #include "aquarium.h"
-
+#include "socket_aquarium.h"
+#include "io_handler_functions.h"
+#include "time.h"
+#include <assert.h>
 
 #define BUFFER_SIZE 256
-#define MAX_VIEWS 8
+#define MAX_VIEWS 8 
 
 struct parameters {
     int nb_views;
@@ -29,37 +32,126 @@ struct parameters {
     fd_set fds;
 };
 
+struct aquarium *aquarium; // global aquarium
+
+// en attendant le code de Cassandra
+void init_aquarium() {
+    aquarium = create_aquarium(100, 100);
+    struct view *view1 = create_view("N1", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *view2 = create_view("N2", (struct coordinates) { 50, 0 }, 50, 50);
+    struct view *view3 = create_view("N3", (struct coordinates) { 0, 50 }, 50, 50);
+    struct view *view4 = create_view("N4", (struct coordinates) { 50, 50 }, 50, 50);
+    add_view(aquarium, view1);
+    add_view(aquarium, view2);
+    add_view(aquarium, view3);
+    add_view(aquarium, view4);
+}
 
 void *thread_io(void *io) {
     printf("Je suis dans io\n");
-    fd_set fds;
+    // For communication with views
+    fd_set read_fds;
     int *views_socket_fd = (int *)io;
-    int max_fd = 0;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
-    FD_ZERO(&fds);
 
-    for (int i = 0; i < MAX_VIEWS; i++) {
-        FD_SET(views_socket_fd[i], &fds);
-        // for select, we need to know the highest file descriptor number
-        if (max_fd < views_socket_fd[i]) {
-            max_fd = views_socket_fd[i];
+    while (1) {
+        FD_ZERO(&read_fds);
+        int max_fd = 0;
+
+        for (int i = 0; i < MAX_VIEWS; i++) {
+            FD_SET(views_socket_fd[i], &read_fds);
+            // for select, we need to know the highest file descriptor number
+            if (max_fd < views_socket_fd[i]) {
+                max_fd = views_socket_fd[i];
+            }
+        }
+
+        // Wait indefinitely for an activity on one of the sockets
+        exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
+        for (int i = 0; i < MAX_VIEWS; i++) {
+            if (FD_ISSET(views_socket_fd[i], &read_fds)) {
+                // we have data on the i-th socket
+
+                // read data until we get a \n
+                int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
+                while (1) {
+                    char c;
+                    recv_bytes = recv(views_socket_fd[i], &c, 1, 0);
+                    exit_if(recv_bytes == -1, "ERROR on recv");
+                    if (recv_bytes == 0) {
+                        printf("Client closed connection\n");
+                        break;
+                    } else {
+                        if (c != '\r') {
+                            buffer[total_recv_bytes++] = c;
+                            // printf("%d ", c);
+                        }
+                        if (c == '\n') {
+                            buffer[total_recv_bytes - 1] = '\0';
+                            // we have a full line
+                            printf("Received %d bytes from view %d: %s\n", total_recv_bytes, i, buffer);
+                            break;
+                        }
+                    }
+                }
+
+
+                struct parse *parser = parse_clients(buffer);
+                enum func function_called = parser->func_name;
+                switch (function_called) {
+                case HELLO:
+                    printf("Hello from view %d\n", i);
+                    hello_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case GETFISHES:
+                    printf("Get fishes from view %d\n", i);
+                    get_fishes_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case GFCONTINUOUSLY:
+                    printf("Get fishes continuously from view %d\n", i);
+                    get_fishes_continuously_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case LS:
+                    printf("List fishes from view %d\n", i);
+                    ls_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case PING:
+                    printf("Ping from view %d\n", i);
+                    ping_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case ADDFISH:
+                    printf("Add fish from view %d\n", i);
+                    add_fish_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case DELFISH:
+                    printf("Delete fish from view %d\n", i);
+                    del_fish_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case STARTFISH:
+                    printf("Start fish (%s) from view %d\n", parser->tab[1], i);
+                    start_fish_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case LOG:
+                    printf("LOGOUT out from view %d\n", i);
+                    log_out_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case STATUS:
+                    printf("Status from view %d\n", i);
+                    status_handler(parser, views_socket_fd[i], aquarium);
+                    break;
+                case UNKNOWN:
+                    printf("Unknown command from view %d\n", i);
+                    dprintf(views_socket_fd[i], "NOK: Unknown command\n");
+                    break;
+                default:
+                    dprintf(views_socket_fd[i], "%s", parser->status);
+                    break;
+                }
+                free_parser(parser);
+            }
         }
     }
-
-    // Wait indefinitely for an activity on one of the sockets
-    exit_if(select(max_fd + 1, &fds, NULL, NULL, NULL) == -1, "ERROR on select");
-    for (int i = 0; i < MAX_VIEWS; i++) {
-        if (FD_ISSET(views_socket_fd[i], &fds)) {
-            recv_bytes = recv(views_socket_fd[i], buffer, BUFFER_SIZE, 0);
-            printf("%d\n", buffer[i]);
-            exit_if(recv_bytes == -1, "ERROR on recv");
-            // if (recv_bytes == 0), the client has closed the connection (TODO: remove the view from the list)
-            printf("Received %d bytes from view %d: %s\n", recv_bytes, i, buffer);
-        }
-    }
-
-
 
     return 0;
 }
@@ -87,7 +179,7 @@ void *thread_prompt(void *argv) {
             v = create_view(file->tab[i], coord, atoi(file->tab[i+3]), atoi(file->tab[i+4]));
             add_view(a, v);
         }
-        printf("Aquarium loaded (%d display view)\n", len_views(a));
+        printf("Aquarium loaded (%d display view)\n", len_views(aquarium));
         break;
     case SHOW:
         if (a == NULL) {
@@ -104,12 +196,12 @@ void *thread_prompt(void *argv) {
         printf("View added\n");
         break;
     case DEL_VIEW:
-        remove_view(a, get_view(a, parse->tab[0]));
+        remove_view(aquarium, get_view(aquarium, parse->tab[0]));
         printf("View %s deleted\n", parse->tab[0]);
         break;
     case SAVE:
-        save_aquarium(a, parse->tab[0]);
-        printf("Aquarium saved (%d display view)\n", len_views(a));
+        save_aquarium(aquarium, parse->tab[0]);
+        printf("Aquarium saved (%d display view)\n", len_views(aquarium));
         break;
     default:
         break;
@@ -123,6 +215,12 @@ void *thread_accept(void *param) {
     struct parameters *p = param;
     int new_socket_fd;
     printf("Je suis dans accept\n");
+
+    // en attendant le code de Cassandra
+    printf("J'initialize l'aquarium\n");
+    init_aquarium();
+
+
     // Initialization of all views_socket[] to 0 so not checked
     memset(p->views_sockets, 0, sizeof(p->views_sockets));
 
@@ -187,6 +285,19 @@ int main(int argc, char const *argv[]) {
     // exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
+
+    // while (1) {
+    //     time_t now = time(NULL);
+    //     struct fish *fishes = aquarium->fishes;
+    //     struct fish *current_fish = fishes;
+    //     while (current_fish != NULL) {
+    //         if (current_fish->time_to_destination <= now) {
+    //             set_movement(aquarium, current_fish);
+    //         }
+    //         current_fish = current_fish->next;
+    //     }
+    //     sleep(1);
+    // }
 
 
     return EXIT_SUCCESS;
