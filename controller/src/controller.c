@@ -163,7 +163,7 @@ void *thread_prompt(void *argview) {
 
     FILE *fd;
     struct parse *file;
-    struct aquarium *aquarium;
+    struct aquarium *aquarium = NULL;
     struct coordinates coord;
     struct view *view;
 
@@ -217,7 +217,7 @@ void *thread_accept(void *param) {
     printf("Je suis dans accept\n");
 
     // en attendant le code de Cassandra
-    printf("J'initialize l'aquarium\n");
+    printf("J'initialise l'aquarium\n");
     init_aquarium();
 
 
