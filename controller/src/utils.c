@@ -585,8 +585,18 @@ struct parse *parse_clients(char *str) {
     //ping
     else if (strcmp(command, "ping") == 0) {
         p->func_name = PING;
+        char * id = strtok(NULL, " ");
+        if ( id == NULL) {
+            too_few_arguments(p, "ping <ID>");
+            return p;
+        }
+        else if (!is_number(id, 0)){
+            strcpy(p->status, "ERROR: The ID should be a number \n");
+            return p;
+        }
+        adding_arg_to_parse(p, id);
         if (strtok(NULL, " ") != NULL) {
-            too_much_arguments(p, "ping");
+            too_much_arguments(p, "ping <ID>");
             return p;
         }
         return p;
