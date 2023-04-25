@@ -174,68 +174,109 @@ void *thread_prompt() {
     fprintf(log, "in thread prompt\n");
     fflush(log);
     char buffer[BUFFER_SIZE];
-
     char c;
-    int i_buffer = 0;
-    do {
-        c = fgetc(stdin);
-        buffer[i_buffer] = c;
-        i_buffer++;
-    } while (c != '\n' && c != EOF);
-    buffer[i_buffer - 1] = '\0';
+    int i_buffer;
 
-    fprintf(log, "buffer: %s\n", buffer);
-    fflush(log);
-    struct parse *parse = parse_prompt(buffer);
-    int function = (int)parse->func_name;
+    while (1) {
+        i_buffer = 0;
 
-    FILE *fd;
-    struct parse *file;
-    struct aquarium *aquarium = NULL;
-    struct coordinates coord;
-    struct view *view;
+        do {
+            c = fgetc(stdin);
+            buffer[i_buffer] = c;
+            i_buffer++;
+        } while (c != '\n' && c != EOF);
+        buffer[i_buffer - 1] = '\0';
 
-    switch (function) {
-    case LOAD:
-        fprintf(log, "Loading aquarium from file %s\n", parse->tab[1]);
+        fprintf(log, "buffer: %s\n", buffer);
         fflush(log);
-        fd = fopen(parse->tab[1], "r");
-        file = parse_file(fd);
-        aquarium = create_aquarium(atoi(file->tab[0]), atoi(file->tab[1]));
+        struct parse *parse = parse_prompt(buffer);
+        fprintf(log, "function: %s\n", parse->tab[0]);
+        fprintf(log, "arg1: %s\n", parse->tab[1]);
+        fprintf(log, "func_name: %d\n", parse->func_name);
+        fflush(log);
+        int function = (int)parse->func_name;
+        fprintf(log, "int function : %d\n", function);
 
-        for (int i = 2; i < file->size; i += 5) {
-            coord.x = atoi(parse->tab[i + 1]);
-            coord.y = atoi(parse->tab[i + 2]);
-            view = create_view(file->tab[i], coord, atoi(file->tab[i + 3]), atoi(file->tab[i + 4]));
+        FILE *fd;
+        struct parse *file;
+        struct coordinates coord;
+        struct view *view;
+
+        switch (function) {
+        case LOAD:
+            fprintf(log, "Loading aquarium from file %s\n", parse->tab[1]);
+            fflush(log);
+            fd = fopen(parse->tab[1], "r");
+            // exit_if(fd == NULL, "ERROR opening file");
+            if (fd == NULL) {
+                fprintf(stderr, "ERROR opening file\n");
+                break;
+            }
+            fprintf(log, "File opened\n");
+            fflush(log);
+            file = parse_file(fd);
+            fprintf(log, "after parse\n");
+            fflush(log);
+            fprintf(log, "file->tab[1]: %s\n", file->tab[1]);
+            fprintf(log, "file->tab[2]: %s\n", file->tab[2]);
+            fflush(log);
+            aquarium = create_aquarium(atoi(file->tab[1]), atoi(file->tab[2]));
+            fprintf(log, "Aquarium created\n");
+            fflush(log);
+
+            for (int i = 2; i < file->size; i += 5) {
+                fprintf(log, "i: %d\n", i);
+                fprintf(log, "file->tab[i + 1]: %s\n", file->tab[i + 1]);
+                fprintf(log, "file->tab[i + 2]: %s\n", file->tab[i + 2]);
+                fprintf(log, "file->tab[i + 3]: %s\n", file->tab[i + 3]);
+                fprintf(log, "file->tab[i + 4]: %s\n", file->tab[i + 4]);
+                fflush(log);
+
+                coord.x = atoi(file->tab[i + 1]);
+                coord.y = atoi(file->tab[i + 2]);
+
+                view = create_view(file->tab[i], coord, atoi(file->tab[i + 3]), atoi(file->tab[i + 4]));
+                if (view != NULL) {
+                    fprintf(log, "view created\n");
+                    fflush(log);
+
+                }
+                if (add_view(aquarium, view)) {
+                    fprintf(log, "view added\n");
+                    fflush(log);
+                };
+            }
+            fprintf(log, "Aquarium loaded (%d display view)\n", len_views(aquarium));
+            break;
+        case SHOW:
+            if (aquarium == NULL) {
+                fprintf(log, "No aquarium");
+                fflush(log);
+                return NULL;
+            }
+            show_aquarium(aquarium, stdout);
+            break;
+        case ADD_VIEW:
+            coord.x = atoi(parse->tab[1]);
+            coord.y = atoi(parse->tab[2]);
+            view = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
             add_view(aquarium, view);
+            fprintf(log, "View added\n");
+            break;
+        case DEL_VIEW:
+            remove_view(aquarium, get_view(aquarium, parse->tab[0]));
+            fprintf(log, "View %s deleted\n", parse->tab[0]);
+            break;
+        case SAVE:
+            save_aquarium(aquarium, parse->tab[0]);
+            fprintf(log, "Aquarium saved (%d display view)\n", len_views(aquarium));
+            break;
+        default:
+            break;
         }
-        fprintf(log, "Aquarium loaded (%d display view)\n", len_views(aquarium));
-        break;
-    case SHOW:
-        if (aquarium == NULL) {
-            fprintf(log, "No aquarium");
-            return NULL;
-        }
-        show_aquarium(aquarium, stdout);
-        break;
-    case ADD_VIEW:
-        coord.x = atoi(parse->tab[1]);
-        coord.y = atoi(parse->tab[2]);
-        view = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
-        add_view(aquarium, view);
-        fprintf(log, "View added\n");
-        break;
-    case DEL_VIEW:
-        remove_view(aquarium, get_view(aquarium, parse->tab[0]));
-        fprintf(log, "View %s deleted\n", parse->tab[0]);
-        break;
-    case SAVE:
-        save_aquarium(aquarium, parse->tab[0]);
-        fprintf(log, "Aquarium saved (%d display view)\n", len_views(aquarium));
-        break;
-    default:
-        break;
     }
+
+
     fclose(log);
     return 0;
 }

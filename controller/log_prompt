@@ -1,3 +1,45 @@
 in thread prompt
-buffer: load aquarium0
-Loading aquarium from file aquarium0
+buffer: load src/aquarium0
+function: load
+arg1: src/aquarium0
+func_name: 0
+int function : 0
+Loading aquarium from file src/aquarium0
+File opened
+after parse
+file->tab[1]: 1000
+file->tab[2]: N1
+Aquarium created
+i: 2
+file->tab[i + 1]: 0
+file->tab[i + 2]: 0
+file->tab[i + 3]: 500
+file->tab[i + 4]: 500
+view created
+view added
+i: 7
+file->tab[i + 1]: 500
+file->tab[i + 2]: 0
+file->tab[i + 3]: 500
+file->tab[i + 4]: 500
+view created
+view added
+i: 12
+file->tab[i + 1]: 0
+file->tab[i + 2]: 500
+file->tab[i + 3]: 500
+file->tab[i + 4]: 500
+view created
+view added
+i: 17
+file->tab[i + 1]: 500
+file->tab[i + 2]: 500
+file->tab[i + 3]: 500
+file->tab[i + 4]: 500
+view created
+view added
+Aquarium loaded (4 display view)
+buffer: show
+function: show
+arg1: (null)
+func_name: 1

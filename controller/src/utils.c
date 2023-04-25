@@ -251,7 +251,7 @@ struct parse *parse_prompt(char *str) {
 }
 
 struct parse *parse_file(FILE *f) {
-    size_t size = 20;
+    size_t size = 100;
     char *line = malloc(size * sizeof(char));
     ssize_t read = 0;
 
