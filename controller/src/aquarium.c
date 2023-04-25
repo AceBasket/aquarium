@@ -227,16 +227,26 @@ int len_views(struct aquarium *aquarium) {
     return nb_views;
 }
 
-void show_aquarium(struct aquarium *aquarium, FILE *fish) {
-    fprintf(fish, "%dx%d\n", aquarium->width, aquarium->height);
+void show_aquarium(struct aquarium *aquarium, FILE *output) {
+    fprintf(output, "%dx%d\n", aquarium->width, aquarium->height);
+    fflush(output);
 
-    struct view *current_view = aquarium->views;
-    struct view *next_view = current_view->next;
-    for (int i = 0; i < len_views(aquarium); i++) {
-        fprintf(fish, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
-        current_view = next_view;
-        next_view = current_view->next;
-    }
+    struct view *current_view;
+    current_view = aquarium->views;
+    // for (int i = 0; i < len_views(aquarium); i++) {
+    //     fprintf(output, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
+    //     fflush(output);
+    //     current_view = next_view;
+    //     next_view = current_view->next;
+    // }
+
+    do {
+        fprintf(output, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
+        fflush(output);
+        current_view = current_view->next;
+
+    } while (current_view != NULL);
+
 }
 
 int len_fishes(struct aquarium *aquarium) {

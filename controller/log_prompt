@@ -1,45 +1,23 @@
 in thread prompt
-buffer: load src/aquarium0
-function: load
-arg1: src/aquarium0
-func_name: 0
-int function : 0
-Loading aquarium from file src/aquarium0
+buffer: 'load aquarium0' of size 14
+Loading aquarium from file aquarium0
 File opened
-after parse
-file->tab[1]: 1000
-file->tab[2]: N1
 Aquarium created
-i: 2
-file->tab[i + 1]: 0
-file->tab[i + 2]: 0
-file->tab[i + 3]: 500
-file->tab[i + 4]: 500
 view created
 view added
-i: 7
-file->tab[i + 1]: 500
-file->tab[i + 2]: 0
-file->tab[i + 3]: 500
-file->tab[i + 4]: 500
 view created
 view added
-i: 12
-file->tab[i + 1]: 0
-file->tab[i + 2]: 500
-file->tab[i + 3]: 500
-file->tab[i + 4]: 500
 view created
 view added
-i: 17
-file->tab[i + 1]: 500
-file->tab[i + 2]: 500
-file->tab[i + 3]: 500
-file->tab[i + 4]: 500
 view created
 view added
 Aquarium loaded (4 display view)
-buffer: show
-function: show
-arg1: (null)
-func_name: 1
+buffer: 'show' of size 4
+Showing aquarium
+1000x1000
+N1 0x0+500+500
+N2 500x0+500+500
+N3 0x500+500+500
+N4 500x500+500+500
+buffer: 'save aquarium1' of size 14
+Aquarium saved (4 display view)

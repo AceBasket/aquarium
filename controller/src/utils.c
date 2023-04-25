@@ -273,6 +273,7 @@ struct parse *parse_file(FILE *f) {
         }
 
         if (isdigit(line[0])) {
+            /* TODO check that the whole "word" is a number (not just the beginning) */
             // aquarium
             char *arg1 = strtok(line, "x");
             if (arg1 == NULL) {
@@ -282,6 +283,7 @@ struct parse *parse_file(FILE *f) {
                 strcpy(p->status, "ERROR: The 1st argument of the aquarium should be an integer: <number>\nOr the separation between 1st and 2nd argument sould be an x (times) symbol\n");
                 return p;
             }
+            printf("arg1 = %s\n", arg1);
             adding_arg_to_parse(p, arg1);
 
             char *arg2 = strtok(NULL, "");

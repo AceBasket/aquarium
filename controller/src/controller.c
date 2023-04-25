@@ -37,7 +37,7 @@ struct parameters {
     fd_set fds;
 };
 
-struct aquarium *aquarium; // global aquarium
+struct aquarium *aquarium = NULL; // global aquarium
 
 // en attendant le code de Cassandra
 void init_aquarium() {
@@ -187,26 +187,34 @@ void *thread_prompt() {
         } while (c != '\n' && c != EOF);
         buffer[i_buffer - 1] = '\0';
 
-        fprintf(log, "buffer: %s\n", buffer);
+        fprintf(log, "buffer: '%s' of size %ld\n", buffer, strlen(buffer));
         fflush(log);
         struct parse *parse = parse_prompt(buffer);
-        fprintf(log, "function: %s\n", parse->tab[0]);
-        fprintf(log, "arg1: %s\n", parse->tab[1]);
-        fprintf(log, "func_name: %d\n", parse->func_name);
-        fflush(log);
         int function = (int)parse->func_name;
-        fprintf(log, "int function : %d\n", function);
 
         FILE *fd;
         struct parse *file;
         struct coordinates coord;
         struct view *view;
 
+        // to build path for LOAD and SAVE
+        char *file_name;
+        char *directory;
+        char *path;
+        int path_length;
+
         switch (function) {
         case LOAD:
             fprintf(log, "Loading aquarium from file %s\n", parse->tab[1]);
             fflush(log);
-            fd = fopen(parse->tab[1], "r");
+
+            file_name = parse->tab[1];
+            directory = "aquariums/";
+            path_length = strlen(directory) + strlen(file_name) + 1;
+            path = malloc(path_length * sizeof(char));
+            snprintf(path, path_length * sizeof(char), "%s%s", directory, file_name);
+
+            fd = fopen(path, "r");
             // exit_if(fd == NULL, "ERROR opening file");
             if (fd == NULL) {
                 fprintf(stderr, "ERROR opening file\n");
@@ -215,36 +223,36 @@ void *thread_prompt() {
             fprintf(log, "File opened\n");
             fflush(log);
             file = parse_file(fd);
-            fprintf(log, "after parse\n");
-            fflush(log);
-            fprintf(log, "file->tab[1]: %s\n", file->tab[1]);
-            fprintf(log, "file->tab[2]: %s\n", file->tab[2]);
-            fflush(log);
-            aquarium = create_aquarium(atoi(file->tab[1]), atoi(file->tab[2]));
+            // given width, height in file but takes height, width in function
+            aquarium = create_aquarium(atoi(file->tab[1]), atoi(file->tab[0]));
+            if (aquarium == NULL || aquarium->width == 0 || aquarium->height == 0) {
+                fprintf(log, "ERROR creating aquarium\n");
+                fflush(log);
+                break;
+            }
             fprintf(log, "Aquarium created\n");
             fflush(log);
 
             for (int i = 2; i < file->size; i += 5) {
-                fprintf(log, "i: %d\n", i);
-                fprintf(log, "file->tab[i + 1]: %s\n", file->tab[i + 1]);
-                fprintf(log, "file->tab[i + 2]: %s\n", file->tab[i + 2]);
-                fprintf(log, "file->tab[i + 3]: %s\n", file->tab[i + 3]);
-                fprintf(log, "file->tab[i + 4]: %s\n", file->tab[i + 4]);
-                fflush(log);
 
                 coord.x = atoi(file->tab[i + 1]);
                 coord.y = atoi(file->tab[i + 2]);
-
-                view = create_view(file->tab[i], coord, atoi(file->tab[i + 3]), atoi(file->tab[i + 4]));
-                if (view != NULL) {
-                    fprintf(log, "view created\n");
+                // given width, height in file but takes height, width in function
+                view = create_view(file->tab[i], coord, atoi(file->tab[i + 4]), atoi(file->tab[i + 3]));
+                if (view == NULL) {
+                    fprintf(log, "ERROR creating view\n");
                     fflush(log);
-
+                    break;
                 }
-                if (add_view(aquarium, view)) {
-                    fprintf(log, "view added\n");
+                fprintf(log, "view created\n");
+                fflush(log);
+                if (!add_view(aquarium, view)) {
+                    fprintf(log, "ERROR adding view\n");
                     fflush(log);
-                };
+                    break;
+                }
+                fprintf(log, "view added\n");
+                fflush(log);
             }
             fprintf(log, "Aquarium loaded (%d display view)\n", len_views(aquarium));
             break;
@@ -254,22 +262,35 @@ void *thread_prompt() {
                 fflush(log);
                 return NULL;
             }
-            show_aquarium(aquarium, stdout);
+            fprintf(log, "Showing aquarium\n");
+            fflush(log);
+            show_aquarium(aquarium, log);
             break;
         case ADD_VIEW:
-            coord.x = atoi(parse->tab[1]);
-            coord.y = atoi(parse->tab[2]);
-            view = create_view(parse->tab[0], coord, atoi(parse->tab[3]), atoi(parse->tab[4]));
+            coord.x = atoi(parse->tab[3]);
+            coord.y = atoi(parse->tab[4]);
+            // given width, height in file but takes height, width in function
+            view = create_view(parse->tab[2], coord, atoi(parse->tab[6]), atoi(parse->tab[5]));
+
             add_view(aquarium, view);
             fprintf(log, "View added\n");
+            fflush(log);
             break;
         case DEL_VIEW:
-            remove_view(aquarium, get_view(aquarium, parse->tab[0]));
-            fprintf(log, "View %s deleted\n", parse->tab[0]);
+            remove_view(aquarium, get_view(aquarium, parse->tab[2]));
+            fprintf(log, "View %s deleted\n", parse->tab[2]);
+            fflush(log);
             break;
         case SAVE:
-            save_aquarium(aquarium, parse->tab[0]);
+            file_name = parse->tab[1];
+            directory = "aquariums/";
+            path_length = strlen(directory) + strlen(file_name) + 1;
+            path = malloc(path_length * sizeof(char));
+            snprintf(path, path_length * sizeof(char), "%s%s", directory, file_name);
+
+            save_aquarium(aquarium, path);
             fprintf(log, "Aquarium saved (%d display view)\n", len_views(aquarium));
+            fflush(log);
             break;
         default:
             break;
