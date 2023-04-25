@@ -114,18 +114,24 @@ public class Parse {
         }
         else if (responseSplit[0].equals("greeting")) {
 
-            String IDN = responseSplit[1].substring(0, 1);
-            String IDNb = responseSplit[1].substring(1);
-            if (!IDN.equals("N")) {
-                throw new InvalidIDException("ID do not begin with N");
+            if (responseSplit.length != 2) {
+                throw new InvalidParameterException("No argument after greeting or to much argument");
             }
-            try {
-                Integer.parseInt(IDNb);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid ID Format");
-            }
+            else {
+                String IDN = responseSplit[1].substring(0, 1);
+                String IDNb = responseSplit[1].substring(1);
+                if (!IDN.equals("N")) {
+                    throw new InvalidParameterException("ID do not begin with N");
+                }
+                try {
+                    Integer.parseInt(IDNb);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid ID Format");
+                }
 
-            return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
+                args.add(responseSplit[1]);
+                return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
+            }
         }
         else if (responseSplit[0].equals("no greeting")) {
             return new ServerResponseParserResult(PossibleServerResponses.NOGREETING, args);
