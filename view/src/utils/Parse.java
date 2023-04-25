@@ -29,8 +29,10 @@ public class Parse {
                 parserServerResponse("list [PoissonRouge at 90x4,10x4,5] [PoissonClown at 90x4,10x4,5]");
                 // parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint");
                 // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint"));
-            } catch(FileNotFoundException e) {
+            } catch(IOException e) {
                 System.out.println("Le fichier de configuration est introuvable");
+            } catch(ParserException e) {
+                System.out.println("Erreur de parsing");
             }
             
     }
@@ -88,7 +90,7 @@ public class Parse {
         
     }
 
-    public static ServerResponseParserResult parserServerResponse(String response) throws InvalidParameterSpecException {
+    public static ServerResponseParserResult parserServerResponse(String response) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
         if (responseSplit[0].equals("NOK")) {
@@ -112,26 +114,18 @@ public class Parse {
         }
         else if (responseSplit[0].equals("greeting")) {
 
-            if (responseSplit.length != 2) {
-                throw new InvalidParameterException("No argument after greeting or to much argument");
+            String IDN = responseSplit[1].substring(0, 1);
+            String IDNb = responseSplit[1].substring(1);
+            if (!IDN.equals("N")) {
+                throw new InvalidIDException("ID do not begin with N");
             }
-            else {
-                String IDN = responseSplit[1].substring(0, 1);
-                String IDNb = responseSplit[1].substring(1);
-                if (!IDN.equals("N")) {
-                    throw new InvalidParameterException("ID do not begin with N");
-                }
-                else {
-                    try {
-                        Integer.parseInt(IDNb);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Invalid ID Format");
-                    }
-                }
-    
-                args.add(responseSplit[1]);
-                return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
+            try {
+                Integer.parseInt(IDNb);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid ID Format");
             }
+
+            return new ServerResponseParserResult(PossibleServerResponses.GREETING, args);
         }
         else if (responseSplit[0].equals("no greeting")) {
             return new ServerResponseParserResult(PossibleServerResponses.NOGREETING, args);
@@ -188,11 +182,11 @@ public class Parse {
         return sb.toString();
     }
 
-    public static String parserIP(File file) throws IOException {
+    public static String parserIP(File file) throws IOException, ParserException {
         String IP = parserManager(file, "controller-address");
         String[] IPSplit = IP.split(".");
         if (IPSplit.length != 4) {
-            throw new InvalidParameterException("Wrong IP format");
+            throw new InvalidIPException("Wrong IP format");
         }
         for (int i = 0 ; i < IPSplit.length ; i++) {
             try {
@@ -204,13 +198,13 @@ public class Parse {
         return IP;
     }
 
-    public static String parserID(File file) throws IOException {
+    public static String parserID(File file) throws IOException, ParserException {
         //Vérifier que ça commence par N suivi d'un nombre
         String ID = parserManager(file, "id");
         String IDN = ID.substring(0, 1);
         String IDNb = ID.substring(1);
         if (!IDN.equals("N")) {
-            throw new InvalidParameterException("ID do not begin with N");
+            throw new InvalidIDException("ID do not begin with N");
         }
         try {
             Integer.parseInt(IDNb);
@@ -220,30 +214,30 @@ public class Parse {
         return ID;
     }
 
-    public static int parserPort(File file) throws IOException {
+    public static int parserPort(File file) throws IOException, ParserException {
         try {
             int port = Integer.parseInt(parserManager(file, "controller-port"));
             if (port < 0 | port > 65535) {
-                throw new InvalidParameterException("Unknown Port Number");
+                throw new InvalidPortNumberException("Unknown Port Number")
             }
             else if (port < 1024) {
-                throw new InvalidParameterException("Well Known Port");
+                throw new WellKnownPortException("Well Known Port");
             }
             return port;
         } catch (NumberFormatException e) {
-            System.out.println("Port given is not a number");
+            throw new ParserException("Port given is not a number");
         }
     }
 
-    public static int parserTimeout(File file) throws IOException {
+    public static int parserTimeout(File file) throws IOException, ParserException {
         try {
             int timeout = Integer.parseInt(parserManager(file, "display-timeout-value"));
             if (timeout < 0) {
-                throw new InvalidParameterException("Negative Timeout");
+                throw new InvalidTimeoutException("Negative Timeout");
             }
             return timeout;
         } catch (NumberFormatException e) {
-            System.out.println("Timeout given is not a number");
+            throw new ParserException("Timeout given is not a number");
         }
     }
 

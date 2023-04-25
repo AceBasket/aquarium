@@ -182,12 +182,12 @@ int len_views(struct aquarium *a) {
 }
 
 void show_aquarium(struct aquarium *a, FILE *f) {
-    fprintf("%dx%d\n", a->width, a->height, f);
+    fprintf(f, "%dx%d\n", a->width, a->height);
 
     struct view *current_view = a->views;
     struct view *next_view = current_view->next;
     for (int i = 0; i < len_views(a); i++) {
-        fprintf("%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height, f);
+        fprintf(f, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
         current_view = next_view;
         next_view = current_view->next;
     }
@@ -211,8 +211,7 @@ int len_fishes(struct aquarium *a) {
 }
 
 void save_aquarium(struct aquarium *a, const char *name) {
-    FILE* f = fopen(name, "w");
+    FILE *f = fopen(name, "w");
     show_aquarium(a, f);
     fclose(f);
-    return 0;
 }

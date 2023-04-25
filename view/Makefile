@@ -32,10 +32,9 @@ ${CLASSES}: build/%.class: src/%.java
 ${TST_CLASSES}: build/%.class: tst/%.java
 	${JC} ${JCFLAGS} $<
 
-# Pour l'instant ça fonctionne mais je pense qu'il y a moyen d'améliorer ça
 ${FX_CLASSES}: build/%.class: src/%.java
 	${JC} ${JCFLAGS} ${FXFLAGS} $<
-	${J} ${JFLAGS} ${FXFLAGS} $<
+	${J} ${JFLAGS} ${FXFLAGS} $*
 
 
 clean:
