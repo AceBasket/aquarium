@@ -1,15 +1,4 @@
-in thread prompt
-buffer: 'load aquarium0' of size 14
-Loading aquarium from file aquarium0
-File opened
-Aquarium created
-view created
-view added
-view created
-view added
-view created
-view added
-view created
-view added
-Aquarium loaded (4 display view)
-buffer: 'q' of size 1
+In thread prompt
+buffer: 'load aquariums/aquarium0' of size 24
+function name: 0
+Loading aquarium from file aquariums/aquarium0

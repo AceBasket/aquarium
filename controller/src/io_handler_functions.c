@@ -96,12 +96,12 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    if (!add_fish(aquarium, create_fish(parser->arguments[1], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[3])), percentage_to_y_coordinate(view, atoi(parser->arguments[4])) }, atoi(parser->arguments[5]), atoi(parser->arguments[6]), RANDOMWAYPOINT))) {
-        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[1], atoi(parser->arguments[3]), atoi(parser->arguments[4]));
+    if (!add_fish(aquarium, create_fish(parser->arguments[0], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[2])), percentage_to_y_coordinate(view, atoi(parser->arguments[3])) }, atoi(parser->arguments[4]), atoi(parser->arguments[5]), RANDOMWAYPOINT))) {
+        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[0], atoi(parser->arguments[2]), atoi(parser->arguments[3]));
         dprintf(socket_fd, "NOK\n");
         return;
     }
-    struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[1]);
+    struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[0]);
     fprintf(log, "fish %s at %dx%d in aquarium added\n", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
     dprintf(socket_fd, "OK\n");
 
@@ -112,7 +112,13 @@ void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    if (remove_fish(aquarium, get_fish_from_name(aquarium, parser->arguments[0]))) {
+    struct fish *fish_to_remove = get_fish_from_name(aquarium, parser->arguments[0]);
+    if (fish_to_remove == NULL) {
+        fprintf(log, "Error: fish %s not found\n", parser->arguments[0]);
+        dprintf(socket_fd, "NOK\n");
+        return;
+    }
+    if (remove_fish(aquarium, fish_to_remove)) {
         dprintf(socket_fd, "OK\n");
         return;
     }

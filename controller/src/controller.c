@@ -306,6 +306,8 @@ int main(int argc, char const *argv[]) {
     exit_if(pthread_create(&tid_accept, NULL, thread_accept, &param) < 0, "ERROR on thread creation");
     exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, NULL) < 0, "ERROR on thread creation");
 
+
+    /* Handling fish destinations */
     FILE *log = fopen("log_main", "w");
     while (aquarium == NULL) {
         sleep(1);
