@@ -15,7 +15,7 @@ void hello_handler(struct parse *parser, int socket_fd, struct aquarium *aquariu
     }
     struct view *view;
     if (parser->size == 3) {
-        view = get_view(aquarium, parser->tab[2]);
+        view = get_view(aquarium, parser->arguments[1]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
@@ -51,7 +51,7 @@ void ping_handler(struct parse *parser, int socket_fd, __attribute__((unused))st
     if (handle_error(parser, socket_fd)) {
         return;
     }
-    dprintf(socket_fd, "pong %s\n", parser->tab[1]);
+    dprintf(socket_fd, "pong %s\n", parser->arguments[0]);
 }
 
 
@@ -60,10 +60,10 @@ void add_fish_handler(struct parse *parser, int socket_fd, struct aquarium *aqua
         return;
     }
     // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
-    if (get_fish_from_name(aquarium, parser->tab[1]) != NULL) {
+    if (get_fish_from_name(aquarium, parser->arguments[0]) != NULL) {
         dprintf(socket_fd, "NOK\n");
     } else {
-        add_fish(aquarium, create_fish(parser->tab[1], (struct coordinates) { atoi(parser->tab[3]), atoi(parser->tab[4]) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT));
+        add_fish(aquarium, create_fish(parser->arguments[0], (struct coordinates) { atoi(parser->arguments[2]), atoi(parser->arguments[3]) }, atoi(parser->arguments[4]), atoi(parser->arguments[5]), RANDOMWAYPOINT));
         dprintf(socket_fd, "OK\n");
     }
 }
@@ -72,7 +72,7 @@ void del_fish_handler(struct parse *parser, int socket_fd, struct aquarium *aqua
     if (handle_error(parser, socket_fd)) {
         return;
     }
-    if (remove_fish(aquarium, get_fish_from_name(aquarium, parser->tab[1]))) {
+    if (remove_fish(aquarium, get_fish_from_name(aquarium, parser->arguments[0]))) {
         dprintf(socket_fd, "OK\n");
     } else {
         dprintf(socket_fd, "NOK\n");
@@ -83,7 +83,7 @@ void start_fish_handler(struct parse *parser, int socket_fd, struct aquarium *aq
     if (handle_error(parser, socket_fd)) {
         return;
     }
-    if (start_fish(aquarium, parser->tab[1])) {
+    if (start_fish(aquarium, parser->arguments[0])) {
         dprintf(socket_fd, "OK\n");
     } else {
         dprintf(socket_fd, "NOK\n");

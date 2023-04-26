@@ -13,17 +13,17 @@ void exit_if(int condition, const char *prefix) {
 
 void free_parser(struct parse *p) {
     for (int i = 0; i < p->size; i++) {
-        free(p->tab[i]);
+        free(p->arguments[i]);
     }
     free(p->status);
-    free(p->tab);
+    free(p->arguments);
     free(p);
 }
 
 void adding_arg_to_parse(struct parse *p, char *arg) {
-    p->tab = realloc(p->tab, sizeof(char *) * (p->size + 1));
-    p->tab[p->size] = malloc(strlen(arg) + 1);
-    strcpy(p->tab[p->size], arg);
+    p->arguments = realloc(p->arguments, sizeof(char *) * (p->size + 1));
+    p->arguments[p->size] = malloc(strlen(arg) + 1);
+    strcpy(p->arguments[p->size], arg);
     p->size++;
 }
 
@@ -78,19 +78,19 @@ struct parse *parse_prompt(char *str) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     p->size = 0;
-    p->tab = malloc(sizeof(char *));
+    p->arguments = malloc(sizeof(char *));
 
     char *command;
     command = strtok(string, " ");
     if (command == NULL) {
         strcpy(p->status, "ERROR: No command provided.\n");
-        p->tab[p->size] = malloc(1); // to avoid segfault when freeing
+        p->arguments[p->size] = malloc(1); // to avoid segfault when freeing
         return p;
     }
 
-    p->tab[p->size] = malloc(strlen(command) + 1);
-    strcpy(p->tab[p->size], command);
-    p->size++;
+    // p->arguments[p->size] = malloc(strlen(command) + 1);
+    // strcpy(p->arguments[p->size], command);
+    // p->size++;
 
     // load 
     if (strcmp(command, "load") == 0) {
@@ -259,7 +259,7 @@ struct parse *parse_file(FILE *f) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     // p->size = 1;
-    // p->tab = malloc(sizeof(char *));
+    // p->arguments = malloc(sizeof(char *));
 
     while (read != -1) {
         read = getline(&line, &size, f);
@@ -283,7 +283,6 @@ struct parse *parse_file(FILE *f) {
                 strcpy(p->status, "ERROR: The 1st argument of the aquarium should be an integer: <number>\nOr the separation between 1st and 2nd argument sould be an x (times) symbol\n");
                 return p;
             }
-            printf("arg1 = %s\n", arg1);
             adding_arg_to_parse(p, arg1);
 
             char *arg2 = strtok(NULL, "");
@@ -373,19 +372,19 @@ struct parse *parse_clients(char *str) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     p->size = 0;
-    p->tab = malloc(sizeof(char *));
+    p->arguments = malloc(sizeof(char *));
 
     char *command;
     command = strtok(string, " ");
     if (command == NULL) {
         strcpy(p->status, "No command provided.\n");
-        p->tab[p->size] = malloc(1); // to avoid segfault when freeing
+        p->arguments[p->size] = malloc(1); // to avoid segfault when freeing
         return p;
     }
 
-    p->tab[p->size] = malloc(strlen(command) + 1);
-    strcpy(p->tab[p->size], command);
-    p->size += 1;
+    // p->arguments[p->size] = malloc(strlen(command) + 1);
+    // strcpy(p->arguments[p->size], command);
+    // p->size += 1;
 
     //status
     if (strcmp(command, "status") == 0) {
