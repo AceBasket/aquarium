@@ -72,12 +72,11 @@ void test_create_fish() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 0, 0 }, 10, 10, RANDOMWAYPOINT);
     assert(fish->top_left.x == 0);
     assert(fish->top_left.y == 0);
-    assert(fish->destination.x == fish->top_left.x);
-    assert(fish->destination.y == fish->top_left.y);
+    assert(STAILQ_EMPTY(&fish->destinations_queue));
     assert(fish->height == 10);
     assert(fish->width == 10);
-    assert(fish->time_to_destination == 0);
     assert(fish->next == NULL);
+    assert(fish->movement_pattern == RANDOMWAYPOINT);
     assert(strcmp(fish->name, "fish1") == 0);
     free(fish->name);
     free(fish);
@@ -106,7 +105,10 @@ void test_add_fish_already_in_aquarium() {
 void test_remove_fish() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct fish *fish = create_fish("fish1", (struct coordinates) { 0, 0 }, 10, 10, RANDOMWAYPOINT);
+    struct fish *fish2 = create_fish("fish2", (struct coordinates) { 0, 0 }, 10, 10, RANDOMWAYPOINT);
     assert(add_fish(aquarium, fish) == OK);
+    assert(add_fish(aquarium, fish2) == OK);
+    assert(remove_fish(aquarium, fish2) == OK);
     assert(remove_fish(aquarium, fish) == OK);
     assert(aquarium->fishes == NULL);
     assert(free_aquarium(aquarium));
@@ -151,7 +153,6 @@ void test_start_fish() {
     assert(fish->status == STARTED);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(fish2->status == STARTED);
-    assert(fish->time_to_destination == 0);
     assert(free_aquarium(aquarium));
 }
 

@@ -1,0 +1,78 @@
+Je suis dans io
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Received 6 bytes from view 0: hello
+Hello from view 0
+Received 49 bytes from view 0: addFish PoissonRouge at 8x3, 4x3, RandomWayPoint
+Add fish from view 0
+fish PoissonRouge at 40x15 in aquarium added
+Received 48 bytes from view 0: addFish PoissonBleu at 8x3, 4x3, RandomWayPoint
+Add fish from view 0
+fish PoissonBleu at 40x15 in aquarium added
+Received 24 bytes from view 0: startFish  PoissonRouge
+Start fish ((null)) from view 0
+Received 23 bytes from view 0: startFish  PoissonBleu
+Start fish ((null)) from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Error: fish PoissonRouge has no destination
+Error: fish PoissonBleu has no destination
+Received 10 bytes from view 0: getFishes
+Get fishes from view 0
+Received 20 bytes from view 0: delFish PoissonBleu
+Delete fish from view 0
+Received 48 bytes from view 0: addFish PoissonVert at 8x3, 4x3, RandomWayPoint
+Add fish from view 0
+fish PoissonVert at 40x15 in aquarium added
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Received 23 bytes from view 0: startFish  PoissonVert
+Start fish ((null)) from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0

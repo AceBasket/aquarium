@@ -24,8 +24,16 @@ int x_coordinate_to_percentage(struct view *view, int x) {
     return (x - view->top_left.x) * 100 / view->width;
 }
 
+int percentage_to_x_coordinate(struct view *view, int percentage) {
+    return view->top_left.x + percentage * view->width / 100;
+}
+
 int y_coordinate_to_percentage(struct view *view, int y) {
     return (y - view->top_left.y) * 100 / view->height;
+}
+
+int percentage_to_y_coordinate(struct view *view, int percentage) {
+    return view->top_left.y + percentage * view->height / 100;
 }
 
 struct coordinates choose_random_coordinates(struct aquarium *aquarium) {
