@@ -3,7 +3,6 @@ package utils;
 import java.io.*;
 import java.util.ArrayList;
 import java.security.InvalidParameterException;
-import java.util.Scanner;
 
 
 enum PromptCommandType {
@@ -75,7 +74,7 @@ public class Parse {
                         args.add(commandSplit[i]);
                     }
                     else {
-                        throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*")
+                        throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*");
                     }
                 }
                 return new PromptParserResult(PromptCommandType.DELFISH, args);
@@ -92,7 +91,7 @@ public class Parse {
                         args.add(commandSplit[i]);
                     }
                     else {
-                        throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*")
+                        throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*");
                     }
                 }
                 return new PromptParserResult(PromptCommandType.STARTFISH, args);
@@ -272,24 +271,29 @@ public class Parse {
 
     public static String parserID(File file) throws IOException, ParserException {
         String ID = parserManager(file, "id");
-        String IDN = ID.substring(0, 1);
-        String IDNb = ID.substring(1);
-        if (!IDN.equals("N")) {
-            throw new InvalidParameterException("ID do not begin with N");
+        if (ID.length() < 2) {
+            throw new InvalidParameterException("Invalid size of ID");
         }
-        try {
-            Integer.parseInt(IDNb);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid ID Format");
+        else {
+            String IDN = ID.substring(0, 1);
+            String IDNb = ID.substring(1);
+            if (!IDN.equals("N")) {
+                throw new InvalidParameterException("ID do not begin with N");
+            }
+            try {
+                Integer.parseInt(IDNb);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid ID Format");
+            }
+            return ID;
         }
-        return ID;
     }
 
     public static int parserPort(File file) throws IOException, ParserException {
         try {
             int port = Integer.parseInt(parserManager(file, "controller-port"));
             if (port < 0 | port > 65535) {
-                throw new InvalidParameterException("Unknown Port Number")
+                throw new InvalidParameterException("Unknown Port Number");
             }
             else if (port < 1024) {
                 throw new InvalidParameterException("Well Known Port");

@@ -1,0 +1,7 @@
+controller-address = ab.12.02.02
+
+id = N
+
+controller-port = 21f5
+
+display-timeout-value = 25
