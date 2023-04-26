@@ -2,12 +2,11 @@ import utils.*;
 import java.io.File;
 import java.io.IOException;
 
-public class UnitTestResponse {
+public class UnitTestsResponse {
     public static void main(String[] args) throws IOException, ParserException {
-        new UnitTestResponse().testParserOK();
+        new UnitTestsResponse().testParserOK();
     }
-
-    void testParserOK() throws IOException, ParserException {
+    void testParserOK () throws IOException, ParserException {
 
     }
 }
