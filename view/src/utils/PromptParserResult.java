@@ -2,16 +2,20 @@ package utils;
 import java.util.ArrayList;
 
 public class PromptParserResult {
-    private PromptCommandType command;
+    private PromptParsedFunctionTypes function;
     private ArrayList<String> args;
 
-    public PromptParserResult(PromptCommandType command, ArrayList<String> args) {
-        this.command = command;
+    public enum PromptParsedFunctionTypes {
+        STATUS, ADDFISH, DELFISH, STARTFISH
+    }
+
+    public PromptParserResult(PromptParsedFunctionTypes function, ArrayList<String> args) {
+        this.function = function;
         this.args = args;
     }
     
-    public PromptCommandType getCommand() {
-        return command;
+    public PromptParsedFunctionTypes getFunction() {
+        return function;
     }
 
     public ArrayList<String> getArgs() {

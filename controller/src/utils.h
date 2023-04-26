@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <sys/types.h>
 #include <ctype.h>
 
 
@@ -15,9 +16,12 @@ struct parse {
     char **tab; // a list of parsed elements
     int size; // the number of elements(words, numbers...) in the tab
     enum func func_name;
+    char *status;
 };
 
 void exit_if(int condition, const char *prefix);
+void free_parser(struct parse *p);
 struct parse *parse_prompt(char *str);
 struct parse *parse_clients(char *str);
-#endif
+
+#endif // _UTILS_H_

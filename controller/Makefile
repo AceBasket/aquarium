@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-LDFLAGS = -pthread
+CFLAGS += -Wall -Wextra -Werror -g -O0
+LDFLAGS += -pthread
 
 
 #This finds all c files and places then into SRC. It's equivalent would be
@@ -10,37 +10,46 @@ SRC = ${shell find src -name *.c}
 # OBJ =  src/main.o src/folder1/func1.o src/folder1/func2.o src/folder2/func3.o
 OBJ = ${SRC:%.c=build/%.o}
 
-TST = ${shell find tst -name *.c}
+TST = ${shell find tst -name *_test.c}
 OBJ_TST = ${TST:%.c=build/%.o}
 
 BIN = build/controller.exe
-TEST = build/alltests.exe
+TEST = ${OBJ_TST:%.o=%.tst}
 
 
 .PHONY: all build test clean
 
-all: dir build
+all: build
 
 dir:
 	mkdir -p build/src build/tst
 
-build: ${BIN}
+build: dir ${BIN}
 
-test: ${TEST}
+test: dir ${TEST}
 
 clean:
-	rm -f *.o *~ ${BIN} ${OBJ} ${TEST} ${OBJ_TST}
+	rm -rf build/
 
 
 #################### EXECUTABLE ####################
 
-#$(BIN) is dependent on objects
+# $(BIN) is dependent on objects
 ${BIN}: ${OBJ}
 	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
 
-${TEST}: ${OBJ_TST} build/src/parser.o
-	${CC} ${CFLAGS} $^ -o $@
-    
-# each object file is dependent on its source file, and whenever make needs to create an object file, to follow this rule:
+# each object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/%.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@
+
+
+#################### TESTS ####################
+
+# each test object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
+build/tst/%.o: tst/%.c
+	${CC} ${CFLAGS} -c $< -o $@
+
+# each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
+build/tst/%.tst: build/tst/%.o build/src/utils.o build/src/aquarium.o build/src/socket_aquarium.o
+	${CC} ${CFLAGS} $^ -o $@
+	$@

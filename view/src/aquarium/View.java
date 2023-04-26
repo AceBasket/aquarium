@@ -1,7 +1,7 @@
 package aquarium;
 import java.io.*;
 import java.net.*;
-import java.nio.file.Path;
+import utils.*;
 
 public class View {
     // for socket
@@ -18,81 +18,44 @@ public class View {
 
     // private Aquarium aquariumView;:
 
-    public View(File config) throws IOException {
-        displayTimeoutValue = utils.Parse.parserTimeout(config);
+    public View(File config) throws IOException, ParserException {
+        displayTimeoutValue = Parse.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
-        id = utils.Parse.parserID(config);
-        controllerAddress = utils.Parse.parserIP(config);
-        portNumber = utils.Parse.parserPort(config);
+        id = Parse.parserID(config);
+        controllerAddress = Parse.parserIP(config);
+        portNumber = Parse.parserPort(config);
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
         
     }
 
-
-    private void init() {
-        if (!this.id.equals("")) {
-            this.output.println("hello in as " + this.id);
-        } else {
-            this.output.println("hello");
-        }
-    }
-    
-    private void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    private void getFishes() {
-        this.output.println("getFishes");
+    public String getId() {
+        return this.id;
     }
 
-    private void getFishesContinuously() {
-        this.output.println("getFishesContinuously");
+    public synchronized void talkToServer(String speech) {
+        this.output.println(speech);
     }
 
-    private void getListFishes() {
-        this.output.println("ls");
-    }
-
-    private void logOut() {
-        this.output.println("log out");
-    }
-
-    private void ping() {
-        this.output.println("ping " + this.id);
-    }
-
-    // prototype not fixed
-    private void addFish(String name, String destination, String size, String path) {
-        this.output.println("addFish  " + name + " at " + destination + ", " + size + ", " + path);
-    }
-
-    // prototype not fixed
-    private void delFish(String name) {
-        this.output.println("delFish " + name);
-    }
-
-    // prototype not fixed
-    private void startFish(String name) {
-        this.output.println("startFish " + name);
-    }
-
-
-    public static void main(String[] argv) {
-        try {
-
-            View view = new View(new File("../affichage.cfg"));
-
-            view.output.println("Testing connection");
-
-            System.out.println("END");
-            view.output.println("END");
-            view.input.close();
-            view.output.close();
-            view.socket.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+    public synchronized String listenToServer() throws IOException {
+        String answer = this.input.readLine();
+        if (answer == null) {
+            throw new IOException("Server is down");
         }
+        return answer.replace("@@", "\n");
     }
+
+    public void close() throws IOException {
+        this.input.close();
+        this.output.close();
+        this.socket.close();
+    }
+
+
+    
 }

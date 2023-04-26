@@ -19,13 +19,20 @@ public class PromptThread implements Runnable {
         }
 
         ServerResponseParserResult answer;
+        PromptParserResult promptCommand;
         String command;
         while (true) {
             command = System.console().readLine();
             String serverResponse = transferCommand(command);
             try {
                 answer = Parse.parserServerResponse(serverResponse);
-                if (answer.getFunction() == OK)
+                // if (answer.getFunction() == ServeurResponseParserResult.ServerResponseParsedFunctionTypes.OK) {
+                //     promptCommand = Parse.parserPrompt(command);
+                //     if (promptCommand.getFunction() == PromptParsedFunctionTypes.ADDFISH) {
+                //         System.out.println("Bye");
+                //         System.exit(0);
+                //     }
+                // }
                 
             } catch (ParserException e) {
                 // TODO: handle exception
