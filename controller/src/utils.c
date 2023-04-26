@@ -13,17 +13,17 @@ void exit_if(int condition, const char *prefix) {
 
 void free_parser(struct parse *p) {
     for (int i = 0; i < p->size; i++) {
-        free(p->tab[i]);
+        free(p->arguments[i]);
     }
     free(p->status);
-    free(p->tab);
+    free(p->arguments);
     free(p);
 }
 
 void adding_arg_to_parse(struct parse *p, char *arg) {
-    p->tab = realloc(p->tab, sizeof(char *) * (p->size + 1));
-    p->tab[p->size] = malloc(strlen(arg) + 1);
-    strcpy(p->tab[p->size], arg);
+    p->arguments = realloc(p->arguments, sizeof(char *) * (p->size + 1));
+    p->arguments[p->size] = malloc(strlen(arg) + 1);
+    strcpy(p->arguments[p->size], arg);
     p->size++;
 }
 
@@ -78,19 +78,19 @@ struct parse *parse_prompt(char *str) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     p->size = 0;
-    p->tab = malloc(sizeof(char *));
+    p->arguments = malloc(sizeof(char *));
 
     char *command;
     command = strtok(string, " ");
     if (command == NULL) {
         strcpy(p->status, "ERROR: No command provided.\n");
-        p->tab[p->size] = malloc(1); // to avoid segfault when freeing
+        p->arguments[p->size] = malloc(1); // to avoid segfault when freeing
         return p;
     }
 
-    p->tab[p->size] = malloc(strlen(command) + 1);
-    strcpy(p->tab[p->size], command);
-    p->size++;
+    // p->arguments[p->size] = malloc(strlen(command) + 1);
+    // strcpy(p->arguments[p->size], command);
+    // p->size++;
 
     // load 
     if (strcmp(command, "load") == 0) {
@@ -232,10 +232,10 @@ struct parse *parse_prompt(char *str) {
         if (arg == NULL) {
             too_few_arguments(p, "save <aquarium name>");
             return p;
-        } else if (!is_alphanum(arg)) {
-            strcpy(p->status, "ERROR: the name of the aquarium should be composed of numbers and/or alphabets\n");
-            return p;
-        }
+        } // else if (!is_alphanum(arg)) {
+        //     strcpy(p->status, "ERROR: the name of the aquarium should be composed of numbers and/or alphabets\n");
+        //     return p;
+        // }
         adding_arg_to_parse(p, arg);
 
         if (strtok(NULL, "") != NULL) {
@@ -250,9 +250,8 @@ struct parse *parse_prompt(char *str) {
     }
 }
 
-#define _GNU_SOURCE
 struct parse *parse_file(FILE *f) {
-    size_t size = 20;
+    size_t size = 100;
     char *line = malloc(size * sizeof(char));
     ssize_t read = 0;
 
@@ -260,7 +259,7 @@ struct parse *parse_file(FILE *f) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     // p->size = 1;
-    // p->tab = malloc(sizeof(char *));
+    // p->arguments = malloc(sizeof(char *));
 
     while (read != -1) {
         read = getline(&line, &size, f);
@@ -274,6 +273,7 @@ struct parse *parse_file(FILE *f) {
         }
 
         if (isdigit(line[0])) {
+            /* TODO check that the whole "word" is a number (not just the beginning) */
             // aquarium
             char *arg1 = strtok(line, "x");
             if (arg1 == NULL) {
@@ -372,19 +372,19 @@ struct parse *parse_clients(char *str) {
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
     p->size = 0;
-    p->tab = malloc(sizeof(char *));
+    p->arguments = malloc(sizeof(char *));
 
     char *command;
     command = strtok(string, " ");
     if (command == NULL) {
         strcpy(p->status, "No command provided.\n");
-        p->tab[p->size] = malloc(1); // to avoid segfault when freeing
+        p->arguments[p->size] = malloc(1); // to avoid segfault when freeing
         return p;
     }
 
-    p->tab[p->size] = malloc(strlen(command) + 1);
-    strcpy(p->tab[p->size], command);
-    p->size += 1;
+    // p->arguments[p->size] = malloc(strlen(command) + 1);
+    // strcpy(p->arguments[p->size], command);
+    // p->size += 1;
 
     //status
     if (strcmp(command, "status") == 0) {
