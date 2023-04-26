@@ -232,10 +232,10 @@ struct parse *parse_prompt(char *str) {
         if (arg == NULL) {
             too_few_arguments(p, "save <aquarium name>");
             return p;
-        } else if (!is_alphanum(arg)) {
-            strcpy(p->status, "ERROR: the name of the aquarium should be composed of numbers and/or alphabets\n");
-            return p;
-        }
+        } // else if (!is_alphanum(arg)) {
+        //     strcpy(p->status, "ERROR: the name of the aquarium should be composed of numbers and/or alphabets\n");
+        //     return p;
+        // }
         adding_arg_to_parse(p, arg);
 
         if (strtok(NULL, "") != NULL) {

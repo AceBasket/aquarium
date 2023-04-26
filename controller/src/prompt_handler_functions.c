@@ -56,6 +56,10 @@ void del_view_handler(struct parse *parser, struct aquarium *aquarium) {
 }
 
 void save_handler(struct parse *parser, struct aquarium *aquarium) {
+    if (aquarium == NULL) {
+        fprintf(stderr, "ERROR: no aquarium\n");
+        return;
+    }
     save_aquarium(aquarium, parser->arguments[0]);
     fprintf(stdout, "Aquarium saved (%d display view)\n", len_views(aquarium));
 }

@@ -267,6 +267,7 @@ void *thread_prompt() {
             break;
         case SAVE:
             fprintf(log, "Saving the aquarium\n");
+            fprintf(log, "aquarium path: %s\n", parser->arguments[0]);
             save_handler(parser, aquarium);
             // file_name = parser->arguments[1];
             // path_length = strlen(directory) + strlen(file_name) + 1;
