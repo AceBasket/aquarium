@@ -44,11 +44,28 @@ public class Parse {
             return new PromptParserResult(PromptCommandType.STATUS, args );
         }
         else if (commandSplit[0].equals("addFish")) {
-            // Vérifier qu'il y a des éléménts après addFish, vérifier que c'est multiple de ... et vérifier la forme des éléments
-            for (int i = 1 ; i < commandSplit.length ; i++) {
-                args.add(commandSplit[i]);
+            if (commandSplit.length % 6 == 1) {
+                String poisson = commandSplit[1].substring(0,7);
+                if (poisson.equals("Poisson")) {
+                    for (int i = 2 ; i < commandSplit.length -1 ; i++) {
+                        try {
+                            Integer.parseInt(commandSplit[i]);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid Argument Format");
+                        }
+                        args.add(commandSplit[i]);
+                    }
+                    args.add(commandSplit[commandSplit.length-1]);
+                    return new PromptParserResult(PromptCommandType.ADDFISH, args);
+                }
+                else {
+                    throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*");
+                }
             }
-            return new PromptParserResult(PromptCommandType.ADDFISH, args);
+            else {
+                throw new InvalidParameterException("Pas le bon nombre d'arguments après addFish");
+            }
+            
         }
         else if (commandSplit[0].equals("delFish")) {
             if (commandSplit.length >= 2) {
@@ -105,12 +122,46 @@ public class Parse {
             }
         }
         else if (responseSplit[0].equals("OK")) {
-            // Vérifier qu'il y a des éléments derrière OK et vérifier leur nombre (multiple de ...)
-            // Vérifier la forme des éléments "connecté au contrôleur n poissons trouvés Fish name_fish n n n n"
-            for (int i = 1 ; i < responseSplit.length ; i++) {
-                args.add(responseSplit[i]);
+            if (responseSplit.length == 1) {
+                return new ServerResponseParserResult(PossibleServerResponses.OK, args);
             }
-            return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+            else {
+                if (responseSplit.length == 7) {
+                    for (int i = 1 ; i < responseSplit.length ; i++) {
+                        if (i == 4) {
+                            try {
+                                Integer.parseInt(responseSplit[i]);
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid Argument Format");
+                            }
+                        }
+                        args.add(responseSplit[i]);
+                    }
+                    return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+                }
+                else if (responseSplit.length%7==7) {
+                    for (int i = 1 ; i < responseSplit.length ; i++) {
+                        if (i%7 == 1) {
+                            String poisson = responseSplit[i].substring(0,7);
+                            if (!poisson.equals("Poisson")) {
+                                throw new InvalidParameterException("Invalid Fish Format");
+                            }
+                        }
+                        else if (i == 4 || i%7 == 2 || i%7 == 3 || i%7 == 4 || i%7 == 5) {
+                            try {
+                                Integer.parseInt(responseSplit[i]);
+                            } catch (NumberFormatException e) {
+                                System.out.println("Invalid Argument Format");
+                            }
+                        }
+                        args.add(responseSplit[i]);
+                    }
+                    return new ServerResponseParserResult(PossibleServerResponses.OK, args);
+                }
+                else {
+                    throw new InvalidParameterException("Pas le bon nombre d'arguments");
+                }
+            }
         }
         else if (responseSplit[0].equals("greeting")) {
 
@@ -137,13 +188,28 @@ public class Parse {
             return new ServerResponseParserResult(PossibleServerResponses.NOGREETING, args);
         }
         else if (responseSplit[0].equals("list")) {
-            // Vérifier qu'il y a bien des éléments après list
-            // Vérifier le nombre d'arguments (multiple de ...), que le premier c'est Poisson* et les suivants sont des numéros
-            // Trouver une méthode qui vérifie si c'est des numéros
-            for (int i = 1 ; i < responseSplit.length ; i++) {
-                args.add(responseSplit[i]);
+            if (responseSplit.length % 6 == 1) {
+                for (int i = 1 ; i < responseSplit.length ; i++) {
+                    if (i % 6 == 1) {
+                        String poisson = responseSplit[i].substring(0,7);
+                        if (!poisson.equals("Poisson")) {
+                            throw new InvalidParameterException("Invalid Argument Format");
+                        }
+                    }
+                    else {
+                        try {
+                            Integer.parseInt(responseSplit[i]);
+                        } catch (NumberFormatException e) {
+                            System.out.println("Invalid Argument Format");
+                        }
+                    }
+                    args.add(responseSplit[i]);
+                }
+                return new ServerResponseParserResult(PossibleServerResponses.LISTFISHES, args);
             }
-            return new ServerResponseParserResult(PossibleServerResponses.LISTFISHES, args);
+            else {
+                throw new InvalidParameterException("Invalid number of arguments");
+            }
         }
         else if (responseSplit[0].equals("bye")) {
             return new ServerResponseParserResult(PossibleServerResponses.BYE, args);
@@ -192,7 +258,7 @@ public class Parse {
         String IP = parserManager(file, "controller-address");
         String[] IPSplit = IP.split(".");
         if (IPSplit.length != 4) {
-            throw new InvalidIPException("Wrong IP format");
+            throw new InvalidParameterException("Wrong IP format");
         }
         for (int i = 0 ; i < IPSplit.length ; i++) {
             try {
@@ -205,12 +271,11 @@ public class Parse {
     }
 
     public static String parserID(File file) throws IOException, ParserException {
-        //Vérifier que ça commence par N suivi d'un nombre
         String ID = parserManager(file, "id");
         String IDN = ID.substring(0, 1);
         String IDNb = ID.substring(1);
         if (!IDN.equals("N")) {
-            throw new InvalidIDException("ID do not begin with N");
+            throw new InvalidParameterException("ID do not begin with N");
         }
         try {
             Integer.parseInt(IDNb);
@@ -224,10 +289,10 @@ public class Parse {
         try {
             int port = Integer.parseInt(parserManager(file, "controller-port"));
             if (port < 0 | port > 65535) {
-                throw new InvalidPortNumberException("Unknown Port Number")
+                throw new InvalidParameterException("Unknown Port Number")
             }
             else if (port < 1024) {
-                throw new WellKnownPortException("Well Known Port");
+                throw new InvalidParameterException("Well Known Port");
             }
             return port;
         } catch (NumberFormatException e) {
@@ -239,7 +304,7 @@ public class Parse {
         try {
             int timeout = Integer.parseInt(parserManager(file, "display-timeout-value"));
             if (timeout < 0) {
-                throw new InvalidTimeoutException("Negative Timeout");
+                throw new InvalidParameterException("Negative Timeout");
             }
             return timeout;
         } catch (NumberFormatException e) {
