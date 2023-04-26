@@ -14,6 +14,7 @@ public class View {
     // useful for communication with controller
     private String id = "";
     private int displayTimeoutValue;
+    public boolean connected = false;
 
     // private Aquarium aquariumView;:
 
