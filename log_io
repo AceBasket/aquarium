@@ -1,0 +1,40 @@
+Je suis dans io
+Waiting for aquarium to be initialized
+Waiting for aquarium to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Received 6 bytes from view 0: hello
+Hello from view 0
+Received 7 bytes from view 0: status
+Status from view 0
+Received 49 bytes from view 0: addFish PoissonRouge at 8x3, 4x3, RandomWayPoint
+Add fish from view 0
+fish PoissonRouge at 40x15 in aquarium added
+Client closed connection
+Add fish from view 0
+Client closed connection
