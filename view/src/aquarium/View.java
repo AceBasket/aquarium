@@ -1,4 +1,5 @@
 package aquarium;
+
 import java.io.*;
 import java.net.*;
 import utils.*;
@@ -27,7 +28,14 @@ public class View {
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-        
+    }
+
+    public View(String controllerAddress, int portNumber) throws IOException {
+        this.controllerAddress = controllerAddress;
+        this.portNumber = portNumber;
+        socket = new Socket(controllerAddress, portNumber);
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
     }
 
     public void setId(String id) {
@@ -56,6 +64,4 @@ public class View {
         this.socket.close();
     }
 
-
-    
 }

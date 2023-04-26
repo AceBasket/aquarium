@@ -3,7 +3,6 @@ package utils;
 import java.io.*;
 import java.util.ArrayList;
 import java.security.InvalidParameterException;
-// import java.util.Scanner;
 
 public class Parse {
     public static void main(String[] argv) throws IOException {

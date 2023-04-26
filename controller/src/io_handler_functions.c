@@ -153,6 +153,12 @@ void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquar
     }
     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
     struct fish **fishes_in_view = get_fishes_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
+    if (fishes_in_view == NULL) {
+        fprintf(log, "Error: no fishes in view\n");
+        fflush(log);
+        dprintf(socket_fd, "\n");
+        return;
+    }
     int iter = 0;
     while (fishes_in_view[iter] != NULL) {
         dprintf(socket_fd, "\tFish %s at %dx%d,%dx%d %s", fishes_in_view[iter]->name, fishes_in_view[iter]->top_left.x, fishes_in_view[iter]->top_left.y, fishes_in_view[iter]->width, fishes_in_view[iter]->height, fishes_in_view[iter]->status == STARTED ? "started" : "notStarted");
