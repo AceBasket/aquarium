@@ -51,7 +51,7 @@ void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquari
     }
     struct view *view;
     if (parser->size == 3) {
-        view = get_view(aquarium, parser->tab[2]);
+        view = get_view(aquarium, parser->arguments[1]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
@@ -82,7 +82,7 @@ void ping_handler(FILE *log, struct parse *parser, int socket_fd, __attribute__(
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    dprintf(socket_fd, "pong %s\n", parser->tab[1]);
+    dprintf(socket_fd, "pong %s\n", parser->arguments[0]);
 }
 
 
@@ -91,17 +91,17 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
         return;
     }
     // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
-    if (get_fish_from_name(aquarium, parser->tab[1]) != NULL) {
+    if (get_fish_from_name(aquarium, parser->arguments[0]) != NULL) {
         dprintf(socket_fd, "NOK\n");
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    if (!add_fish(aquarium, create_fish(parser->tab[1], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->tab[3])), percentage_to_y_coordinate(view, atoi(parser->tab[4])) }, atoi(parser->tab[5]), atoi(parser->tab[6]), RANDOMWAYPOINT))) {
-        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->tab[1], atoi(parser->tab[3]), atoi(parser->tab[4]));
+    if (!add_fish(aquarium, create_fish(parser->arguments[1], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[3])), percentage_to_y_coordinate(view, atoi(parser->arguments[4])) }, atoi(parser->arguments[5]), atoi(parser->arguments[6]), RANDOMWAYPOINT))) {
+        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[1], atoi(parser->arguments[3]), atoi(parser->arguments[4]));
         dprintf(socket_fd, "NOK\n");
         return;
     }
-    struct fish *fish_just_created = get_fish_from_name(aquarium, parser->tab[1]);
+    struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[1]);
     fprintf(log, "fish %s at %dx%d in aquarium added\n", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
     dprintf(socket_fd, "OK\n");
 
@@ -112,7 +112,7 @@ void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    if (remove_fish(aquarium, get_fish_from_name(aquarium, parser->tab[1]))) {
+    if (remove_fish(aquarium, get_fish_from_name(aquarium, parser->arguments[0]))) {
         dprintf(socket_fd, "OK\n");
         return;
     }
@@ -124,7 +124,7 @@ void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct a
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    if (start_fish(aquarium, parser->tab[1])) {
+    if (start_fish(aquarium, parser->arguments[0])) {
         dprintf(socket_fd, "OK\n");
         return;
     }

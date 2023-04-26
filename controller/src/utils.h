@@ -15,8 +15,8 @@
 enum func { LOAD, SHOW, ADD_VIEW, DEL_VIEW, SAVE, STATUS, ADDFISH, DELFISH, STARTFISH, HELLO, GETFISHES, GFCONTINUOUSLY, LS, PING, LOG, UNKNOWN };
 
 struct parse {
-    char **tab; // a list of parsed elements
-    int size; // the number of elements(words, numbers...) in the tab
+    char **arguments; // a list of parsed elements
+    int size; // the number of elements(words, numbers...) in the arguments
     enum func func_name;
     char *status;
 };

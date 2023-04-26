@@ -6,12 +6,13 @@
 #include <pthread.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <assert.h>
 #include "utils.h"
 #include "aquarium.h"
 #include "socket_aquarium.h"
 #include "io_handler_functions.h"
+#include "prompt_handler_functions.h"
 #include "time.h"
-#include <assert.h>
 
 // for pthread_yield
 #define _GNU_SOURCE
@@ -39,18 +40,6 @@ struct parameters {
 
 struct aquarium *aquarium = NULL; // global aquarium
 
-// en attendant le code de Cassandra
-void init_aquarium() {
-    aquarium = create_aquarium(100, 100);
-    struct view *view1 = create_view("N1", (struct coordinates) { 0, 0 }, 50, 50);
-    struct view *view2 = create_view("N2", (struct coordinates) { 50, 0 }, 50, 50);
-    struct view *view3 = create_view("N3", (struct coordinates) { 0, 50 }, 50, 50);
-    struct view *view4 = create_view("N4", (struct coordinates) { 50, 50 }, 50, 50);
-    add_view(aquarium, view1);
-    add_view(aquarium, view2);
-    add_view(aquarium, view3);
-    add_view(aquarium, view4);
-}
 
 void *thread_io(void *io) {
     FILE *log = fopen("log_io", "w");
@@ -80,40 +69,40 @@ void *thread_io(void *io) {
         FD_ZERO(&read_fds);
         int max_fd = 0;
 
-        for (int i = 0; i < MAX_VIEWS; i++) {
-            FD_SET(views_socket_fd[i], &read_fds);
+        for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
+            FD_SET(views_socket_fd[num_view], &read_fds);
             // for select, we need to know the highest file descriptor number
-            if (max_fd < views_socket_fd[i]) {
-                max_fd = views_socket_fd[i];
+            if (max_fd < views_socket_fd[num_view]) {
+                max_fd = views_socket_fd[num_view];
             }
         }
         fflush(log);
 
         // Wait indefinitely for an activity on one of the sockets
         exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
-        for (int i = 0; i < MAX_VIEWS; i++) {
-            if (FD_ISSET(views_socket_fd[i], &read_fds)) {
-                // we have data on the i-th socket
+        for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
+            if (FD_ISSET(views_socket_fd[num_view], &read_fds)) {
+                // we have data on the num_view socket
 
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
-                    char c;
-                    recv_bytes = recv(views_socket_fd[i], &c, 1, 0);
+                    char char_read;
+                    recv_bytes = recv(views_socket_fd[num_view], &char_read, 1, 0);
                     exit_if(recv_bytes == -1, "ERROR on recv");
                     if (recv_bytes == 0) {
                         fprintf(log, "Client closed connection\n");
                         fflush(log);
                         break;
                     } else {
-                        if (c != '\r') {
-                            buffer[total_recv_bytes++] = c;
-                            // printf("%d ", c);
+                        if (char_read != '\r') {
+                            buffer[total_recv_bytes++] = char_read;
+                            // printf("%d ", char_read);
                         }
-                        if (c == '\n') {
+                        if (char_read == '\n') {
                             buffer[total_recv_bytes - 1] = '\0';
                             // we have a full line
-                            fprintf(log, "Received %d bytes from view %d: %s\n", total_recv_bytes, i, buffer);
+                            fprintf(log, "Received %d bytes from view %d: %s\n", total_recv_bytes, num_view, buffer);
                             fflush(log);
                             break;
                         }
@@ -126,51 +115,51 @@ void *thread_io(void *io) {
                 enum func function_called = parser->func_name;
                 switch (function_called) {
                 case HELLO:
-                    fprintf(log, "Hello from view %d\n", i);
-                    hello_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Hello from view %d\n", num_view);
+                    hello_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case GETFISHES:
-                    fprintf(log, "Get fishes from view %d\n", i);
-                    get_fishes_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Get fishes from view %d\n", num_view);
+                    get_fishes_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case GFCONTINUOUSLY:
-                    fprintf(log, "Get fishes continuously from view %d\n", i);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Get fishes continuously from view %d\n", num_view);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case LS:
-                    fprintf(log, "List fishes from view %d\n", i);
-                    ls_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "List fishes from view %d\n", num_view);
+                    ls_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case PING:
-                    fprintf(log, "Ping from view %d\n", i);
-                    ping_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Ping from view %d\n", num_view);
+                    ping_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case ADDFISH:
-                    fprintf(log, "Add fish from view %d\n", i);
-                    add_fish_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Add fish from view %d\n", num_view);
+                    add_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case DELFISH:
-                    fprintf(log, "Delete fish from view %d\n", i);
-                    del_fish_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Delete fish from view %d\n", num_view);
+                    del_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case STARTFISH:
-                    fprintf(log, "Start fish (%s) from view %d\n", parser->tab[1], i);
-                    start_fish_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[1], num_view);
+                    start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case LOG:
-                    fprintf(log, "LOGOUT out from view %d\n", i);
-                    log_out_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "LOGOUT out from view %d\n", num_view);
+                    log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case STATUS:
-                    fprintf(log, "Status from view %d\n", i);
-                    status_handler(log, parser, views_socket_fd[i], aquarium);
+                    fprintf(log, "Status from view %d\n", num_view);
+                    status_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case UNKNOWN:
-                    fprintf(log, "Unknown command from view %d\n", i);
-                    dprintf(views_socket_fd[i], "NOK: Unknown command\n");
+                    fprintf(log, "Unknown command from view %d\n", num_view);
+                    dprintf(views_socket_fd[num_view], "NOK: Unknown command\n");
                     break;
                 default:
-                    dprintf(views_socket_fd[i], "%s", parser->status);
+                    dprintf(views_socket_fd[num_view], "%s", parser->status);
                     break;
                 }
                 free_parser(parser);
@@ -186,132 +175,63 @@ void *thread_io(void *io) {
 void *thread_prompt() {
     FILE *log = fopen("log_prompt", "w");
 
-    fprintf(log, "in thread prompt\n");
+    fprintf(log, "In thread prompt\n");
     fflush(log);
+
     char buffer[BUFFER_SIZE];
-    char c;
+    char char_read;
     int i_buffer;
 
     while (1) {
         i_buffer = 0;
 
+        // we get the line from the terminal where the user wrote his command
         do {
-            c = fgetc(stdin);
-            buffer[i_buffer] = c;
+            char_read = fgetc(stdin);
+            buffer[i_buffer] = char_read;
             i_buffer++;
-        } while (c != '\n' && c != EOF);
+        } while (char_read != '\n' && char_read != EOF);
         buffer[i_buffer - 1] = '\0';
 
         fprintf(log, "buffer: '%s' of size %ld\n", buffer, strlen(buffer));
         fflush(log);
-        struct parse *parse = parse_prompt(buffer);
-        int function = (int)parse->func_name;
 
-        FILE *fd;
-        struct parse *file;
-        struct coordinates coord;
-        struct view *view;
-
-        // to build path for LOAD and SAVE
-        char *file_name;
-        char *directory;
-        char *path;
-        int path_length;
+        // we parse this line
+        struct parse *parser = parse_prompt(buffer);
+        int function = (int)parser->func_name;
+        fprintf(log, "function name: %d\n", function);
+        fflush(log);
 
         switch (function) {
         case LOAD:
-            fprintf(log, "Loading aquarium from file %s\n", parse->tab[1]);
+            fprintf(log, "Loading aquarium from file %s\n", parser->arguments[0]);
             fflush(log);
-
-            file_name = parse->tab[1];
-            directory = "aquariums/";
-            path_length = strlen(directory) + strlen(file_name) + 1;
-            path = malloc(path_length * sizeof(char));
-            snprintf(path, path_length * sizeof(char), "%s%s", directory, file_name);
-
-            fd = fopen(path, "r");
-            // exit_if(fd == NULL, "ERROR opening file");
-            if (fd == NULL) {
-                fprintf(stderr, "ERROR opening file\n");
-                break;
-            }
-            fprintf(log, "File opened\n");
-            fflush(log);
-            file = parse_file(fd);
-            // given width, height in file but takes height, width in function
-            aquarium = create_aquarium(atoi(file->tab[1]), atoi(file->tab[0]));
-            if (aquarium == NULL || aquarium->width == 0 || aquarium->height == 0) {
-                fprintf(log, "ERROR creating aquarium\n");
-                fflush(log);
-                break;
-            }
-            fprintf(log, "Aquarium created\n");
-            fflush(log);
-
-            for (int i = 2; i < file->size; i += 5) {
-
-                coord.x = atoi(file->tab[i + 1]);
-                coord.y = atoi(file->tab[i + 2]);
-                // given width, height in file but takes height, width in function
-                view = create_view(file->tab[i], coord, atoi(file->tab[i + 4]), atoi(file->tab[i + 3]));
-                if (view == NULL) {
-                    fprintf(log, "ERROR creating view\n");
-                    fflush(log);
-                    break;
-                }
-                fprintf(log, "view created\n");
-                fflush(log);
-                if (!add_view(aquarium, view)) {
-                    fprintf(log, "ERROR adding view\n");
-                    fflush(log);
-                    break;
-                }
-                fprintf(log, "view added\n");
-                fflush(log);
-            }
-            fprintf(log, "Aquarium loaded (%d display view)\n", len_views(aquarium));
+            load_handler(parser, &aquarium);
             break;
         case SHOW:
-            if (aquarium == NULL) {
-                fprintf(log, "No aquarium");
-                fflush(log);
-                return NULL;
-            }
             fprintf(log, "Showing aquarium\n");
-            fflush(log);
-            show_aquarium(aquarium, log);
+            fprintf(log, "aquarium adresse: %p\n", aquarium);
+            show_handler(aquarium);
             break;
         case ADD_VIEW:
-            coord.x = atoi(parse->tab[3]);
-            coord.y = atoi(parse->tab[4]);
-            // given width, height in file but takes height, width in function
-            view = create_view(parse->tab[2], coord, atoi(parse->tab[6]), atoi(parse->tab[5]));
-
-            add_view(aquarium, view);
-            fprintf(log, "View added\n");
-            fflush(log);
+            fprintf(log, "Adding a view to the aquarium\n");
+            add_view_handler(parser, aquarium);
             break;
         case DEL_VIEW:
-            remove_view(aquarium, get_view(aquarium, parse->tab[2]));
-            fprintf(log, "View %s deleted\n", parse->tab[2]);
-            fflush(log);
+            fprintf(log, "Deleting a view from the aquarium\n");
+            del_view_handler(parser, aquarium);
             break;
         case SAVE:
-            file_name = parse->tab[1];
-            directory = "aquariums/";
-            path_length = strlen(directory) + strlen(file_name) + 1;
-            path = malloc(path_length * sizeof(char));
-            snprintf(path, path_length * sizeof(char), "%s%s", directory, file_name);
-
-            save_aquarium(aquarium, path);
-            fprintf(log, "Aquarium saved (%d display view)\n", len_views(aquarium));
-            fflush(log);
+            fprintf(log, "Saving the aquarium\n");
+            fprintf(log, "aquarium path: %s\n", parser->arguments[0]);
+            save_handler(parser, aquarium);
             break;
         default:
             break;
         }
+        free_parser(parser);
+        fflush(log);
     }
-
 
     fclose(log);
     return 0;
@@ -324,11 +244,6 @@ void *thread_accept(void *param) {
     int new_socket_fd;
     fprintf(log, "Je suis dans accept\n");
     fflush(log);
-
-// en attendant le code de Cassandra
-// fprintf(log, "J'initialise l'aquarium\n");
-// init_aquarium();
-
 
 // Initialization of all views_socket[] to 0 so not checked
     memset(p->views_sockets, -1, sizeof(p->views_sockets));

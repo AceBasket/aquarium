@@ -96,7 +96,7 @@ struct fish *get_fish_from_name(struct aquarium *aquarium, char *name) {
     return NULL;
 }
 
-struct view *create_view(char *name, struct coordinates top_left, int height, int width) {
+struct view *create_view(char *name, struct coordinates top_left, int width, int height) {
     // create a new view
     struct view *view = malloc(sizeof(struct view));
     exit_if(view == NULL, "malloc failed");
@@ -189,7 +189,7 @@ struct view *get_view(struct aquarium *aquarium, char *name) {
     return NULL;
 }
 
-struct aquarium *create_aquarium(int height, int width) {
+struct aquarium *create_aquarium(int width, int height) {
     // create a new aquarium
     struct aquarium *aquarium = malloc(sizeof(struct aquarium));
     exit_if(aquarium == NULL, "malloc failed");
@@ -228,13 +228,6 @@ void show_aquarium(struct aquarium *aquarium, FILE *output) {
 
     struct view *current_view;
     current_view = aquarium->views;
-    // for (int i = 0; i < len_views(aquarium); i++) {
-    //     fprintf(output, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
-    //     fflush(output);
-    //     current_view = next_view;
-    //     next_view = current_view->next;
-    // }
-
     do {
         fprintf(output, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
         fflush(output);
