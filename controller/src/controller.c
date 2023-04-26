@@ -13,7 +13,7 @@
 #include "time.h"
 #include <assert.h>
 
-// for gettid
+// for pthread_yield
 #define _GNU_SOURCE
 // #include <unistd.h>
 // #include <sys/types.h>
@@ -56,11 +56,25 @@ void *thread_io(void *io) {
     FILE *log = fopen("log_io", "w");
     fprintf(log, "Je suis dans io\n");
     fflush(log);
+
+    while (aquarium == NULL) {
+        fprintf(log, "Waiting for aquarium to be initialized\n");
+        fflush(log);
+        sleep(1);
+
+    }
+
     // For communication with views
     fd_set read_fds;
     int *views_socket_fd = (int *)io;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
+
+    while (views_socket_fd[0] == -1) {
+        fprintf(log, "Waiting for views to be initialized\n");
+        fflush(log);
+        sleep(1);
+    }
 
     while (1) {
         FD_ZERO(&read_fds);
@@ -73,13 +87,12 @@ void *thread_io(void *io) {
                 max_fd = views_socket_fd[i];
             }
         }
+        fflush(log);
 
         // Wait indefinitely for an activity on one of the sockets
         exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
         for (int i = 0; i < MAX_VIEWS; i++) {
             if (FD_ISSET(views_socket_fd[i], &read_fds)) {
-                fprintf(log, "Data on view %d\n", i);
-                fprintf(log, "Socket %d\n", views_socket_fd[i]);
                 // we have data on the i-th socket
 
                 // read data until we get a \n
@@ -90,6 +103,7 @@ void *thread_io(void *io) {
                     exit_if(recv_bytes == -1, "ERROR on recv");
                     if (recv_bytes == 0) {
                         fprintf(log, "Client closed connection\n");
+                        fflush(log);
                         break;
                     } else {
                         if (c != '\r') {
@@ -100,6 +114,7 @@ void *thread_io(void *io) {
                             buffer[total_recv_bytes - 1] = '\0';
                             // we have a full line
                             fprintf(log, "Received %d bytes from view %d: %s\n", total_recv_bytes, i, buffer);
+                            fflush(log);
                             break;
                         }
                     }
@@ -112,43 +127,43 @@ void *thread_io(void *io) {
                 switch (function_called) {
                 case HELLO:
                     fprintf(log, "Hello from view %d\n", i);
-                    hello_handler(parser, views_socket_fd[i], aquarium);
+                    hello_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case GETFISHES:
                     fprintf(log, "Get fishes from view %d\n", i);
-                    get_fishes_handler(parser, views_socket_fd[i], aquarium);
+                    get_fishes_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", i);
-                    get_fishes_continuously_handler(parser, views_socket_fd[i], aquarium);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case LS:
                     fprintf(log, "List fishes from view %d\n", i);
-                    ls_handler(parser, views_socket_fd[i], aquarium);
+                    ls_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case PING:
                     fprintf(log, "Ping from view %d\n", i);
-                    ping_handler(parser, views_socket_fd[i], aquarium);
+                    ping_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case ADDFISH:
                     fprintf(log, "Add fish from view %d\n", i);
-                    add_fish_handler(parser, views_socket_fd[i], aquarium);
+                    add_fish_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case DELFISH:
                     fprintf(log, "Delete fish from view %d\n", i);
-                    del_fish_handler(parser, views_socket_fd[i], aquarium);
+                    del_fish_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case STARTFISH:
                     fprintf(log, "Start fish (%s) from view %d\n", parser->tab[1], i);
-                    start_fish_handler(parser, views_socket_fd[i], aquarium);
+                    start_fish_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case LOG:
                     fprintf(log, "LOGOUT out from view %d\n", i);
-                    log_out_handler(parser, views_socket_fd[i], aquarium);
+                    log_out_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case STATUS:
                     fprintf(log, "Status from view %d\n", i);
-                    status_handler(parser, views_socket_fd[i], aquarium);
+                    status_handler(log, parser, views_socket_fd[i], aquarium);
                     break;
                 case UNKNOWN:
                     fprintf(log, "Unknown command from view %d\n", i);
@@ -376,23 +391,30 @@ int main(int argc, char const *argv[]) {
     exit_if(pthread_create(&tid_accept, NULL, thread_accept, &param) < 0, "ERROR on thread creation");
     exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, NULL) < 0, "ERROR on thread creation");
 
+    FILE *log = fopen("log_main", "w");
+    while (aquarium == NULL) {
+        sleep(1);
+    }
+
+    while (1) {
+        struct fish *fishes = aquarium->fishes;
+        struct fish *current_fish = fishes;
+        while (current_fish != NULL) {
+            remove_finished_movements(current_fish);
+            if (len_movements_queue(current_fish) < 2) {
+                add_movement(aquarium, current_fish);
+                fprintf(log, "Movement added to %s\n", current_fish->name);
+                fflush(log);
+            }
+            current_fish = current_fish->next;
+        }
+    }
+
     exit_if(pthread_join(tid_accept, NULL), "ERROR on thread join");
     exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
 
-    // while (1) {
-    //     time_t now = time(NULL);
-    //     struct fish *fishes = aquarium->fishes;
-    //     struct fish *current_fish = fishes;
-    //     while (current_fish != NULL) {
-    //         if (current_fish->time_to_destination <= now) {
-    //             set_movement(aquarium, current_fish);
-    //         }
-    //         current_fish = current_fish->next;
-    //     }
-    //     sleep(1);
-    // }
 
 
     return EXIT_SUCCESS;
