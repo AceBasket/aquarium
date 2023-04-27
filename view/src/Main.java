@@ -30,6 +30,14 @@ public class Main {
             Thread server = new Thread(serverThread);
             server.start();
             prompt.start();
+
+            // while (true) {
+            // // System.out.println("Main thread running");
+            // main.logFile.println("Main thread running");
+            // main.logFile.flush();
+            // Thread.sleep(1000);
+            // }
+
             server.join();
             prompt.join();
         } catch (Exception e) {

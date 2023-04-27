@@ -11,41 +11,85 @@ public class ServerThread implements Runnable {
 
     public void run() {
         // TODO
-        logFile.println("ServerThread");
+        logFile.println("Starting server thread");
         logFile.flush();
 
-        System.out.println("ServerThread running");
+        ServerResponseParserResult parsedAnswer;
+        String response;
 
-        ServerResponseParserResult answer;
+        // First thing first is greeting the server
         try {
             // view.talkToServer("Testing connection");
-            if (view.getId().equals("")) {
-                view.talkToServer("hello");
-            } else {
-                view.talkToServer("hello in as " + view.getId());
-            }
-            String response = view.listenToServer();
+            ServerThreadHandlers.doHello(view);
+            response = view.listenToServer();
             System.out.println(response);
-            answer = Parse.parserServerResponse(response);
-            if (answer.getFunction() == Parse.PossibleServerResponses.GREETING) {
-                view.setId(answer.getArgs().get(0));
+            parsedAnswer = Parse.parserServerResponse(response);
+            if (parsedAnswer.getFunction() == Parse.PossibleServerResponses.GREETING) {
+                ServerThreadHandlers.greetingHandler(view, parsedAnswer);
                 logFile.println("Connected as " + view.getId());
                 logFile.flush();
-                view.connected = true;
-            } else if (answer
+            } else if (parsedAnswer
                     .getFunction() == Parse.PossibleServerResponses.NOGREETING) {
                 logFile.println("Server is full");
                 logFile.flush();
             } else {
-                System.out.println("Unknown error");
-                System.out.println(response);
+                logFile.println("Response was neither greeting nor nogreeting");
+                logFile.flush();
             }
 
         } catch (IOException | ParserException e) {
             // TODO: handle exception
             System.out.println(e.getMessage());
         } catch (NullPointerException e) {
-            System.out.println("answer is null");
+            logFile.println("Parsed Response failed and was null");
+            logFile.flush();
+        }
+
+        int nbListFishes = 0;
+
+        while (true) {
+            while (fishesList.getFishes().size() == 0) {
+                logFile.println("No fish in aquarium, need to add some");
+                logFile.flush();
+                try {
+                    Thread.sleep(1000); // sleep for 1 second if no fish exist --> until there is at least 1 fish
+                    continue;
+                } catch (InterruptedException e) {
+                    logFile.println("ERROR: " + e.getMessage());
+                    logFile.flush();
+                }
+            }
+            for (Fish fish : fishesList.getFishes()) {
+                if (fish.getSizeDestinations() < 2) {
+                    ServerThreadHandlers.doLs(view);
+                    nbListFishes++;
+                }
+            }
+            if (nbListFishes == 0) {
+                try {
+                    Thread.sleep(1000); // sleep for 1 second if no fish need an update in their destinations
+                    continue;
+                } catch (InterruptedException e) {
+                    logFile.println("ERROR: " + e.getMessage());
+                    logFile.flush();
+                }
+            }
+            try {
+                /* read all lines and handle fishes until no more communication */
+                response = view.listenToServer();
+                while (response != null) {
+                    parsedAnswer = Parse.parserServerResponse(response);
+                    if (parsedAnswer.getFunction() == Parse.PossibleServerResponses.LISTFISHES) {
+                        ServerThreadHandlers.listHandler(view, fishesList, parsedAnswer);
+                    }
+                    response = view.listenToServer();
+                }
+            } catch (IOException e) {
+                logFile.println("ERROR: " + e.getMessage());
+                logFile.flush();
+            } catch (ParserException e) {
+                System.out.println(e);
+            }
         }
     }
 

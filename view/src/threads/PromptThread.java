@@ -12,10 +12,12 @@ public class PromptThread implements Runnable {
 
     public void run() {
         // TODO
-        logFile.println("PromptHandler");
+        logFile.println("Starting prompt thread");
         logFile.flush();
 
-        while (view.connected == false) {
+        while (!view.isConnected()) {
+            logFile.println("Waiting for connection");
+            logFile.flush();
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
@@ -29,7 +31,7 @@ public class PromptThread implements Runnable {
         PromptParserResult promptCommand;
         String command;
         while (true) {
-            command = System.console().readLine();
+            command = System.console().readLine(); // get user prompt
             String serverResponse = transferCommand(command);
             logFile.println("Server answered: " + serverResponse);
             logFile.flush();
@@ -88,6 +90,8 @@ public class PromptThread implements Runnable {
     }
 
     public String transferCommand(String command) {
+        logFile.println("Sending command: " + command);
+        logFile.flush();
         view.talkToServer(command);
         try {
             return view.listenToServer();

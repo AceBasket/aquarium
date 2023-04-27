@@ -1,8 +1,9 @@
-PromptHandler
+Starting prompt thread
+Waiting for connection
+Waiting for connection
+Sending command: addFish PoissonRouge at 8x3, 4x3, RandomWayPoint
 Server answered: OK
-Adding fish PoissonRouge at 8x3 of size 4x3 and movement RandomWayPoint
+java.security.InvalidParameterException: Pas le bon nombre d'arguments après addFish
+Sending command: startFish PoissonRouge
 Server answered: OK
-Adding fish PoissonBleu at 8x3 of size 4x3 and movement RandomWayPoint
-Server answered: OK
-Server answered: OK
-Server answered: OK
+Starting fish PoissonRouge

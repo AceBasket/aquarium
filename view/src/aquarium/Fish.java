@@ -1,31 +1,46 @@
 package aquarium;
 
-enum statusEnum {
-    STARTED, STOPPED
+import java.time.Instant;
+import java.util.LinkedList;
+
+class FishDestination {
+    private final Coordinates destination;
+    private final int deadline;
+
+    public FishDestination(int destinationX, int destinationY, int movementDuration) {
+        this.destination = new Coordinates(destinationX, destinationY);
+        this.deadline = movementDuration + (int) Instant.now().getEpochSecond();
+    }
+
+    public Coordinates getDestination() {
+        return destination;
+    }
+
+    public int getDeadline() {
+        return deadline;
+    }
+
+    public boolean equals(FishDestination destination) {
+        return this.destination.equals(destination.getDestination()) && this.deadline == destination.getDeadline();
+    }
 }
 
 public class Fish {
+    enum statusEnum {
+        STARTED, STOPPED
+    }
+
     private final String name;
-    private Coordinate position;
-    private Coordinate destination;
+    private Coordinates position;
     private final int length;
     private final int height;
-    private int movementDuration;
     private statusEnum status;
-
-    public Fish(String name, int positionX, int positionY, int destinationX, int destinationY, int length, int height,
-            int movementDuration) {
-        this.name = name;
-        this.position = new Coordinate(positionX, positionY);
-        this.destination = new Coordinate(destinationX, destinationY);
-        this.length = length;
-        this.height = height;
-        this.movementDuration = movementDuration;
-        this.status = statusEnum.STOPPED;
-    }
+    private LinkedList<FishDestination> destinations;
 
     public Fish(String name, int positionX, int positionY, int length, int height) {
         this.name = name;
+        this.position = new Coordinates(positionX, positionY);
+        this.destinations = new LinkedList<FishDestination>();
         this.length = length;
         this.height = height;
         this.status = statusEnum.STOPPED;
@@ -35,12 +50,12 @@ public class Fish {
         return name;
     }
 
-    public Coordinate getPosition() {
+    public Coordinates getPosition() {
         return position;
     }
 
-    public Coordinate getDestination() {
-        return destination;
+    public Coordinates getFirstDestination() {
+        return destinations.getFirst().getDestination();
     }
 
     public int getLength() {
@@ -51,8 +66,8 @@ public class Fish {
         return height;
     }
 
-    public int getMovementDuration() {
-        return movementDuration;
+    public int getTimeToGetToFirstDestination() {
+        return destinations.getFirst().getDeadline();
     }
 
     public statusEnum getStatus() {
@@ -60,12 +75,23 @@ public class Fish {
     }
 
     public void setPosition(int positionX, int positionY) {
-        this.position = new Coordinate(positionX, positionY);
+        this.position = new Coordinates(positionX, positionY);
     }
 
-    public void setDestination(int destinationX, int destinationY, int movementDuration) {
-        this.destination = new Coordinate(destinationX, destinationY);
-        this.movementDuration = movementDuration;
+    public void addNewDestination(int destinationX, int destinationY, int movementDuration) {
+        FishDestination newDestination = new FishDestination(destinationX, destinationY, movementDuration);
+        destinations.addLast(newDestination);
+    }
+
+    public void removeExpiredDestinations() {
+        while (!destinations.isEmpty()
+                && destinations.getFirst().getDeadline() <= (int) Instant.now().getEpochSecond()) {
+            destinations.removeFirst();
+        }
+    }
+
+    public int getSizeDestinations() {
+        return destinations.size();
     }
 
     public void start() {

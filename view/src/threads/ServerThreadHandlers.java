@@ -33,13 +33,15 @@ public class ServerThreadHandlers {
                 Fish fish_to_create = new Fish(parsedAnswer.getArgs().get(i),
                         Integer.parseInt(parsedAnswer.getArgs().get(i + 1)), // position.x
                         Integer.parseInt(parsedAnswer.getArgs().get(i + 1)), // position.y
-                        Integer.parseInt(parsedAnswer.getArgs().get(i + 2)), // destination.x
-                        Integer.parseInt(parsedAnswer.getArgs().get(i + 2)), // destination.y
                         Integer.parseInt(parsedAnswer.getArgs().get(i + 3)), // width
-                        Integer.parseInt(parsedAnswer.getArgs().get(i + 4)), // height
-                        Integer.parseInt(parsedAnswer.getArgs().get(i + 5))); // timeToDestination
+                        Integer.parseInt(parsedAnswer.getArgs().get(i + 4))); // height
                 fishesList.addFish(fish_to_create);
             }
         }
+    }
+
+    public static void greetingHandler(View view, ServerResponseParserResult parsedAnswer) {
+        view.setId(parsedAnswer.getArgs().get(0));
+        view.connect();
     }
 }

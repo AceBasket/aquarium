@@ -76,13 +76,14 @@ void *thread_io(void *io) {
                 max_fd = views_socket_fd[num_view];
             }
         }
-        fflush(log);
 
         // Wait indefinitely for an activity on one of the sockets
         exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
             if (FD_ISSET(views_socket_fd[num_view], &read_fds)) {
                 // we have data on the num_view socket
+                fprintf(log, "Received data from view %d\n", num_view);
+                fflush(log);
 
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
@@ -107,7 +108,6 @@ void *thread_io(void *io) {
                             break;
                         }
                     }
-                    fflush(log);
                 }
 
 

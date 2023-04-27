@@ -37,6 +37,7 @@ clean:
 # $(BIN) is dependent on objects
 ${BIN}: ${OBJ}
 	${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
+	${BIN} 5 8000
 
 # each object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/%.o: %.c

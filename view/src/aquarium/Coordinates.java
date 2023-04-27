@@ -1,9 +1,10 @@
 package aquarium;
-public class Coordinate {
+
+public class Coordinates {
     private int x;
     private int y;
 
-    public Coordinate(int x, int y) {
+    public Coordinates(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -16,7 +17,11 @@ public class Coordinate {
         return y;
     }
 
-    public double distance(Coordinate other) {
+    public boolean equals(Coordinates other) {
+        return this.x == other.x && this.y == other.y;
+    }
+
+    public double distance(Coordinates other) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
 }

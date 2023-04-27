@@ -15,7 +15,7 @@ public class View {
     // useful for communication with controller
     private String id = "";
     private int displayTimeoutValue;
-    public boolean connected = false;
+    public volatile boolean connected = false;
 
     // private Aquarium aquariumView;:
 
@@ -42,6 +42,14 @@ public class View {
         this.id = id;
     }
 
+    public synchronized boolean isConnected() {
+        return this.connected;
+    }
+
+    public synchronized void connect() {
+        this.connected = true;
+    }
+
     public String getId() {
         return this.id;
     }
@@ -53,7 +61,7 @@ public class View {
     public synchronized String listenToServer() throws IOException {
         String answer = this.input.readLine();
         if (answer == null) {
-            throw new IOException("Server is down");
+            return null;
         }
         return answer.replace("@@", "\n");
     }
