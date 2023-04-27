@@ -1,6 +1,8 @@
 package aquarium;
-enum statusEnum { STARTED, STOPPED }
-enum movementEnum { RANDOM }
+
+enum statusEnum {
+    STARTED, STOPPED
+}
 
 public class Fish {
     private final String name;
@@ -8,16 +10,11 @@ public class Fish {
     private Coordinate destination;
     private final int length;
     private final int height;
-    private movementEnum movement;
     private int movementDuration;
     private statusEnum status;
 
-    public Fish(String name, int positionX, int positionY, int destinationX, int destinationY, int length, int height, String movement, int movementDuration) throws IllegalArgumentException {
-        if (movement.equals("RandomWaypoint")) {
-            this.movement = movementEnum.RANDOM;
-        } else{
-            throw new IllegalArgumentException("Unknown movement");
-        }
+    public Fish(String name, int positionX, int positionY, int destinationX, int destinationY, int length, int height,
+            int movementDuration) {
         this.name = name;
         this.position = new Coordinate(positionX, positionY);
         this.destination = new Coordinate(destinationX, destinationY);
@@ -27,12 +24,7 @@ public class Fish {
         this.status = statusEnum.STOPPED;
     }
 
-    public Fish(String name, int positionX, int positionY, int length, int height, String movement) throws IllegalArgumentException{
-        if (movement.equals("RandomWaypoint")) {
-            this.movement = movementEnum.RANDOM;
-        } else{
-            throw new IllegalArgumentException("Unknown movement");
-        }
+    public Fish(String name, int positionX, int positionY, int length, int height) {
         this.name = name;
         this.length = length;
         this.height = height;
@@ -59,18 +51,10 @@ public class Fish {
         return height;
     }
 
-    public String getMovement() {
-        if (movement == movementEnum.RANDOM) {
-            return "RandomWaypoint";
-        } else {
-            return "Unknown";
-        }
-    }
-
     public int getMovementDuration() {
         return movementDuration;
     }
-    
+
     public statusEnum getStatus() {
         return status;
     }
@@ -88,4 +72,3 @@ public class Fish {
         this.status = statusEnum.STARTED;
     }
 }
-

@@ -29,13 +29,14 @@ public class Parse {
 
     public static PromptParserResult parserCommand(String command) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
-        String[] commandSplit = command.split(" : |, |,| |x| at ");
+        String[] commandSplit = command.split(" at | : |, |,| |x");
         if (commandSplit[0].equals("status")) {
             return new PromptParserResult(PromptParserResult.PromptParsedFunctionTypes.STATUS, args);
         } else if (commandSplit[0].equals("addFish")) {
             if (commandSplit.length % 6 == 1) {
                 String poisson = commandSplit[1].substring(0, 7);
                 if (poisson.equals("Poisson")) {
+                    args.add(commandSplit[1]);
                     for (int i = 2; i < commandSplit.length - 1; i++) {
                         try {
                             Integer.parseInt(commandSplit[i]);
@@ -50,7 +51,8 @@ public class Parse {
                     throw new InvalidParameterException("Le poisson indiqué n'est pas de la forme Poisson*");
                 }
             } else {
-                throw new InvalidParameterException("Pas le bon nombre d'arguments après addFish");
+                throw new InvalidParameterException(
+                        "Pas le bon nombre d'arguments après addFish : " + commandSplit.length);
             }
 
         } else if (commandSplit[0].equals("delFish")) {
@@ -89,7 +91,7 @@ public class Parse {
 
     public static ServerResponseParserResult parserServerResponse(String response) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
-        String[] responseSplit = response.split(" : |, |,| \\[|\\] \\[|\\]|x| at | ");
+        String[] responseSplit = response.split(": |, |,| \\[|\\] \\[|\\]|x| at | ");
         if (responseSplit[0].equals("NOK")) {
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {

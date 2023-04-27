@@ -3,6 +3,7 @@ package threads;
 import aquarium.*;
 import utils.*;
 import java.io.*;
+import java.security.InvalidParameterException;
 
 public class PromptThread implements Runnable {
     private View view;
@@ -33,34 +34,41 @@ public class PromptThread implements Runnable {
             logFile.println("Server answered: " + serverResponse);
             logFile.flush();
             try {
+                System.out.println(serverResponse);
                 answer = Parse.parserServerResponse(serverResponse);
                 if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.OK) {
                     promptCommand = Parse.parserCommand(command);
                     if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.ADDFISH) {
+                        logFile.println("Adding fish " + promptCommand.getArgs().get(0) + " at "
+                                + promptCommand.getArgs().get(1) + "x" + promptCommand.getArgs().get(2) + " of size "
+                                + promptCommand.getArgs().get(3) + "x" + promptCommand.getArgs().get(4));
+                        logFile.flush();
                         Fish fishToAdd = new Fish(promptCommand.getArgs().get(0),
                                 Integer.parseInt(promptCommand.getArgs().get(1)),
                                 Integer.parseInt(promptCommand.getArgs().get(2)),
 
                                 Integer.parseInt(promptCommand.getArgs().get(3)),
-                                Integer.parseInt(promptCommand.getArgs().get(4)),
-                                promptCommand.getArgs().get(5));
+                                Integer.parseInt(promptCommand.getArgs().get(4)));
                         fishesList.addFish(fishToAdd);
                     } else if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.DELFISH) {
+                        logFile.println("Deleting fish " + promptCommand.getArgs().get(0));
+                        logFile.flush();
                         fishesList.removeFish(promptCommand.getArgs().get(0));
                     } else if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.STARTFISH) {
+                        logFile.println("Starting fish " + promptCommand.getArgs().get(0));
+                        logFile.flush();
                         fishesList.startFish(promptCommand.getArgs().get(0));
                     }
                 } else if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOK) {
                     logFile.println("Error: " + answer.getArgs().get(0));
                     logFile.flush();
                 }
-                System.out.println(serverResponse);
 
-            } catch (ParserException e) {
-                // TODO: handle exception
-                System.out.println(e.getMessage());
+            } catch (ParserException | InvalidParameterException e) {
+                logFile.println(e);
+                logFile.flush();
             } catch (NullPointerException e) {
-                System.out.println("answer is null");
+                System.out.println("parsed response is null (an error occured)");
             }
         }
     }
@@ -71,7 +79,6 @@ public class PromptThread implements Runnable {
         try {
             logFile = new PrintWriter("log_prompt_thread");
         } catch (IOException e) {
-            // TODO: handle exception
             System.out.println("Error creating log file");
         }
     }

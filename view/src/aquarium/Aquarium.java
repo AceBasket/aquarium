@@ -1,4 +1,5 @@
 package aquarium;
+
 import java.util.ArrayList;
 
 public class Aquarium {
@@ -9,7 +10,11 @@ public class Aquarium {
     }
 
     public void addFish(Fish fish) {
-        fishesList.add(fish);
+        if (!fishesList.contains(fish)) {
+            fishesList.add(fish);
+            return;
+        }
+        throw new IllegalArgumentException("Fish already exists");
     }
 
     public void removeFish(String name) throws IllegalArgumentException {
@@ -45,7 +50,8 @@ public class Aquarium {
         System.out.println("-> OK : Connecté au contrôleur, " + fishesList.size() + " poissons trouvés");
         for (Fish fish : fishesList) {
             String status = fish.getStatus() == statusEnum.STOPPED ? "not started" : "started";
-            System.out.println("Fish " + fish.getName() + " at " + fish.getPosition().getX() + "x" + fish.getPosition().getY() + ", " + fish.getLength() + ", " + fish.getHeight() + " " + status);
+            System.out.println("Fish " + fish.getName() + " at " + fish.getPosition().getX() + "x"
+                    + fish.getPosition().getY() + ", " + fish.getLength() + ", " + fish.getHeight() + " " + status);
         }
     }
 
@@ -53,5 +59,5 @@ public class Aquarium {
         Fish fish = getFish(name);
         fish.start();
     }
-    
+
 }
