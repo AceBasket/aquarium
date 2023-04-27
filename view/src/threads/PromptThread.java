@@ -36,9 +36,9 @@ public class PromptThread implements Runnable {
             try {
                 System.out.println(serverResponse);
                 answer = Parse.parserServerResponse(serverResponse);
-                if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.OK) {
+                if (answer.getFunction() == Parse.PossibleServerResponses.OK) {
                     promptCommand = Parse.parserCommand(command);
-                    if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.ADDFISH) {
+                    if (promptCommand.getFunction() == Parse.PromptCommandType.ADDFISH) {
                         logFile.println("Adding fish " + promptCommand.getArgs().get(0) + " at "
                                 + promptCommand.getArgs().get(1) + "x" + promptCommand.getArgs().get(2) + " of size "
                                 + promptCommand.getArgs().get(3) + "x" + promptCommand.getArgs().get(4));
@@ -50,16 +50,16 @@ public class PromptThread implements Runnable {
                                 Integer.parseInt(promptCommand.getArgs().get(3)),
                                 Integer.parseInt(promptCommand.getArgs().get(4)));
                         fishesList.addFish(fishToAdd);
-                    } else if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.DELFISH) {
+                    } else if (promptCommand.getFunction() == Parse.PromptCommandType.DELFISH) {
                         logFile.println("Deleting fish " + promptCommand.getArgs().get(0));
                         logFile.flush();
                         fishesList.removeFish(promptCommand.getArgs().get(0));
-                    } else if (promptCommand.getFunction() == PromptParserResult.PromptParsedFunctionTypes.STARTFISH) {
+                    } else if (promptCommand.getFunction() == Parse.PromptCommandType.STARTFISH) {
                         logFile.println("Starting fish " + promptCommand.getArgs().get(0));
                         logFile.flush();
                         fishesList.startFish(promptCommand.getArgs().get(0));
                     }
-                } else if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOK) {
+                } else if (answer.getFunction() == Parse.PossibleServerResponses.NOK) {
                     logFile.println("Error: " + answer.getArgs().get(0));
                     logFile.flush();
                 }

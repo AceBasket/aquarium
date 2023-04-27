@@ -1,20 +1,17 @@
 package utils;
+
 import java.util.ArrayList;
 
 public class ServerResponseParserResult {
-    private ServerResponseParsedFunctionTypes function;
+    private Parse.PossibleServerResponses function;
     private ArrayList<String> args;
 
-    public enum ServerResponseParsedFunctionTypes {
-        GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG // TODO : add ERROR
-    }
-
-    public ServerResponseParserResult(ServerResponseParsedFunctionTypes function, ArrayList<String> args) {
+    public ServerResponseParserResult(Parse.PossibleServerResponses function, ArrayList<String> args) {
         this.function = function;
         this.args = args;
     }
-    
-    public ServerResponseParsedFunctionTypes getFunction() {
+
+    public Parse.PossibleServerResponses getFunction() {
         return function;
     }
 

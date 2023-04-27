@@ -25,15 +25,15 @@ public class ServerThread implements Runnable {
                 view.talkToServer("hello in as " + view.getId());
             }
             String response = view.listenToServer();
-            System.out.println(response); 
+            System.out.println(response);
             answer = Parse.parserServerResponse(response);
-            if (answer.getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.GREETING) {
+            if (answer.getFunction() == Parse.PossibleServerResponses.GREETING) {
                 view.setId(answer.getArgs().get(0));
                 logFile.println("Connected as " + view.getId());
                 logFile.flush();
                 view.connected = true;
             } else if (answer
-                    .getFunction() == ServerResponseParserResult.ServerResponseParsedFunctionTypes.NOGREETING) {
+                    .getFunction() == Parse.PossibleServerResponses.NOGREETING) {
                 logFile.println("Server is full");
                 logFile.flush();
             } else {
