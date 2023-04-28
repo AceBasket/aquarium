@@ -60,7 +60,10 @@ public class ServerThread implements Runnable {
                 }
             }
             for (Fish fish : fishesList.getFishes()) {
-                if (fish.getSizeDestinations() < 2) {
+                // if fish started but less than two destinations
+                if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
+                    logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
+                    logFile.flush();
                     ServerThreadHandlers.doLs(view);
                     nbListFishes++;
                 }
@@ -68,6 +71,8 @@ public class ServerThread implements Runnable {
             if (nbListFishes == 0) {
                 try {
                     Thread.sleep(1000); // sleep for 1 second if no fish need an update in their destinations
+                    logFile.println("Sleeping until a fish needs an update");
+                    logFile.flush();
                     continue;
                 } catch (InterruptedException e) {
                     logFile.println("ERROR: " + e.getMessage());
@@ -77,12 +82,20 @@ public class ServerThread implements Runnable {
             try {
                 /* read all lines and handle fishes until no more communication */
                 response = view.listenToServer();
+                logFile.println("Server answered: " + response);
+                logFile.flush();
                 while (response != null) {
                     parsedAnswer = Parse.parserServerResponse(response);
                     if (parsedAnswer.getFunction() == Parse.PossibleServerResponses.LISTFISHES) {
+                        logFile.println("Server answered listfishes");
+                        logFile.flush();
                         ServerThreadHandlers.listHandler(view, fishesList, parsedAnswer);
+                        logFile.println("Handled listfishes");
+                        logFile.flush();
                     }
                     response = view.listenToServer();
+                    logFile.println("Server answered bis: " + response);
+                    logFile.flush();
                 }
             } catch (IOException e) {
                 logFile.println("ERROR: " + e.getMessage());
@@ -97,7 +110,7 @@ public class ServerThread implements Runnable {
         this.view = view;
         this.fishesList = aquarium;
         try {
-            logFile = new PrintWriter("log_server_thread");
+            logFile = new PrintWriter("log_server_thread.log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }

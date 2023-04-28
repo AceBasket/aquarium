@@ -10,7 +10,7 @@ public class Main {
 
     public Main() {
         try {
-            logFile = new PrintWriter("log_main");
+            logFile = new PrintWriter("log_main.log");
         } catch (IOException e) {
             System.out.println("Error creating log file for main thread");
         }
@@ -19,8 +19,8 @@ public class Main {
     public static void main(String[] argv) {
         Main main = new Main();
         try {
-            main.logFile.println("Main");
-            main.logFile.flush();
+            // main.logFile.println("Main");
+            // main.logFile.flush();
             View view = new View("0.0.0.0", 8000);
             // View view = new View(new File("src/affichage.cfg"));
             Aquarium aquarium = new Aquarium();

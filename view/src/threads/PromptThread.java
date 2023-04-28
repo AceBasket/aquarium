@@ -79,7 +79,7 @@ public class PromptThread implements Runnable {
         this.view = view;
         this.fishesList = aquarium;
         try {
-            logFile = new PrintWriter("log_prompt_thread");
+            logFile = new PrintWriter("log_prompt_thread.log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }

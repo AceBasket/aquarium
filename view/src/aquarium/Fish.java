@@ -91,7 +91,8 @@ public class Fish {
     }
 
     public int getSizeDestinations() {
-        return destinations.size();
+        /* Only counts STARTED fishes */
+        return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
     }
 
     public void start() {

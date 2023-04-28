@@ -42,7 +42,7 @@ struct aquarium *aquarium = NULL; // global aquarium
 
 
 void *thread_io(void *io) {
-    FILE *log = fopen("log_io", "w");
+    FILE *log = fopen("log_io.log", "w");
     fprintf(log, "Je suis dans io\n");
     fflush(log);
 
@@ -78,6 +78,8 @@ void *thread_io(void *io) {
         }
 
         // Wait indefinitely for an activity on one of the sockets
+        fprintf(log, "Waiting for activity on one of the sockets\n");
+        fflush(log);
         exit_if(select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1, "ERROR on select");
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
             if (FD_ISSET(views_socket_fd[num_view], &read_fds)) {
@@ -143,7 +145,7 @@ void *thread_io(void *io) {
                     del_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case STARTFISH:
-                    fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[1], num_view);
+                    fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[0], num_view);
                     start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case LOG:
@@ -173,7 +175,7 @@ void *thread_io(void *io) {
 
 
 void *thread_prompt() {
-    FILE *log = fopen("log_prompt", "w");
+    FILE *log = fopen("log_prompt.log", "w");
 
     fprintf(log, "In thread prompt\n");
     fflush(log);
@@ -239,7 +241,7 @@ void *thread_prompt() {
 
 
 void *thread_accept(void *param) {
-    FILE *log = fopen("log_accept", "w");
+    FILE *log = fopen("log_accept.log", "w");
     struct parameters *p = param;
     int new_socket_fd;
     fprintf(log, "Je suis dans accept\n");
@@ -308,7 +310,7 @@ int main(int argc, char const *argv[]) {
 
 
     /* Handling fish destinations */
-    FILE *log = fopen("log_main", "w");
+    FILE *log = fopen("log_main.log", "w");
     while (aquarium == NULL) {
         sleep(1);
     }
