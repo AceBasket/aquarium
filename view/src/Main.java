@@ -21,7 +21,8 @@ public class Main {
         try {
             // main.logFile.println("Main");
             // main.logFile.flush();
-            View view = new View("91.160.179.70", 8888);
+            // View view = new View("192.168.191.78", 8888);
+            View view = new View("192.168.191.157", 8000);
             // View view = new View(new File("src/affichage.cfg"));
             Aquarium aquarium = new Aquarium();
             Runnable serverThread = new ServerThread(view, aquarium);

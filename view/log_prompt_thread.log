@@ -1,0 +1,10 @@
+Starting prompt thread
+Waiting for connection
+Waiting for connection
+Sending command: addFish PoissonV at 8x3, 4x3, RandomWayPoint
+Server answered: OK
+Adding fish PoissonV at 8x3 of size 4x3
+Sending command: startFish PoissonV
+Server answered: OK
+Starting fish PoissonV
+Sending command: addFish PoissonRouge at 8x3, 4x3, RandomWayPoint

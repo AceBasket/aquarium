@@ -176,6 +176,7 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
     struct fish **fishes_in_view = get_fishes_in_view(aquarium, view, 1);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1);
+    // dprintf(socket_fd, "\n"); // to signal end of lists to client
     free(fishes_in_view);
 }
 

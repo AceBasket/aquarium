@@ -43,6 +43,8 @@ public class ServerThreadHandlers {
         }
     }
 
+    public static void getFishesHandler(View view, )
+
     public static void greetingHandler(View view, ServerResponseParserResult parsedAnswer) {
         view.setId(parsedAnswer.getArgs().get(0));
         view.connect();
