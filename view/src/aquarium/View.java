@@ -20,11 +20,11 @@ public class View {
     // private Aquarium aquariumView;:
 
     public View(File config) throws IOException, ParserException {
-        displayTimeoutValue = Parse.parserTimeout(config);
+        displayTimeoutValue = Parser.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
-        id = Parse.parserID(config);
-        controllerAddress = Parse.parserIP(config);
-        portNumber = Parse.parserPort(config);
+        id = Parser.parserID(config);
+        controllerAddress = Parser.parserIP(config);
+        portNumber = Parser.parserPort(config);
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);

@@ -3,116 +3,96 @@ package threads;
 import aquarium.*;
 import utils.*;
 import java.io.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerThread implements Runnable {
     private View view;
     private Aquarium fishesList;
     private PrintWriter logFile;
+    private final ConcurrentLinkedQueue<ParserResult> receivedQueue;
+    private final ConcurrentLinkedQueue<String> sendQueue;
+
+    public ServerThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+            ConcurrentLinkedQueue<String> sendQueue) {
+        this.view = view;
+        this.fishesList = aquarium;
+        this.receivedQueue = receivedQueue;
+        this.sendQueue = sendQueue;
+        try {
+            logFile = new PrintWriter("log_server_thread.log");
+        } catch (IOException e) {
+            System.out.println("Error creating log file");
+        }
+    }
 
     public void run() {
         // TODO
         logFile.println("Starting server thread");
         logFile.flush();
 
-        ServerResponseParserResult parsedAnswer;
-        String response;
+        ParserResult response;
 
         // First thing first is greeting the server
         try {
             // view.talkToServer("Testing connection");
-            ServerThreadHandlers.doHello(view);
-            response = view.listenToServer();
-            System.out.println(response);
-            parsedAnswer = Parse.parserServerResponse(response);
-            if (parsedAnswer.getFunction() == Parse.PossibleServerResponses.GREETING) {
-                ServerThreadHandlers.greetingHandler(view, parsedAnswer);
-                logFile.println("Connected as " + view.getId());
-                logFile.flush();
-            } else if (parsedAnswer
-                    .getFunction() == Parse.PossibleServerResponses.NOGREETING) {
-                logFile.println("Server is full");
-                logFile.flush();
-            } else {
-                logFile.println("Response was neither greeting nor nogreeting");
-                logFile.flush();
-            }
-
-        } catch (IOException | ParserException e) {
-            // TODO: handle exception
-            System.out.println(e.getMessage());
-        } catch (NullPointerException e) {
-            logFile.println("Parsed Response failed and was null");
+            sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
+            logFile.println("Sent hello");
             logFile.flush();
-        }
-
-        int nbListFishes = 0;
-
-        while (true) {
-            while (fishesList.getFishes().size() == 0) {
-                logFile.println("No fish in aquarium, need to add some");
-                logFile.flush();
-                try {
-                    Thread.sleep(1000); // sleep for 1 second if no fish exist --> until there is at least 1 fish
-                    continue;
-                } catch (InterruptedException e) {
-                    logFile.println("ERROR: " + e.getMessage());
-                    logFile.flush();
-                }
-            }
-            for (Fish fish : fishesList.getFishes()) {
-                // if fish started but less than two destinations
-                if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
-                    logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
-                    logFile.flush();
-                    ServerThreadHandlers.doLs(view);
-                    nbListFishes++;
-                }
-            }
-            if (nbListFishes == 0) {
-                try {
-                    Thread.sleep(1000); // sleep for 1 second if no fish need an update in their destinations
-                    logFile.println("Sleeping until a fish needs an update");
+            while (true) {
+                response = receivedQueue.peek();
+                if (response == null) {
+                    Thread.sleep(1000); // sleep 1 second and try again
+                    logFile.println("Nothing to handle");
                     logFile.flush();
                     continue;
-                } catch (InterruptedException e) {
-                    logFile.println("ERROR: " + e.getMessage());
-                    logFile.flush();
                 }
-            }
-            try {
-                /* read all lines and handle fishes until no more communication */
-                response = view.listenToServer();
-                logFile.println("Server answered: " + response);
-                logFile.flush();
-                while (response != null) {
-                    parsedAnswer = Parse.parserServerResponse(response);
-                    if (parsedAnswer.getFunction() == Parse.PossibleServerResponses.LISTFISHES) {
-                        logFile.println("Server answered listfishes");
+
+                switch (response.getFunction()) {
+                    case GREETING:
+                        ServerThreadHandlers.greetingHandler(logFile, view, receivedQueue.remove());
+                        break;
+                    case NOGREETING:
+                        logFile.println("Server is full");
                         logFile.flush();
-                        ServerThreadHandlers.listHandler(view, fishesList, parsedAnswer);
-                        logFile.println("Handled listfishes");
+                        // BREAK CONNECTION SOMEHOW
+                        break;
+                    case LISTFISHES:
+                        ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
+                        break;
+                    case BYE:
+                        logFile.println("Logging out");
                         logFile.flush();
+                        // LOG OUT SOMEHOW
+                        break;
+                    case PONG:
+                        logFile.println("Pong received");
+                        logFile.flush();
+                        // reset timeout timer somehow
+                        break;
+
+                    default:
+                        break;
+                }
+
+                boolean listFishesDestinations = false;
+
+                for (Fish fish : fishesList.getFishes()) {
+                    // if fish started but less than two destinations
+                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
+                        logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
+                        logFile.flush();
+                        if (!listFishesDestinations) {
+                            sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
+                            listFishesDestinations = true;
+                        }
                     }
-                    response = view.listenToServer();
-                    logFile.println("Server answered bis: " + response);
-                    logFile.flush();
                 }
-            } catch (IOException e) {
-                logFile.println("ERROR: " + e.getMessage());
-                logFile.flush();
-            } catch (ParserException e) {
-                System.out.println(e);
-            }
-        }
-    }
 
-    public ServerThread(View view, Aquarium aquarium) {
-        this.view = view;
-        this.fishesList = aquarium;
-        try {
-            logFile = new PrintWriter("log_server_thread.log");
-        } catch (IOException e) {
-            System.out.println("Error creating log file");
+            }
+
+        } catch (Exception e) {
+            logFile.println(e);
+            logFile.flush();
         }
     }
 }

@@ -2,16 +2,16 @@ package utils;
 
 import java.util.ArrayList;
 
-public class PromptParserResult {
-    private Parse.PromptCommandType function;
+public class ParserResult {
+    private Parser.PossibleResponses function;
     private ArrayList<String> args;
 
-    public PromptParserResult(Parse.PromptCommandType function, ArrayList<String> args) {
+    public ParserResult(Parser.PossibleResponses function, ArrayList<String> args) {
         this.function = function;
         this.args = args;
     }
 
-    public Parse.PromptCommandType getFunction() {
+    public Parser.PossibleResponses getFunction() {
         return function;
     }
 
