@@ -1,5 +1,5 @@
-#ifndef PROMPT_HANDLER_FUNCTIONS_H_
-#define PROMPT_HANDLER_FUNCTIONS_H_
+#ifndef _PROMPT_HANDLER_FUNCTIONS_H_
+#define _PROMPT_HANDLER_FUNCTIONS_H_
 
 #include "aquarium.h"
 #include "utils.h"
