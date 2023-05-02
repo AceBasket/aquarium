@@ -207,23 +207,23 @@ void *thread_prompt() {
         case LOAD:
             fprintf(log, "Loading aquarium from file %s\n", parser->arguments[0]);
             fflush(log);
-            load_handler(parser, &aquarium);
+            load_handler(log, parser, &aquarium);
             break;
         case SHOW:
             fprintf(log, "Showing aquarium\n");
-            show_handler(aquarium);
+            show_handler(log, aquarium);
             break;
         case ADD_VIEW:
             fprintf(log, "Adding view %s to the aquarium\n", parser->arguments[1]);
-            add_view_handler(parser, aquarium);
+            add_view_handler(log, parser, aquarium);
             break;
         case DEL_VIEW:
             fprintf(log, "Deleting view %s from the aquarium\n", parser->arguments[1]);
-            del_view_handler(parser, aquarium);
+            del_view_handler(log, parser, aquarium);
             break;
         case SAVE:
             fprintf(log, "Saving the aquarium at %s\n", parser->arguments[0]);
-            save_handler(parser, aquarium);
+            save_handler(log, parser, aquarium);
             break;
         default:
             break;
