@@ -7,8 +7,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
-#include "utils.h"
 #include "aquarium.h"
+// #include "utils.h"
+#include "fish.h"
 #include "socket_aquarium.h"
 #include "io_handler_functions.h"
 #include "prompt_handler_functions.h"

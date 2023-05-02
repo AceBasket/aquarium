@@ -1,5 +1,6 @@
 #include "io_handler_functions.h"
 #include "socket_aquarium.h"
+#include "fish.h"
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     if (strcmp(parser->status, "OK\n") != 0) {

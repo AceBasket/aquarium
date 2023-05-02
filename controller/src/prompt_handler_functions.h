@@ -2,7 +2,7 @@
 #define _PROMPT_HANDLER_FUNCTIONS_H_
 
 #include "aquarium.h"
-#include "utils.h"
+// #include "utils.h"
 
 void load_handler(struct parse *parser, struct aquarium **aquarium);
 void show_handler(struct aquarium *aquarium);

@@ -1,4 +1,5 @@
 #include "prompt_handler_functions.h"
+#include "view.h"
 
 void load_handler(struct parse *parser, struct aquarium **aquarium) {
     FILE *fd = fopen(parser->arguments[0], "r");
