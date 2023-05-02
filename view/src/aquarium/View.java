@@ -1,7 +1,7 @@
 package aquarium;
+
 import java.io.*;
 import java.net.*;
-import java.nio.file.Path;
 import utils.*;
 
 public class View {
@@ -15,84 +15,65 @@ public class View {
     // useful for communication with controller
     private String id = "";
     private int displayTimeoutValue;
+    public volatile boolean connected = false;
 
     // private Aquarium aquariumView;:
 
     public View(File config) throws IOException, ParserException {
-        displayTimeoutValue = Parse.parserTimeout(config);
+        displayTimeoutValue = Parser.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
-        id = Parse.parserID(config);
-        controllerAddress = Parse.parserIP(config);
-        portNumber = Parse.parserPort(config);
+        id = Parser.parserID(config);
+        controllerAddress = Parser.parserIP(config);
+        portNumber = Parser.parserPort(config);
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-        
     }
 
-
-    private void init() {
-        if (!this.id.equals("")) {
-            this.output.println("hello in as " + this.id);
-        } else {
-            this.output.println("hello");
-        }
+    public View(String controllerAddress, int portNumber) throws IOException {
+        this.controllerAddress = controllerAddress;
+        this.portNumber = portNumber;
+        socket = new Socket(controllerAddress, portNumber);
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
     }
-    
-    private void setId(String id) {
+
+    public void setId(String id) {
         this.id = id;
     }
 
-    private void getFishes() {
-        this.output.println("getFishes");
+    public synchronized boolean isConnected() {
+        return this.connected;
     }
 
-    private void getFishesContinuously() {
-        this.output.println("getFishesContinuously");
+    public synchronized void connect() {
+        this.connected = true;
     }
 
-    private void getListFishes() {
-        this.output.println("ls");
+    public String getId() {
+        return this.id;
     }
 
-    private void logOut() {
-        this.output.println("log out");
+    public synchronized void talkToServer(String speech) {
+        this.output.println(speech);
     }
 
-    private void ping() {
-        this.output.println("ping " + this.id);
-    }
-
-    // prototype not fixed
-    private void addFish(String name, String destination, String size, String path) {
-        this.output.println("addFish  " + name + " at " + destination + ", " + size + ", " + path);
-    }
-
-    // prototype not fixed
-    private void delFish(String name) {
-        this.output.println("delFish " + name);
-    }
-
-    // prototype not fixed
-    private void startFish(String name) {
-        this.output.println("startFish " + name);
-    }
-
-
-    public static void main(String[] argv) {
-        try {
-
-            View view = new View(new File("../affichage.cfg"));
-
-            view.output.println("Testing connection");
-
-            System.out.println("END");
-            view.output.println("END");
-            view.input.close();
-            view.output.close();
-            view.socket.close();
-        } catch (IOException | ParserException e) {
-            System.out.println(e.getMessage());
+    public synchronized String listenToServer() throws IOException {
+        String answer = this.input.readLine();
+        if (answer == null) {
+            return null;
         }
+        return answer.replace("@@", "\n");
     }
+
+    public synchronized boolean serverIsTalking() throws IOException {
+        return this.input.ready();
+    }
+
+    public void close() throws IOException {
+        this.input.close();
+        this.output.close();
+        this.socket.close();
+    }
+
 }

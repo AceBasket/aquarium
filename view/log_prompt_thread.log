@@ -1,0 +1,19 @@
+Starting prompt thread
+User asked for: addFish PoissonRouge at 8x3, 4x3, RandomWayPoint
+Nothing to handle
+Adding fish PoissonRouge at 8x3 of size 4x3
+Fish added
+User asked for: addFish PoissonBleu at 8x3, 4x3, RandomWayPoint
+Nothing to handle
+Adding fish PoissonBleu at 8x3 of size 4x3
+Fish added
+User asked for: startFish PoissonRouge
+Nothing to handle
+Starting fish PoissonRouge
+Fish started
+User asked for: startFish PoissonBleu
+Nothing to handle
+Starting fish PoissonBleu
+Fish started
+User asked for: 
+Not a command handled by prompt thread
