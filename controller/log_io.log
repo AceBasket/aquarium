@@ -1,17 +1,6 @@
 Je suis dans io
 Waiting for aquarium to be initialized
 Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for aquarium to be initialized
-Waiting for views to be initialized
-Waiting for views to be initialized
 Waiting for views to be initialized
 Waiting for views to be initialized
 Waiting for views to be initialized
@@ -26,12 +15,27 @@ Add fish from view 0
 fish PoissonRouge at 40x15 in aquarium added
 Waiting for activity on one of the sockets
 Received data from view 0
+Received 48 bytes from view 0: addFish PoissonBleu at 8x3, 4x3, RandomWayPoint
+Add fish from view 0
+fish PoissonBleu at 40x15 in aquarium added
+Waiting for activity on one of the sockets
+Received data from view 0
 Received 23 bytes from view 0: startFish PoissonRouge
 Start fish (PoissonRouge) from view 0
 Waiting for activity on one of the sockets
 Received data from view 0
+Received 22 bytes from view 0: startFish PoissonBleu
+Start fish (PoissonBleu) from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 1 bytes from view 0: 
+Waiting for activity on one of the sockets
+Received data from view 0
 Client closed connection
-Start fish (PoissonRouge) from view 0
 Waiting for activity on one of the sockets
 Received data from view 0
 Client closed connection

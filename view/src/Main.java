@@ -2,6 +2,7 @@
 // import utils.*;
 import aquarium.*;
 import java.io.*;
+import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import threads.*;
@@ -19,7 +20,7 @@ public class Main {
     }
 
     public static void main(String[] argv) {
-        // Main main = new Main();
+        Main main = new Main();
         try {
             // main.logFile.println("Main");
             // main.logFile.flush();
@@ -39,18 +40,32 @@ public class Main {
             server.start();
             prompt.start();
 
-            // while (true) {
-            // // System.out.println("Main thread running");
-            // main.logFile.println("Main thread running");
-            // main.logFile.flush();
-            // Thread.sleep(1000);
-            // }
-            io.join();
-            server.join();
-            prompt.join();
-        } catch (Exception e) {
+            main.logFile.println("All threads running");
+            main.logFile.flush();
+
+            while (true) {
+                // System.out.println("Main thread running");
+                if (!aquarium.getFishes().isEmpty()) {
+                    for (Fish fish : aquarium.getFishes()) {
+                        if (fish.getSizeDestinations() > 0) {
+                            main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
+                                    + fish.getName() + " is at " + fish.getPosition().toString()
+                                    + " and needs to go to " + fish.getFirstDestination().toString() + " before "
+                                    + fish.getTimeToGetToFirstDestination());
+                            main.logFile.flush();
+                        }
+                    }
+                }
+                Thread.sleep(1000);
+            }
+
+            // io.join();
+            // server.join();
+            // prompt.join();
+        } catch (IOException | InterruptedException e) {
             // TODO: handle exception
-            System.out.println(e);
+            main.logFile.println(e);
+            main.logFile.flush();
         }
     }
 }

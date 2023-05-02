@@ -31,6 +31,8 @@ public class ServerThread implements Runnable {
         logFile.flush();
 
         ParserResult response;
+        boolean listFishesDestinations = false;
+        // boolean responseReceived = false;
 
         // First thing first is greeting the server
         try {
@@ -39,6 +41,20 @@ public class ServerThread implements Runnable {
             logFile.println("Sent hello");
             logFile.flush();
             while (true) {
+                // listFishesDestinations = false;
+                for (Fish fish : fishesList.getFishes()) {
+                    // if fish started but less than two destinations
+                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
+                        logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
+                        logFile.flush();
+                        if (!listFishesDestinations) {
+                            sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
+                            logFile.println("Sent ls");
+                            logFile.flush();
+                            listFishesDestinations = true;
+                        }
+                    }
+                }
                 response = receivedQueue.peek();
                 if (response == null) {
                     Thread.sleep(1000); // sleep 1 second and try again
@@ -58,6 +74,7 @@ public class ServerThread implements Runnable {
                         break;
                     case LISTFISHES:
                         ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
+                        listFishesDestinations = false;
                         break;
                     case BYE:
                         logFile.println("Logging out");
@@ -71,27 +88,33 @@ public class ServerThread implements Runnable {
                         break;
 
                     default:
+                        logFile.println("Not a command handled by server thread");
+                        logFile.flush();
+                        Thread.sleep(1000); // sleep 1 second and try again
                         break;
                 }
 
-                boolean listFishesDestinations = false;
-
-                for (Fish fish : fishesList.getFishes()) {
-                    // if fish started but less than two destinations
-                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
-                        logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
-                        logFile.flush();
-                        if (!listFishesDestinations) {
-                            sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
-                            listFishesDestinations = true;
-                        }
-                    }
-                }
+                // for (Fish fish : fishesList.getFishes()) {
+                // // if fish started but less than two destinations
+                // if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
+                // logFile.println(
+                // "[second for loop] Fish " + fish.getName() + " needs an update on his
+                // destinations");
+                // logFile.flush();
+                // if (!listFishesDestinations) {
+                // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
+                // fishes
+                // logFile.println("Sent ls");
+                // logFile.flush();
+                // listFishesDestinations = true;
+                // }
+                // }
+                // }
 
             }
 
         } catch (Exception e) {
-            logFile.println(e);
+            logFile.println("ERROR: " + e.getMessage());
             logFile.flush();
         }
     }

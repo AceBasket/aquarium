@@ -66,6 +66,10 @@ public class View {
         return answer.replace("@@", "\n");
     }
 
+    public synchronized boolean serverIsTalking() throws IOException {
+        return this.input.ready();
+    }
+
     public void close() throws IOException {
         this.input.close();
         this.output.close();

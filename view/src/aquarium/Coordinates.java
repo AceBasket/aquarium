@@ -24,4 +24,9 @@ public class Coordinates {
     public double distance(Coordinates other) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
+
+    @Override
+    public String toString() {
+        return new String(x + "x" + y);
+    }
 }

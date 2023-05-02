@@ -27,7 +27,7 @@ visual: ${FX_CLASSES}
 
 test: ${TST_CLASSES} 
 
-build/%.class: src/%.java build/utils/Parse.class
+build/%.class: src/%.java build/utils/Parser.class
 	${JC} ${JCFLAGS} $<
 
 ${TST_CLASSES}: build/%.class: tst/%.java

@@ -53,9 +53,8 @@ public class PromptThreadHandlers {
                     break;
             }
         } catch (ParserException e) {
-            logFile.println(e);
+            logFile.println("ERROR: " + e.getMessage());
         }
-        System.out.println("OK");
     }
 
     public static void handleNOK(PrintWriter logFile, String originalCommand) {
@@ -86,6 +85,5 @@ public class PromptThreadHandlers {
         } catch (ParserException e) {
             logFile.println(e);
         }
-        System.out.println("NOK");
     }
 }

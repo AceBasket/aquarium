@@ -71,7 +71,7 @@ struct fish *create_fish(char *name, struct coordinates top_left, int height, in
     fish->status = NOT_STARTED;
     tailq_t destination_tmp = STAILQ_HEAD_INITIALIZER(fish->destinations_queue);
     fish->destinations_queue = destination_tmp;
-    fish->speed = rand() % 10 + 1;
+    fish->speed = rand() % 5 + 1;
     fish->next = NULL;
     return fish;
 }
@@ -297,17 +297,16 @@ struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, i
     return fishes;
 }
 
-int distance(struct coordinates destination) {
-    return sqrt(pow(destination.x, 2) + pow(destination.y, 2));
+int distance(struct coordinates destination, struct coordinates current_position) {
+    return sqrt(pow(current_position.x - destination.x, 2) + pow(current_position.y - destination.y, 2));
 }
 
 void add_movement(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
     new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
-    new_destination->time_at_destination = time(NULL) + (distance(new_destination->destination_coordinates)) / fish->speed;
+    new_destination->time_at_destination = time(NULL) + (distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed;
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
-    // exit_if(fish->time_at_destination == -1, "time failed");
 }
 
 void remove_finished_movements(struct fish *fish) {

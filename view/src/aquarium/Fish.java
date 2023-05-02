@@ -80,7 +80,9 @@ public class Fish {
 
     public void addNewDestination(int destinationX, int destinationY, int movementDuration) {
         FishDestination newDestination = new FishDestination(destinationX, destinationY, movementDuration);
-        destinations.addLast(newDestination);
+        if (!destinations.contains(newDestination)) {
+            destinations.addLast(newDestination);
+        }
     }
 
     public void removeExpiredDestinations() {
