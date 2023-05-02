@@ -8,7 +8,8 @@ public class UnitTestsCommand {
     }
     void testParserAddFish () throws IOException, ParserException {
         String start = "startFish PoissonNain";
-        new PromptParserResult(Parse.parserCommand(start));
-        assert "STARTFISH" == 
+        PromptParserResult result = Parse.parserCommand(start);
+        assert Parse.PromptCommandType.STARTFISH == result.getCommand() : "testAddFish PoissonNain a échoué";
+        System.out.println("testAddFish PoissonNain a réussi");
     }
 }
