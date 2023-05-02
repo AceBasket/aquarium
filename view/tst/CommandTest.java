@@ -2,9 +2,9 @@ import utils.*;
 import java.io.File;
 import java.io.IOException;
 
-public class UnitTestsCommand {
+public class CommandTest {
     public static void main(String[] args) throws IOException, ParserException {
-        new UnitTestsCommand().testParserAddFish();
+        new CommandTest().testParserAddFish();
     }
     void testParserAddFish () throws IOException, ParserException {
         String start = "startFish PoissonNain";

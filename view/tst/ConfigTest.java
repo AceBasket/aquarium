@@ -2,13 +2,13 @@ import utils.*;
 import java.io.File;
 import java.io.IOException;
 
-public class UnitTestsConfig {
+public class ConfigTest {
     public static void main(String[] args) throws IOException, ParserException {
-        new UnitTestsConfig().testParserTimeout();
-        new UnitTestsConfig().testParserResources();
-        new UnitTestsConfig().testParserID();
-        new UnitTestsConfig().testParserPort();
-        new UnitTestsConfig().testParserIpAddress();
+        new ConfigTest().testParserTimeout();
+        new ConfigTest().testParserResources();
+        new ConfigTest().testParserID();
+        new ConfigTest().testParserPort();
+        new ConfigTest().testParserIpAddress();
     }
 
     void testParserIpAddress() throws IOException, ParserException {
