@@ -7,8 +7,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <assert.h>
-#include "utils.h"
 #include "aquarium.h"
+// #include "utils.h"
+#include "fish.h"
 #include "socket_aquarium.h"
 #include "io_handler_functions.h"
 #include "prompt_handler_functions.h"
@@ -43,7 +44,7 @@ struct aquarium *aquarium = NULL; // global aquarium
 
 void *thread_io(void *io) {
     FILE *log = fopen("log_io.log", "w");
-    fprintf(log, "Je suis dans io\n");
+    fprintf(log, "===== thread_io() =====\n");
     fflush(log);
 
     while (aquarium == NULL) {
@@ -177,7 +178,7 @@ void *thread_io(void *io) {
 void *thread_prompt() {
     FILE *log = fopen("log_prompt.log", "w");
 
-    fprintf(log, "In thread prompt\n");
+    fprintf(log, "===== thread_prompt() =====\n");
     fflush(log);
 
     char buffer[BUFFER_SIZE];
@@ -195,38 +196,36 @@ void *thread_prompt() {
         } while (char_read != '\n' && char_read != EOF);
         buffer[i_buffer - 1] = '\0';
 
-        fprintf(log, "buffer: '%s' of size %ld\n", buffer, strlen(buffer));
+        fprintf(log, "Command: '%s' of size %ld\n", buffer, strlen(buffer));
         fflush(log);
 
         // we parse this line
         struct parse *parser = parse_prompt(buffer);
         int function = (int)parser->func_name;
-        fprintf(log, "function name: %d\n", function);
+        fprintf(log, "Function to execute: %d\n", function);
         fflush(log);
 
         switch (function) {
         case LOAD:
             fprintf(log, "Loading aquarium from file %s\n", parser->arguments[0]);
             fflush(log);
-            load_handler(parser, &aquarium);
+            load_handler(log, parser, &aquarium);
             break;
         case SHOW:
             fprintf(log, "Showing aquarium\n");
-            fprintf(log, "aquarium adresse: %p\n", aquarium);
-            show_handler(aquarium);
+            show_handler(log, aquarium);
             break;
         case ADD_VIEW:
-            fprintf(log, "Adding a view to the aquarium\n");
-            add_view_handler(parser, aquarium);
+            fprintf(log, "Adding view %s to the aquarium\n", parser->arguments[1]);
+            add_view_handler(log, parser, aquarium);
             break;
         case DEL_VIEW:
-            fprintf(log, "Deleting a view from the aquarium\n");
-            del_view_handler(parser, aquarium);
+            fprintf(log, "Deleting view %s from the aquarium\n", parser->arguments[1]);
+            del_view_handler(log, parser, aquarium);
             break;
         case SAVE:
-            fprintf(log, "Saving the aquarium\n");
-            fprintf(log, "aquarium path: %s\n", parser->arguments[0]);
-            save_handler(parser, aquarium);
+            fprintf(log, "Saving the aquarium at %s\n", parser->arguments[0]);
+            save_handler(log, parser, aquarium);
             break;
         default:
             break;
@@ -244,7 +243,7 @@ void *thread_accept(void *param) {
     FILE *log = fopen("log_accept.log", "w");
     struct parameters *p = param;
     int new_socket_fd;
-    fprintf(log, "Je suis dans accept\n");
+    fprintf(log, "===== thread_accept() =====\n");
     fflush(log);
 
 // Initialization of all views_socket[] to 0 so not checked
@@ -256,6 +255,7 @@ void *thread_accept(void *param) {
     while (1) {
 
         fprintf(log, "Waiting for a new connection...\n");
+        fflush(log);
         p->view_addr_len = sizeof(p->view_addr);
         new_socket_fd = accept(p->socket_fd, (struct sockaddr *)&p->view_addr, &p->view_addr_len);
         exit_if(new_socket_fd < 0, "ERROR on accept");
@@ -311,6 +311,8 @@ int main(int argc, char const *argv[]) {
 
     /* Handling fish destinations */
     FILE *log = fopen("log_main.log", "w");
+    fprintf(log, "===== thread_main() =====\n");
+    fflush(log);
     while (aquarium == NULL) {
         sleep(1);
     }
@@ -334,7 +336,6 @@ int main(int argc, char const *argv[]) {
     exit_if(pthread_join(tid_prompt, NULL), "ERROR on thread join");
 
     // exit_if(close(param.socket_fd) == -1, "ERROR on close");
-
 
 
     return EXIT_SUCCESS;

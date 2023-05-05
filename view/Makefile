@@ -40,4 +40,4 @@ ${FX_CLASSES}: build/%.class: src/%.java
 
 
 clean:
-	${RM} build/*.class build/**/*.class
+	${RM} build/*.class build/**/*.class *.log

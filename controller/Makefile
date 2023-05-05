@@ -29,7 +29,7 @@ build: dir ${BIN}
 test: dir ${TEST}
 
 clean:
-	rm -rf build/
+	rm -rf build/ *.log
 
 
 #################### SOURCE FILES ####################
