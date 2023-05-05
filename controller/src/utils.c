@@ -88,10 +88,6 @@ struct parse *parse_prompt(char *str) {
         return p;
     }
 
-    // p->arguments[p->size] = malloc(strlen(command) + 1);
-    // strcpy(p->arguments[p->size], command);
-    // p->size++;
-
     // load 
     if (strcmp(command, "load") == 0) {
         p->func_name = LOAD;
@@ -381,10 +377,6 @@ struct parse *parse_clients(char *str) {
         p->arguments[p->size] = malloc(1); // to avoid segfault when freeing
         return p;
     }
-
-    // p->arguments[p->size] = malloc(strlen(command) + 1);
-    // strcpy(p->arguments[p->size], command);
-    // p->size += 1;
 
     //status
     if (strcmp(command, "status") == 0) {
