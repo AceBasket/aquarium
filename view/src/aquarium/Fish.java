@@ -100,4 +100,9 @@ public class Fish {
     public void start() {
         this.status = statusEnum.STARTED;
     }
+
+    @Override
+    public String toString() {
+        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", " + (status == statusEnum.STARTED ? "started" : "notstarted");
+    }
 }
