@@ -34,32 +34,26 @@ int remove_fish(struct aquarium *aquarium, struct fish *fish) {
     if (aquarium->fishes == NULL) {
         return NOK;
     }
-    // if the aquarium is not empty, check if the fish is in the aquarium
-    struct fish *current = aquarium->fishes;
 
-    if (strcmp(current->name, fish->name) == 0) {
-        aquarium->fishes = current->next;
-        free(current->name);
-        free(current);
+    if (strcmp(aquarium->fishes->name, fish->name) == 0) {
+        aquarium->fishes = aquarium->fishes->next;
         return OK;
     }
-
-    struct fish *previous = NULL;
-    while (current->next != NULL) {
+    // if the aquarium is not empty, check if the fish is in the aquarium
+    struct fish *current = aquarium->fishes;
+    struct fish *previous = current;
+    do {
         if (strcmp(current->name, fish->name) == 0) {
             // if the fish is in the aquarium, remove it
-            if (previous == NULL) {
-                aquarium->fishes = current->next;
-            } else {
-                previous->next = current->next;
-            }
+            previous->next = current->next;
             free(current->name);
             free(current);
             return OK;
         }
         previous = current;
         current = current->next;
-    }
+    } while (current != NULL);
+
     // if the fish is not in the aquarium, return failure
     return NOK;
 }
@@ -75,8 +69,9 @@ struct fish *create_fish(char *name, struct coordinates top_left, int height, in
     fish->width = width;
     fish->movement_pattern = mvt;
     fish->status = NOT_STARTED;
-    fish->destination = top_left;
-    fish->time_to_destination = 0;
+    tailq_t destination_tmp = STAILQ_HEAD_INITIALIZER(fish->destinations_queue);
+    fish->destinations_queue = destination_tmp;
+    fish->speed = rand() % 5 + 1;
     fish->next = NULL;
     return fish;
 }
@@ -101,7 +96,7 @@ struct fish *get_fish_from_name(struct aquarium *aquarium, char *name) {
     return NULL;
 }
 
-struct view *create_view(char *name, struct coordinates top_left, int height, int width) {
+struct view *create_view(char *name, struct coordinates top_left, int width, int height) {
     // create a new view
     struct view *view = malloc(sizeof(struct view));
     exit_if(view == NULL, "malloc failed");
@@ -194,7 +189,7 @@ struct view *get_view(struct aquarium *aquarium, char *name) {
     return NULL;
 }
 
-struct aquarium *create_aquarium(int height, int width) {
+struct aquarium *create_aquarium(int width, int height) {
     // create a new aquarium
     struct aquarium *aquarium = malloc(sizeof(struct aquarium));
     exit_if(aquarium == NULL, "malloc failed");
@@ -227,16 +222,19 @@ int len_views(struct aquarium *aquarium) {
     return nb_views;
 }
 
-void show_aquarium(struct aquarium *aquarium, FILE *fish) {
-    fprintf(fish, "%dx%d\n", aquarium->width, aquarium->height);
+void show_aquarium(struct aquarium *aquarium, FILE *output) {
+    fprintf(output, "%dx%d\n", aquarium->width, aquarium->height);
+    fflush(output);
 
-    struct view *current_view = aquarium->views;
-    struct view *next_view = current_view->next;
-    for (int i = 0; i < len_views(aquarium); i++) {
-        fprintf(fish, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
-        current_view = next_view;
-        next_view = current_view->next;
-    }
+    struct view *current_view;
+    current_view = aquarium->views;
+    do {
+        fprintf(output, "%s %dx%d+%d+%d\n", current_view->name, current_view->top_left.x, current_view->top_left.y, current_view->width, current_view->height);
+        fflush(output);
+        current_view = current_view->next;
+
+    } while (current_view != NULL);
+
 }
 
 int len_fishes(struct aquarium *aquarium) {
@@ -299,11 +297,39 @@ struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, i
     return fishes;
 }
 
-void set_movement(struct aquarium *aquarium, struct fish *fish) {
-    fish->destination.x = rand() % aquarium->width; // between 0 and width
-    fish->destination.y = rand() % aquarium->height; // between 0 and height
-    fish->time_to_destination = time(NULL) + rand() % 10 + 1; // between 1 and 10
-    exit_if(fish->time_to_destination == -1, "time failed");
+int distance(struct coordinates destination, struct coordinates current_position) {
+    return sqrt(pow(current_position.x - destination.x, 2) + pow(current_position.y - destination.y, 2));
+}
+
+void add_movement(struct aquarium *aquarium, struct fish *fish) {
+    struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
+    new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
+    new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
+    new_destination->time_at_destination = time(NULL) + (distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed;
+    STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
+}
+
+void remove_finished_movements(struct fish *fish) {
+    struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
+    while (current_destination != NULL) {
+        if (current_destination->time_at_destination <= time(NULL)) {
+            STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
+            free(current_destination);
+            current_destination = STAILQ_FIRST(&fish->destinations_queue);
+        } else {
+            break;
+        }
+    }
+}
+
+int len_movements_queue(struct fish *fish) {
+    int len = 0;
+    struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
+    while (current_destination != NULL) {
+        len++;
+        current_destination = STAILQ_NEXT(current_destination, next);
+    }
+    return len;
 }
 
 int free_aquarium(struct aquarium *aquarium) {

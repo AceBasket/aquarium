@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS += -Wall -Wextra -Werror -g -O0
-LDFLAGS += -pthread
+LDFLAGS += -pthread -lm
 
 
 #This finds all c files and places then into SRC. It's equivalent would be
@@ -32,18 +32,19 @@ clean:
 	rm -rf build/
 
 
-#################### EXECUTABLE ####################
+#################### SOURCE FILES ####################
 
 # $(BIN) is dependent on objects
 ${BIN}: ${OBJ}
-	${CC} ${CFLAGS} ${LDFLAGS} $^ -o $@
+	${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
+	${BIN} 5 8000
 
 # each object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/%.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@
 
 
-#################### TESTS ####################
+#################### TEST FILES ####################
 
 # each test object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/tst/%.o: tst/%.c
@@ -51,5 +52,5 @@ build/tst/%.o: tst/%.c
 
 # each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
 build/tst/%.tst: build/tst/%.o build/src/utils.o build/src/aquarium.o build/src/socket_aquarium.o
-	${CC} ${CFLAGS} $^ -o $@
+	${CC} ${CFLAGS} $^ -o $@ -lm
 	$@

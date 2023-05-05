@@ -1,0 +1,7 @@
+controller-address = 12.11
+
+id = 01
+
+controller-port = 70000
+
+display-timeout-value = 2Af

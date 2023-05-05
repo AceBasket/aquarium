@@ -24,7 +24,7 @@ public class FishAnimationFX extends Application {
     private final int VIEW_HEIGHT = 400;
     private final int FISH_WIDTH = 150;
     private final int FISH_HEIGHT = 100;
-    private static final int BUFFER_WIDTH = 50;
+    //private static final int BUFFER_WIDTH = 50;
 
     private ImageView fish;
     private double fishX, fishY;
@@ -49,19 +49,22 @@ public class FishAnimationFX extends Application {
 
         
         //view1 image
-        File fileA1 = new File("./img/aquarium.jpg");
+        File fileA1 = new File("./img/ocean.jpg");
         
         Image viewImage1 = new Image(fileA1.toURI().toString());
-
-        Rectangle2D croppedPortion = new Rectangle2D(0, 0, VIEW_WIDTH, VIEW_HEIGHT);//x, y , width, height
+        double pixelWidth = viewImage1.getWidth();
+        double pixelHeight = viewImage1.getHeight();
+        // System.out.println(viewImage1.getWidth());
+        // System.out.println(viewImage1.getHeight());
+        //Rectangle2D croppedPortion = new Rectangle2D(pixelWidth/2, pixelHeight/2, pixelWidth/2, pixelHeight/2);//x, y , width, height
         view1 = new ImageView(viewImage1);
         // target width and height:
-        double scaledWidth = VIEW_WIDTH ;
-        double scaledHeight = VIEW_HEIGHT ;
-        view1.setViewport(croppedPortion);
-        view1.setFitWidth(scaledWidth);
-        view1.setFitHeight(scaledHeight);
-        view1.setSmooth(true);
+        // double scaledWidth = VIEW_WIDTH/2 ;
+        // double scaledHeight = VIEW_HEIGHT/2 ;
+        //view1.setViewport(croppedPortion);
+        // view1.setFitWidth(scaledWidth);
+        // view1.setFitHeight(scaledHeight);
+        //view1.setSmooth(true);
         viewX1 = VIEW_WIDTH;
 
         viewY1 = VIEW_HEIGHT;
@@ -70,7 +73,7 @@ public class FishAnimationFX extends Application {
         
 
         //view2
-        File fileA2 = new File("./img/aquarium.jpg");
+        File fileA2 = new File("./img/ocean.jpg");
         Image viewImage2 = new Image(fileA2.toURI().toString());
         view2 = new ImageView(viewImage2);
         viewX2 = VIEW_WIDTH;
@@ -113,6 +116,7 @@ public class FishAnimationFX extends Application {
 
                 fish.setX(fishX);
                 fish.setY(fishY);
+                //this should change depending on the view
                 // Check if fish is outside the bounds of view1
                 if (fish.getBoundsInParent().getMaxX() < 0 || fish.getBoundsInParent().getMinX() > VIEW_WIDTH ||
                         fish.getBoundsInParent().getMaxY() < 0 || fish.getBoundsInParent().getMinY() > VIEW_HEIGHT) {
@@ -163,7 +167,7 @@ public class FishAnimationFX extends Application {
         pane2.getChildren().add(fish);
 
         // Set up the stage
-         Scene scene2 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
+        Scene scene2 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
         // //Scene scene3 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
         Stage secondStage = new Stage();
         // //Stage thirdStage = new Stage();
