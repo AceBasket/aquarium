@@ -323,6 +323,7 @@ int main(int argc, char const *argv[]) {
             if (len_movements_queue(current_fish) < 2) {
                 add_movement(aquarium, current_fish);
                 fprintf(log, "Movement added to %s: will go to %dx%d before %ld\n", current_fish->name, STAILQ_FIRST(&current_fish->destinations_queue)->destination_coordinates.x, STAILQ_FIRST(&current_fish->destinations_queue)->destination_coordinates.y, STAILQ_FIRST(&current_fish->destinations_queue)->time_at_destination);
+                fprintf(log, "It is actually %ld\n", time(NULL));
                 fflush(log);
             }
             current_fish = current_fish->next;

@@ -1,7 +1,6 @@
 package threads;
 
 import java.io.PrintWriter;
-import java.time.Instant;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
@@ -32,8 +31,7 @@ public class ServerThreadHandlers {
                 Fish fish_to_update = fishesList.getFish(parsedResponse.getArgs().get(i));
                 fishesList.setFishDestination(fish_to_update, Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // destination.x
                         Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // destination.y
-                        // time to get to destination
-                        (int) Instant.now().getEpochSecond() + Integer.parseInt(parsedResponse.getArgs().get(i + 5)));
+                        Integer.parseInt(parsedResponse.getArgs().get(i + 5))); // time to get to destination
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
                         + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i + 2) + " in "
                         + parsedResponse.getArgs().get(i + 5) + " seconds");

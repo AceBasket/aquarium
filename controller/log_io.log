@@ -4,6 +4,12 @@ Waiting for aquarium to be initialized
 Waiting for views to be initialized
 Waiting for views to be initialized
 Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
+Waiting for views to be initialized
 Waiting for activity on one of the sockets
 Received data from view 0
 Received 6 bytes from view 0: hello
@@ -32,10 +38,68 @@ Received 3 bytes from view 0: ls
 List fishes from view 0
 Waiting for activity on one of the sockets
 Received data from view 0
-Received 1 bytes from view 0: 
+Received 3 bytes from view 0: ls
+List fishes from view 0
 Waiting for activity on one of the sockets
 Received data from view 0
-Client closed connection
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
+Waiting for activity on one of the sockets
+Received data from view 0
+Received 3 bytes from view 0: ls
+List fishes from view 0
 Waiting for activity on one of the sockets
 Received data from view 0
 Client closed connection

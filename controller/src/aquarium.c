@@ -71,7 +71,7 @@ struct fish *create_fish(char *name, struct coordinates top_left, int height, in
     fish->status = NOT_STARTED;
     tailq_t destination_tmp = STAILQ_HEAD_INITIALIZER(fish->destinations_queue);
     fish->destinations_queue = destination_tmp;
-    fish->speed = rand() % 5 + 1;
+    fish->speed = rand() % 50 + 100;
     fish->next = NULL;
     return fish;
 }
