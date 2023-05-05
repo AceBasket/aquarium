@@ -16,7 +16,7 @@ import javafx.scene.Group;
 
 import java.io.File;
 import java.util.Random;
-
+import java.util.List;
 
 public class FishAnimationFX extends Application {
 
@@ -45,11 +45,15 @@ public class FishAnimationFX extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        //Group animationGroup = new Group();
+        //récupérer les arguments avec getParameters.
+        List<String> parameters = getParameters().getRaw();
 
+        //String arg1 = parameters.get(0);
+        //String arg2 = parameters.get(1);
+        //String arg3 = parameters.get(2);
         
         //view1 image
-        File fileA1 = new File("./img/ocean.jpg");
+        File fileA1 = new File("./img/ocean.jpeg");
         
         Image viewImage1 = new Image(fileA1.toURI().toString());
         double pixelWidth = viewImage1.getWidth();
@@ -73,7 +77,7 @@ public class FishAnimationFX extends Application {
         
 
         //view2
-        File fileA2 = new File("./img/ocean.jpg");
+        File fileA2 = new File("./img/ocean.jpeg");
         Image viewImage2 = new Image(fileA2.toURI().toString());
         view2 = new ImageView(viewImage2);
         viewX2 = VIEW_WIDTH;
