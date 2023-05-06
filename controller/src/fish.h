@@ -39,5 +39,7 @@ int start_fish(struct aquarium *aquarium, char *name);
 void add_movement(struct aquarium *aquarium, struct fish *fish);
 void remove_finished_movements(struct fish *fish);
 int len_movements_queue(struct fish *fish);
+void free_fishes_array(struct fish **fishes, struct view *view);
+struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started);
 
-#endif // _FISH_H_
+#endif // _FISH_H_ 

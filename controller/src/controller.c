@@ -153,10 +153,10 @@ void *thread_io(void *io) {
                     fprintf(log, "LOGOUT out from view %d\n", num_view);
                     log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
-                case STATUS:
-                    fprintf(log, "Status from view %d\n", num_view);
-                    status_handler(log, parser, views_socket_fd[num_view], aquarium);
-                    break;
+                // case STATUS:
+                //     fprintf(log, "Status from view %d\n", num_view);
+                //     status_handler(log, parser, views_socket_fd[num_view], aquarium);
+                //     break;
                 case UNKNOWN:
                     fprintf(log, "Unknown command from view %d\n", num_view);
                     dprintf(views_socket_fd[num_view], "NOK: Unknown command\n");

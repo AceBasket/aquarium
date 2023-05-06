@@ -51,7 +51,7 @@ public class PromptThread implements Runnable {
                         PromptThreadHandlers.handleStatus(logFile, view.isConnected(), fishesList);
                         continue;
                     }
-                } catch (ParserException e) {
+                } catch (ParserException | InvalidParameterException e) {
                     System.out.println(e.getMessage());
                     continue;
                 }

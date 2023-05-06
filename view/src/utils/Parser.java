@@ -47,7 +47,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format");
+                            System.out.println("Invalid Argument Format1");
                         }
                         args.add(responseSplit[i]);
                     }
@@ -107,7 +107,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format");
+                                System.out.println("Invalid Argument Format2");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -124,7 +124,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format");
+                                System.out.println("Invalid Argument Format3");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -158,6 +158,7 @@ public class Parser {
         } else if (responseSplit[0].equals("list")) {
             if (responseSplit.length % 6 == 1) {
                 for (int i = 1; i < responseSplit.length; i++) {
+                    System.out.println(responseSplit[i]);
                     if (i % 6 == 1) {
                         String poisson = responseSplit[i].substring(0, 7);
                         if (!poisson.equals("Poisson")) {
@@ -167,7 +168,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format");
+                            System.out.println("Invalid Argument Format4");
                         }
                     }
                     args.add(responseSplit[i]);
