@@ -20,6 +20,13 @@ struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd) {
     return NULL;
 }
 
+struct coordinates coordinates_to_percentages(struct view *view, struct coordinates coordinates) {
+    struct coordinates c;
+    c.x = x_coordinate_to_percentage(view, coordinates.x);
+    c.y = y_coordinate_to_percentage(view, coordinates.y);
+    return c;
+}
+
 int x_coordinate_to_percentage(struct view *view, int x) {
     return (x - view->top_left.x) * 100 / view->width;
 }

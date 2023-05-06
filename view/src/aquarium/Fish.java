@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 class FishDestination {
     private final Coordinates destination;
-    private final int deadline;
+    private final long deadline;
 
     public FishDestination(int destinationX, int destinationY, int movementDuration) {
         this.destination = new Coordinates(destinationX, destinationY);
@@ -16,7 +16,7 @@ class FishDestination {
         return destination;
     }
 
-    public int getDeadline() {
+    public long getDeadline() {
         return deadline;
     }
 
@@ -66,7 +66,7 @@ public class Fish {
         return height;
     }
 
-    public int getTimeToGetToFirstDestination() {
+    public long getTimeToGetToFirstDestination() {
         return destinations.getFirst().getDeadline();
     }
 
