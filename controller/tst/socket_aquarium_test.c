@@ -33,8 +33,12 @@ void test_get_view_from_socket_no_views() {
 }
 
 int main() {
+    printf("Socket aquarium tests: .");
     test_get_view_from_socket();
+    printf(".");
     test_get_view_from_socket_not_in_aquarium();
+    printf(".");
     test_get_view_from_socket_no_views();
+    printf(" OK\n");
     return EXIT_SUCCESS;
 }

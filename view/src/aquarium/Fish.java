@@ -20,7 +20,12 @@ class FishDestination {
         return deadline;
     }
 
-    public boolean equals(FishDestination destination) {
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FishDestination)) {
+            return false;
+        }
+        FishDestination destination = (FishDestination) o;
         return this.destination.equals(destination.getDestination()) && this.deadline == destination.getDeadline();
     }
 }
@@ -87,7 +92,7 @@ public class Fish {
 
     public void removeExpiredDestinations() {
         while (!destinations.isEmpty()
-                && destinations.getFirst().getDeadline() <= (int) Instant.now().getEpochSecond()) {
+                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
             destinations.removeFirst();
         }
     }
@@ -103,6 +108,7 @@ public class Fish {
 
     @Override
     public String toString() {
-        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", " + (status == statusEnum.STARTED ? "started" : "notstarted");
+        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
+                + (status == statusEnum.STARTED ? "started" : "notstarted");
     }
 }

@@ -40,6 +40,7 @@ struct parameters {
 };
 
 struct aquarium *aquarium = NULL; // global aquarium
+pthread_mutex_t aquarium_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 void *thread_io(void *io) {
@@ -47,14 +48,18 @@ void *thread_io(void *io) {
     fprintf(log, "===== thread_io() =====\n");
     fflush(log);
 
+    pthread_mutex_lock(&aquarium_mutex);
     while (aquarium == NULL) {
+        pthread_mutex_unlock(&aquarium_mutex);
         fprintf(log, "Waiting for aquarium to be initialized\n");
         fflush(log);
         sleep(1);
 
+        pthread_mutex_lock(&aquarium_mutex);
     }
+    pthread_mutex_unlock(&aquarium_mutex);
 
-    // For communication with views
+// For communication with views
     fd_set read_fds;
     int *views_socket_fd = (int *)io;
     int recv_bytes;
@@ -119,39 +124,57 @@ void *thread_io(void *io) {
                 switch (function_called) {
                 case HELLO:
                     fprintf(log, "Hello from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     hello_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case GETFISHES:
                     fprintf(log, "Get fishes from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     get_fishes_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case LS:
                     fprintf(log, "List fishes from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     ls_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case PING:
                     fprintf(log, "Ping from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     ping_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case ADDFISH:
                     fprintf(log, "Add fish from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     add_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case DELFISH:
                     fprintf(log, "Delete fish from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     del_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case STARTFISH:
                     fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[0], num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case LOG:
                     fprintf(log, "LOGOUT out from view %d\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
                     log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 // case STATUS:
                 //     fprintf(log, "Status from view %d\n", num_view);
@@ -209,23 +232,33 @@ void *thread_prompt() {
         case LOAD:
             fprintf(log, "Loading aquarium from file %s\n", parser->arguments[0]);
             fflush(log);
+            pthread_mutex_lock(&aquarium_mutex);
             load_handler(log, parser, &aquarium);
+            pthread_mutex_unlock(&aquarium_mutex);
             break;
         case SHOW:
             fprintf(log, "Showing aquarium\n");
+            pthread_mutex_lock(&aquarium_mutex);
             show_handler(log, aquarium);
+            pthread_mutex_unlock(&aquarium_mutex);
             break;
         case ADD_VIEW:
             fprintf(log, "Adding view %s to the aquarium\n", parser->arguments[1]);
+            pthread_mutex_lock(&aquarium_mutex);
             add_view_handler(log, parser, aquarium);
+            pthread_mutex_unlock(&aquarium_mutex);
             break;
         case DEL_VIEW:
             fprintf(log, "Deleting view %s from the aquarium\n", parser->arguments[1]);
+            pthread_mutex_lock(&aquarium_mutex);
             del_view_handler(log, parser, aquarium);
+            pthread_mutex_unlock(&aquarium_mutex);
             break;
         case SAVE:
             fprintf(log, "Saving the aquarium at %s\n", parser->arguments[0]);
+            pthread_mutex_lock(&aquarium_mutex);
             save_handler(log, parser, aquarium);
+            pthread_mutex_unlock(&aquarium_mutex);
             break;
         default:
             break;
@@ -313,23 +346,78 @@ int main(int argc, char const *argv[]) {
     FILE *log = fopen("log_main.log", "w");
     fprintf(log, "===== thread_main() =====\n");
     fflush(log);
-    while (aquarium == NULL) {
-        sleep(1);
-    }
 
+    pthread_mutex_lock(&aquarium_mutex);
+    while (aquarium == NULL) {
+        pthread_mutex_unlock(&aquarium_mutex);
+        sleep(1);
+        pthread_mutex_lock(&aquarium_mutex);
+    }
+    pthread_mutex_unlock(&aquarium_mutex);
+
+    pthread_mutex_lock(&aquarium_mutex);
+    struct fish *fishes = aquarium->fishes;
+    struct fish *current_fish = fishes;
+    pthread_mutex_unlock(&aquarium_mutex);
     while (1) {
-        struct fish *fishes = aquarium->fishes;
-        struct fish *current_fish = fishes;
+        // fprintf(log, "===== New iteration =====\n");
+        // fflush(log);
+
+        pthread_mutex_lock(&aquarium_mutex);
+        fishes = aquarium->fishes;
+        current_fish = fishes;
         while (current_fish != NULL) {
+            // printf("calling remove_finished_movements, current_fish = %p\n", current_fish);
+
             remove_finished_movements(current_fish);
-            if (len_movements_queue(current_fish) < 2) {
+
+            // printf("\nDEBUGGING after remove_finished_movements\n");
+            // printf("======= actual time: %ld =======\n", time(NULL));
+            // struct fish_destination *element = STAILQ_FIRST(&current_fish->destinations_queue);
+            // while (element != NULL) {
+            //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
+            //     element = STAILQ_NEXT(element, next);
+            // }
+            // printf("\n\n");
+            if (len_movements_queue(current_fish) < 5) {
+                int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
-                fprintf(log, "Movement added to %s: will go to %dx%d before %ld\n", current_fish->name, STAILQ_FIRST(&current_fish->destinations_queue)->destination_coordinates.x, STAILQ_FIRST(&current_fish->destinations_queue)->destination_coordinates.y, STAILQ_FIRST(&current_fish->destinations_queue)->time_at_destination);
-                fprintf(log, "It is actually %ld\n", time(NULL));
+
+                /* struct fish_destination *destination = STAILQ_FIRST(&current_fish->destinations_queue);
+                fprintf(log, "DEBUG\n%s will go to %dx%d ", current_fish->name, destination->destination_coordinates.x, destination->destination_coordinates.y);
+                while (STAILQ_NEXT(destination, next) != NULL) {
+                    destination = STAILQ_NEXT(destination, next);
+                    fprintf(log, "and then to %dx%d ",destination->destination_coordinates.x, destination->destination_coordinates.y);
+                }
+                fprintf(log, "\nEND DEBUG\n"); */
+
+
+                // struct fish_destination *element = STAILQ_FIRST(&current_fish->destinations_queue);
+                // while (element != NULL) {
+                //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
+                //     element = STAILQ_NEXT(element, next);
+                // }
+                // printf("\n\n");
+
+
+                // printf("file p = %p\n", *(current_fish->destinations_queue.stqh_last));
+                fprintf(log, "%s had %d destinations. Movement added\n", current_fish->name, len);
+                // fprintf(log, "Movement added to %s: will go to %dx%d before %ld\n", current_fish->name, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.x, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.y, (*(current_fish->destinations_queue.stqh_last))->time_at_destination);
+                fprintf(log, "It is actually %ld and %s is at %dx%d\n", time(NULL), current_fish->name, current_fish->top_left.x, current_fish->top_left.y);
                 fflush(log);
+                assert(len == len_movements_queue(current_fish) - 1);
             }
+            // element = STAILQ_FIRST(&current_fish->destinations_queue);
             current_fish = current_fish->next;
+            // while (element != NULL) {
+            //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
+            //     element = STAILQ_NEXT(element, next);
+            // }
+            // printf("END DEBUGGING\n\n");
         }
+        pthread_mutex_unlock(&aquarium_mutex);
+
+        usleep(200000); // 200ms = 0.2 s
     }
 
     exit_if(pthread_join(tid_accept, NULL), "ERROR on thread join");

@@ -19,12 +19,15 @@ TEST = ${OBJ_TST:%.o=%.tst}
 
 .PHONY: all build test clean
 
+.PRECIOUS: build/tst/%.tst ${BIN}
+
 all: build
 
 dir:
 	mkdir -p build/src build/tst
 
 build: dir ${BIN}
+	${BIN} 5 8000
 
 test: dir ${TEST}
 
@@ -37,7 +40,6 @@ clean:
 # $(BIN) is dependent on objects
 ${BIN}: ${OBJ}
 	${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
-	${BIN} 5 8000
 
 # each object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/%.o: %.c
@@ -48,9 +50,9 @@ build/%.o: %.c
 
 # each test object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/tst/%.o: tst/%.c
-	${CC} ${CFLAGS} -c $< -o $@
+	@${CC} ${CFLAGS} -c $< -o $@
 
 # each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
-build/tst/%.tst: build/tst/%.o build/src/utils.o build/src/aquarium.o build/src/socket_aquarium.o
-	${CC} ${CFLAGS} $^ -o $@ -lm
-	$@
+build/tst/%.tst: build/tst/%.o build/src/utils.o build/src/aquarium.o build/src/view.o build/src/fish.o build/src/socket_aquarium.o
+	@${CC} ${CFLAGS} $^ -o $@ -lm
+	@$@
