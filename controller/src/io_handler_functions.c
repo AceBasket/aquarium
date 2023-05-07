@@ -74,7 +74,6 @@ void get_fishes_handler(FILE *log, __attribute__((unused))struct parse *parser, 
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
-    // printf("fishes in view: %p\n", fishes_in_view[0]);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
     free_fishes_array(fishes_in_view, view);
 }

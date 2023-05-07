@@ -65,7 +65,6 @@ char *remove_spaces(char *str) {
         if (string[i] != ' ')
             string[++j] = string[i];
     string[++j] = '\0';
-    //printf("%s\n", string);
     return string;
 }
 
@@ -577,12 +576,11 @@ struct parse *parse_clients(char *str) {
     //ping
     else if (strcmp(command, "ping") == 0) {
         p->func_name = PING;
-        char * id = strtok(NULL, " ");
-        if ( id == NULL) {
+        char *id = strtok(NULL, " ");
+        if (id == NULL) {
             too_few_arguments(p, "ping <ID>");
             return p;
-        }
-        else if (!is_number(id, 0)){
+        } else if (!is_number(id, 0)) {
             strcpy(p->status, "ERROR: The ID should be a number \n");
             return p;
         }

@@ -22,6 +22,12 @@ void free_fish(struct fish *fish) {
     if (fish == NULL) {
         return;
     }
+    struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
+    while (element != NULL) {
+        STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
+        free(current_destination);
+        current_destination = STAILQ_FIRST(&fish->destinations_queue);
+    }
     free(fish->name);
     free(fish);
 }
@@ -106,7 +112,12 @@ struct fish *get_fishes(struct aquarium *aquarium) {
 }
 
 int add_specific_destination(struct fish *fish, struct fish_destination *destination) {
-    STAILQ_INSERT_TAIL(&fish->destinations_queue, destination, next);
+    /* Deep copy necessary */
+    struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
+    new_destination->destination_coordinates.x = destination->destination_coordinates.x;
+    new_destination->destination_coordinates.y = destination->destination_coordinates.y;
+    new_destination->time_at_destination = destination->time_at_destination;
+    STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
     return OK;
 }
 
@@ -170,6 +181,7 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
             }
         }
         current_fish = current_fish->next;
+
     } while (current_fish != NULL);
     fishes[i] = NULL; // end of the array
     return fishes;
@@ -226,14 +238,6 @@ float distance(struct coordinates destination, struct coordinates origin) {
 }
 
 int add_movement(struct aquarium *aquarium, struct fish *fish) {
-    // printf("\nDEBUGGING add_movement\n");
-    // printf("======= actual time: %ld =======\n", time(NULL));
-    // struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
-    // while (element != NULL) {
-    //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-    //     element = STAILQ_NEXT(element, next);
-    // }
-    // printf("\n\n");
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
     new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
@@ -248,12 +252,6 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     /* actual time + previous destination time + time to get to this destination */
     new_destination->time_at_destination = time_at_destination_previous_destination + (time_t)((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed);
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
-    // element = STAILQ_FIRST(&fish->destinations_queue);
-    // while (element != NULL) {
-    //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-    //     element = STAILQ_NEXT(element, next);
-    // }
-    // printf("END DEBUGGING\n\n");
     return OK;
 }
 
@@ -268,38 +266,9 @@ int update_fish_coordinates(struct fish *fish) {
 }
 
 int remove_finished_movements(struct fish *fish) {
-    printf("BEGINNING remove_finished_movements (time = %ld)\n", time(NULL));
-    // printf("\nDEBUGGING remove_finished_movements\n");
-    // printf("======= actual time: %ld =======\n", time(NULL));
-    // struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
-    // while (element != NULL) {
-    //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-    //     element = STAILQ_NEXT(element, next);
-    // }
-    // printf("\n\n");
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
-    // struct fish_destination *next = current_destination;
-    // while (next != NULL) {
-    //     next = STAILQ_NEXT(current_destination, next);
-    //     if (current_destination->time_at_destination <= time(NULL)) {
-    //         if (update_fish_coordinates(fish) == NOK) {
-    //             return NOK;
-    //         };
-    //         STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
-    //         free(current_destination);
-    //     }
-    //     current_destination = next;
-    // }
+
     while (current_destination != NULL) {
-
-        printf("NEW LOOP INSIDE remove_finished_movements\n");
-        struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
-        while (element != NULL) {
-            printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-            element = STAILQ_NEXT(element, next);
-        }
-        printf("\n\n");
-
         if (current_destination->time_at_destination <= time(NULL)) {
             if (update_fish_coordinates(fish) == NOK) {
                 return NOK;
@@ -311,12 +280,6 @@ int remove_finished_movements(struct fish *fish) {
             break;
         }
     }
-    // element = STAILQ_FIRST(&fish->destinations_queue);
-    // while (element != NULL) {
-    //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-    //     element = STAILQ_NEXT(element, next);
-    // }
-    // printf("END DEBUGGING\n\n");
     return OK;
 }
 

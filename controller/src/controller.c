@@ -106,7 +106,6 @@ void *thread_io(void *io) {
                     } else {
                         if (char_read != '\r') {
                             buffer[total_recv_bytes++] = char_read;
-                            // printf("%d ", char_read);
                         }
                         if (char_read == '\n') {
                             buffer[total_recv_bytes - 1] = '\0';
@@ -367,53 +366,17 @@ int main(int argc, char const *argv[]) {
         fishes = aquarium->fishes;
         current_fish = fishes;
         while (current_fish != NULL) {
-            // printf("calling remove_finished_movements, current_fish = %p\n", current_fish);
-
             remove_finished_movements(current_fish);
-
-            // printf("\nDEBUGGING after remove_finished_movements\n");
-            // printf("======= actual time: %ld =======\n", time(NULL));
-            // struct fish_destination *element = STAILQ_FIRST(&current_fish->destinations_queue);
-            // while (element != NULL) {
-            //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-            //     element = STAILQ_NEXT(element, next);
-            // }
-            // printf("\n\n");
             if (len_movements_queue(current_fish) < 5) {
                 int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
-
-                /* struct fish_destination *destination = STAILQ_FIRST(&current_fish->destinations_queue);
-                fprintf(log, "DEBUG\n%s will go to %dx%d ", current_fish->name, destination->destination_coordinates.x, destination->destination_coordinates.y);
-                while (STAILQ_NEXT(destination, next) != NULL) {
-                    destination = STAILQ_NEXT(destination, next);
-                    fprintf(log, "and then to %dx%d ",destination->destination_coordinates.x, destination->destination_coordinates.y);
-                }
-                fprintf(log, "\nEND DEBUG\n"); */
-
-
-                // struct fish_destination *element = STAILQ_FIRST(&current_fish->destinations_queue);
-                // while (element != NULL) {
-                //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-                //     element = STAILQ_NEXT(element, next);
-                // }
-                // printf("\n\n");
-
-
-                // printf("file p = %p\n", *(current_fish->destinations_queue.stqh_last));
                 fprintf(log, "%s had %d destinations. Movement added\n", current_fish->name, len);
                 // fprintf(log, "Movement added to %s: will go to %dx%d before %ld\n", current_fish->name, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.x, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.y, (*(current_fish->destinations_queue.stqh_last))->time_at_destination);
                 fprintf(log, "It is actually %ld and %s is at %dx%d\n", time(NULL), current_fish->name, current_fish->top_left.x, current_fish->top_left.y);
                 fflush(log);
                 assert(len == len_movements_queue(current_fish) - 1);
             }
-            // element = STAILQ_FIRST(&current_fish->destinations_queue);
             current_fish = current_fish->next;
-            // while (element != NULL) {
-            //     printf("x: %d, y: %d, time: %ld\n", element->destination_coordinates.x, element->destination_coordinates.y, element->time_at_destination);
-            //     element = STAILQ_NEXT(element, next);
-            // }
-            // printf("END DEBUGGING\n\n");
         }
         pthread_mutex_unlock(&aquarium_mutex);
 
