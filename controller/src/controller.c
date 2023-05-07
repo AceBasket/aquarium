@@ -13,7 +13,7 @@
 #include "socket_aquarium.h"
 #include "io_handler_functions.h"
 #include "prompt_handler_functions.h"
-#include "time.h"
+#include <time.h>
 
 // for pthread_yield
 #define _GNU_SOURCE
@@ -23,9 +23,10 @@
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
 
+int display_timeout_value;
+
 struct parameters {
     int nb_views;
-    int port;
     // Definition of the current socket and the future socket
     int socket_fd;
     int new_socket_fd;
@@ -85,9 +86,24 @@ void *thread_io(void *io) {
             if (FD_ISSET(views_socket_fd[num_view], &read_fds)) {
                 // we have data on the num_view socket
 
+                struct view *view = get_view_from_socket(aquarium, views_socket_fd[num_view]);
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
+                    // Disconnects the view when it has been inactive for too long
+                    time_t current_time = time(NULL);
+                    fprintf(log, "current time: %ld\n", current_time);
+                    fflush(log);
+                    if (view != NULL && current_time - view->time_last_ping >= display_timeout_value) {
+                        fprintf(log, "Timeout ! \n");
+                        fflush(log);
+                        dprintf(views_socket_fd[num_view], "Bye\n");
+                        close(views_socket_fd[num_view]);
+                        views_socket_fd[num_view] = -1;
+                        view->socket_fd = -1;
+                        break;
+                    }
+
                     char char_read;
                     recv_bytes = recv(views_socket_fd[num_view], &char_read, 1, 0);
                     exit_if(recv_bytes == -1, "ERROR on recv");
@@ -98,7 +114,8 @@ void *thread_io(void *io) {
                     } else {
                         if (char_read != '\r') {
                             buffer[total_recv_bytes++] = char_read;
-                            // printf("%d ", char_read);
+                            fprintf(log, "char read: %d ", char_read);
+                            fflush(log);
                         }
                         if (char_read == '\n') {
                             buffer[total_recv_bytes - 1] = '\0';
@@ -111,6 +128,9 @@ void *thread_io(void *io) {
                     fflush(log);
                 }
 
+                if (views_socket_fd[num_view] == -1) {
+                    continue;
+                }
 
                 struct parse *parser = parse_clients(buffer);
                 enum func function_called = parser->func_name;
@@ -148,8 +168,8 @@ void *thread_io(void *io) {
                     start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     break;
                 case LOG:
-                    fprintf(log, "LOGOUT out from view %d\n", num_view);
-                    log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    fprintf(log, "Log out from view %d\n", num_view);
+                    log_out_handler(log, parser, &views_socket_fd[num_view], aquarium);
                     break;
                 case STATUS:
                     fprintf(log, "Status from view %d\n", num_view);
@@ -162,6 +182,9 @@ void *thread_io(void *io) {
                 default:
                     dprintf(views_socket_fd[num_view], "%s", parser->status);
                     break;
+                }
+                if (view != NULL) {
+                    view->time_last_ping = time(NULL);
                 }
                 free_parser(parser);
                 fflush(log);
@@ -274,6 +297,10 @@ void *thread_accept(void *param) {
 
 
 int main(int argc, char const *argv[]) {
+    FILE *log = fopen("log_main.log", "w");
+    fprintf(log, "===== thread_main() =====\n");
+    fflush(log);
+
     struct parameters param;
 
     // Checking the number of arguments
@@ -281,7 +308,15 @@ int main(int argc, char const *argv[]) {
     // Number of views
     param.nb_views = atoi(argv[1]);
     // Port number
-    param.port = atoi(argv[2]);
+    int port = atoi(argv[2]);
+
+    // FILE *fd = fopen("src/controller.cfg", "r");
+    // exit_if(fd == NULL, "ERROR on opening file\n");
+    // struct parse *parsed_file = parse_file(fd);
+    // display_timeout_value = atoi(parsed_file->arguments[3]);
+    display_timeout_value = 15;
+    fprintf(log, "timeout value: %d\n", display_timeout_value);
+
 
     pthread_t tid_accept;
     pthread_t tid_prompt;
@@ -295,7 +330,7 @@ int main(int argc, char const *argv[]) {
     // Definition of the type of socket created
     param.ctrl_addr.sin_family = AF_INET;
     param.ctrl_addr.sin_addr.s_addr = INADDR_ANY;
-    param.ctrl_addr.sin_port = htons(param.port);
+    param.ctrl_addr.sin_port = htons(port);
 
     // Bind of the socket to the controller address area 
     exit_if(bind(param.socket_fd, (struct sockaddr *)&param.ctrl_addr, sizeof(param.ctrl_addr)) < 0, "ERROR on binding");
@@ -308,9 +343,6 @@ int main(int argc, char const *argv[]) {
 
 
     /* Handling fish destinations */
-    FILE *log = fopen("log_main.log", "w");
-    fprintf(log, "===== thread_main() =====\n");
-    fflush(log);
     while (aquarium == NULL) {
         sleep(1);
     }

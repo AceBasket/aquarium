@@ -2,6 +2,7 @@
 #define _VIEW_H_
 
 #include <stdlib.h>
+#include <time.h>
 #include "aquarium.h"
 
 struct view {
@@ -11,6 +12,7 @@ struct view {
     int height;
     int width;
     struct view *next;
+    time_t time_last_ping;
 };
 
 struct view *create_view(char *name, struct coordinates top_left, int height, int width);
