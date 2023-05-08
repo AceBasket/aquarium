@@ -1,7 +1,6 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
-#include <stdlib.h>
 #include "aquarium.h"
 #include "view.h"
 

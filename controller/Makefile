@@ -13,7 +13,7 @@ OBJ = ${SRC:%.c=build/%.o}
 TST = ${shell find tst -name *_test.c}
 OBJ_TST = ${TST:%.c=build/%.o}
 
-BIN = build/controller.exe
+BIN = build/main.exe
 TEST = ${OBJ_TST:%.o=%.tst}
 
 
@@ -24,7 +24,7 @@ TEST = ${OBJ_TST:%.o=%.tst}
 all: build
 
 dir:
-	mkdir -p build/src build/tst
+	mkdir -p build/tst build/src/threads/handler_functions build/src/communication build/src/aquarium build/src/parser
 
 build: dir ${BIN}
 	${BIN} 5 8000

@@ -1,4 +1,7 @@
+#include <stdlib.h>
+#include <string.h>
 #include "fish.h"
+#include "../utils.h"
 
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt) {
     // create a new fish
@@ -23,7 +26,7 @@ void free_fish(struct fish *fish) {
         return;
     }
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
-    while (element != NULL) {
+    while (current_destination != NULL) {
         STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
         free(current_destination);
         current_destination = STAILQ_FIRST(&fish->destinations_queue);
