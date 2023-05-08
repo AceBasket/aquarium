@@ -7,11 +7,6 @@
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
 
-
-
-
-
-
 void init_server(int nb_views, int port_number, struct aquarium **aquarium, pthread_mutex_t *aquarium_mutex, pthread_mutex_t *views_sockets_mutex) {
     struct thread_prompt_parameters *prompt_parameters = malloc(sizeof(struct thread_prompt_parameters));
     struct thread_accept_parameters *accept_parameters = malloc(sizeof(struct thread_accept_parameters));
