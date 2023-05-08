@@ -1,39 +1,51 @@
 package aquarium;
-enum statusEnum { STARTED, STOPPED }
-enum movementEnum { RANDOM }
 
-public class Fish {
-    private final String name;
-    private Coordinate position;
-    private Coordinate destination;
-    private final int length;
-    private final int height;
-    private movementEnum movement;
-    private int movementDuration;
-    private statusEnum status;
+import java.time.Instant;
+import java.util.LinkedList;
 
-    public Fish(String name, int positionX, int positionY, int destinationX, int destinationY, int length, int height, String movement, int movementDuration) throws IllegalArgumentException {
-        if (movement.equals("RandomWaypoint")) {
-            this.movement = movementEnum.RANDOM;
-        } else{
-            throw new IllegalArgumentException("Unknown movement");
-        }
-        this.name = name;
-        this.position = new Coordinate(positionX, positionY);
-        this.destination = new Coordinate(destinationX, destinationY);
-        this.length = length;
-        this.height = height;
-        this.movementDuration = movementDuration;
-        this.status = statusEnum.STOPPED;
+class FishDestination {
+    private final Coordinates destination;
+    private final long deadline;
+
+    public FishDestination(int destinationX, int destinationY, int movementDuration) {
+        this.destination = new Coordinates(destinationX, destinationY);
+        this.deadline = movementDuration + (int) Instant.now().getEpochSecond();
     }
 
-    public Fish(String name, int positionX, int positionY, int length, int height, String movement) throws IllegalArgumentException{
-        if (movement.equals("RandomWaypoint")) {
-            this.movement = movementEnum.RANDOM;
-        } else{
-            throw new IllegalArgumentException("Unknown movement");
+    public Coordinates getDestination() {
+        return destination;
+    }
+
+    public long getDeadline() {
+        return deadline;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FishDestination)) {
+            return false;
         }
+        FishDestination destination = (FishDestination) o;
+        return this.destination.equals(destination.getDestination()) && this.deadline == destination.getDeadline();
+    }
+}
+
+public class Fish {
+    enum statusEnum {
+        STARTED, STOPPED
+    }
+
+    private final String name;
+    private Coordinates position;
+    private final int length;
+    private final int height;
+    private statusEnum status;
+    private LinkedList<FishDestination> destinations;
+
+    public Fish(String name, int positionX, int positionY, int length, int height) {
         this.name = name;
+        this.position = new Coordinates(positionX, positionY);
+        this.destinations = new LinkedList<FishDestination>();
         this.length = length;
         this.height = height;
         this.status = statusEnum.STOPPED;
@@ -43,12 +55,12 @@ public class Fish {
         return name;
     }
 
-    public Coordinate getPosition() {
+    public Coordinates getPosition() {
         return position;
     }
 
-    public Coordinate getDestination() {
-        return destination;
+    public Coordinates getFirstDestination() {
+        return destinations.getFirst().getDestination();
     }
 
     public int getLength() {
@@ -59,33 +71,44 @@ public class Fish {
         return height;
     }
 
-    public String getMovement() {
-        if (movement == movementEnum.RANDOM) {
-            return "RandomWaypoint";
-        } else {
-            return "Unknown";
-        }
+    public long getTimeToGetToFirstDestination() {
+        return destinations.getFirst().getDeadline();
     }
 
-    public int getMovementDuration() {
-        return movementDuration;
-    }
-    
     public statusEnum getStatus() {
         return status;
     }
 
     public void setPosition(int positionX, int positionY) {
-        this.position = new Coordinate(positionX, positionY);
+        this.position = new Coordinates(positionX, positionY);
     }
 
-    public void setDestination(int destinationX, int destinationY, int movementDuration) {
-        this.destination = new Coordinate(destinationX, destinationY);
-        this.movementDuration = movementDuration;
+    public void addNewDestination(int destinationX, int destinationY, int movementDuration) {
+        FishDestination newDestination = new FishDestination(destinationX, destinationY, movementDuration);
+        if (!destinations.contains(newDestination)) {
+            destinations.addLast(newDestination);
+        }
+    }
+
+    public void removeExpiredDestinations() {
+        while (!destinations.isEmpty()
+                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
+            destinations.removeFirst();
+        }
+    }
+
+    public int getSizeDestinations() {
+        /* Only counts STARTED fishes */
+        return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
     }
 
     public void start() {
         this.status = statusEnum.STARTED;
     }
-}
 
+    @Override
+    public String toString() {
+        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
+                + (status == statusEnum.STARTED ? "started" : "notstarted");
+    }
+}

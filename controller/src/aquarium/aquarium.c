@@ -1,7 +1,7 @@
 #include "aquarium.h"
 #include "view.h"
 #include "fish.h"
-// #include "utils.h"
+#include "../utils.h"
 
 struct aquarium *create_aquarium(int width, int height) {
     // create a new aquarium
@@ -27,6 +27,13 @@ void show_aquarium(struct aquarium *aquarium, FILE *output) {
 
     } while (current_view != NULL);
 
+}
+
+void deep_copy_aquarium(struct aquarium *dest, struct aquarium *src) {
+    dest->width = src->width;
+    dest->height = src->height;
+    dest->fishes = src->fishes;
+    dest->views = src->views;
 }
 
 void save_aquarium(struct aquarium *aquarium, char *name) {

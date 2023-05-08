@@ -1,4 +1,5 @@
 package aquarium;
+
 import java.io.*;
 import java.net.*;
 import utils.*;
@@ -14,23 +15,39 @@ public class View {
     // useful for communication with controller
     private String id = "";
     private int displayTimeoutValue;
+    public volatile boolean connected = false;
 
     // private Aquarium aquariumView;:
 
     public View(File config) throws IOException, ParserException {
-        displayTimeoutValue = Parse.parserTimeout(config);
+        displayTimeoutValue = Parser.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
-        id = Parse.parserID(config);
-        controllerAddress = Parse.parserIP(config);
-        portNumber = Parse.parserPort(config);
+        id = Parser.parserID(config);
+        controllerAddress = Parser.parserIP(config);
+        portNumber = Parser.parserPort(config);
         socket = new Socket(controllerAddress, portNumber);
         input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
-        
+    }
+
+    public View(String controllerAddress, int portNumber) throws IOException {
+        this.controllerAddress = controllerAddress;
+        this.portNumber = portNumber;
+        socket = new Socket(controllerAddress, portNumber);
+        input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public synchronized boolean isConnected() {
+        return this.connected;
+    }
+
+    public synchronized void connect() {
+        this.connected = true;
     }
 
     public String getId() {
@@ -44,9 +61,13 @@ public class View {
     public synchronized String listenToServer() throws IOException {
         String answer = this.input.readLine();
         if (answer == null) {
-            throw new IOException("Server is down");
+            return null;
         }
         return answer.replace("@@", "\n");
+    }
+
+    public synchronized boolean serverIsTalking() throws IOException {
+        return this.input.ready();
     }
 
     public void close() throws IOException {
@@ -55,6 +76,4 @@ public class View {
         this.socket.close();
     }
 
-
-    
 }

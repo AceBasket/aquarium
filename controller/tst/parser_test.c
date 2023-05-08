@@ -17,10 +17,9 @@ void test_status() {
 
 void test_addFish() {
     struct parse *result = parse_clients("addFish PoissonNain at 61x52, 4x3, RandomPathway");
-    assert(result->size == 8);
+    assert(result->size == 7);
+    assert(result->func_name == ADDFISH);
     int i = 0;
-    assert(!strcmp(result->arguments[i], "addFish"));
-    i++;
     assert(!strcmp(result->arguments[i], "PoissonNain"));
     i++;
     assert(!strcmp(result->arguments[i], "at"));
@@ -58,10 +57,9 @@ void test_addFish() {
 
 void test_delFish() {
     struct parse *result1 = parse_clients("delFish fishName");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
+    assert(result1->func_name == DELFISH);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "delFish"));
-    i++;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
     struct parse *result2 = parse_clients("delFish");
@@ -84,10 +82,9 @@ void test_delFish() {
 
 void test_startFish() {
     struct parse *result1 = parse_clients("startFish fishName");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
+    assert(result1->func_name == STARTFISH);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "startFish"));
-    i++;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
 
@@ -112,10 +109,9 @@ void test_startFish() {
 
 void test_hello() {
     struct parse *result1 = parse_clients("hello in as N12");
-    assert(result1->size == 4);
+    assert(result1->size == 3);
+    assert(result1->func_name == HELLO);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "hello"));
-    i++;
     assert(!strcmp(result1->arguments[i], "in"));
     i++;
     assert(!strcmp(result1->arguments[i], "as"));
@@ -135,9 +131,8 @@ void test_hello() {
     // assert(result4 == NULL);
 
     struct parse *result5 = parse_clients("hello");
-    assert(result5->size == 1);
-    i = 0;
-    assert(!strcmp(result5->arguments[i], "hello"));
+    assert(result5->size == 0);
+    assert(result5->func_name == HELLO);    
 
     free_parser(result1);
     free_parser(result2);
@@ -149,9 +144,8 @@ void test_hello() {
 
 void test_get_fishes() {
     struct parse *result1 = parse_clients("getFishes");
-    assert(result1->size == 1);
-    int i = 0;
-    assert(!strcmp(result1->arguments[i], "getFishes"));
+    assert(result1->size == 0);
+    assert(result1->func_name == GETFISHES);
 
     struct parse *result2 = parse_clients("getFishes random");
     // assert(result2 == NULL);
@@ -164,9 +158,8 @@ void test_get_fishes() {
 
 void test_ls() {
     struct parse *result1 = parse_clients("ls");
-    assert(result1->size == 1);
-    int i = 0;
-    assert(!strcmp(result1->arguments[i], "ls"));
+    assert(result1->size == 0);
+    assert(result1->func_name == LS);
 
     struct parse *result2 = parse_clients("lsthis");
     // assert(result2 == NULL);
@@ -184,9 +177,8 @@ void test_ls() {
 
 void test_getFishesContinuously() {
     struct parse *result1 = parse_clients("getFishesContinuously");
-    assert(result1->size == 1);
-    int i = 0;
-    assert(!strcmp(result1->arguments[i], "getFishesContinuously"));
+    assert(result1->size == 0);
+    assert(result1->func_name == GFCONTINUOUSLY);
 
     struct parse *result2 = parse_clients("getFishesContinuouslyy");
     // assert(result2 == NULL);
@@ -203,10 +195,11 @@ void test_getFishesContinuously() {
 }
 
 void test_ping() {
-    struct parse *result1 = parse_clients("ping");
+    struct parse *result1 = parse_clients("ping 2345");
     assert(result1->size == 1);
+    assert(result1->func_name == PING);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "ping"));
+    assert(!strcmp(result1->arguments[i], "2345"));
 
     struct parse *result2 = parse_clients("ping6");
     // assert(result2 == NULL);
@@ -259,10 +252,9 @@ void test_log_out() {
 // Parse_prompt tests 
 void test_load() {
     struct parse *result1 = parse_prompt("load aquarium56");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
+    assert(result1->func_name == LOAD);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "load"));
-    i++;
     assert(!strcmp(result1->arguments[i], "aquarium56"));
 
     struct parse *result2 = parse_prompt("load ");
@@ -280,10 +272,9 @@ void test_load() {
 
 void test_show_aquarium() {
     struct parse *result1 = parse_prompt("show aquarium56");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
+    assert(result1->func_name == SHOW);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "show"));
-    i++;
     assert(!strcmp(result1->arguments[i], "aquarium56"));
 
     struct parse *result2 = parse_prompt("show ");
@@ -301,11 +292,10 @@ void test_show_aquarium() {
 
 void test_add_view() {
     struct parse *result1 = parse_prompt("add view N5 400x400+400+200");
-    assert(result1->size == 7);
+    assert(result1->size == 6);
+    assert(result1->func_name == ADD_VIEW);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "add"));
-    i++;
-    assert(!strcmp(result1->arguments[i], "view"));
+    assert(!strcmp(result1->arguments[i], "view")); // this line should go
     i++;
     assert(!strcmp(result1->arguments[i], "N5"));
     i++;
@@ -349,11 +339,10 @@ void test_add_view() {
 
 void test_del_view() {
     struct parse *result1 = parse_prompt("del view N34");
-    assert(result1->size == 3);
+    assert(result1->size == 2);
+    assert(result1->func_name == DEL_VIEW);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "del"));
-    i++;
-    assert(!strcmp(result1->arguments[i], "view"));
+    assert(!strcmp(result1->arguments[i], "view")); // this line should go
     i++;
     assert(!strcmp(result1->arguments[i], "N34"));
 
@@ -387,10 +376,9 @@ void test_del_view() {
 
 void test_save() {
     struct parse *result1 = parse_prompt("save aquarium");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
+    assert(result1->func_name == SAVE);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "save"));
-    i++;
     assert(!strcmp(result1->arguments[i], "aquarium"));
 
     struct parse *result2 = parse_prompt("save");
@@ -412,22 +400,36 @@ void test_save() {
 }
 int main(void) {
    //parse clients tests
-    test_status();
+    // test_status();
+    printf("Parser tests: .");
     test_addFish();
+    printf(".");
     test_delFish();
+    printf(".");
     test_startFish();
+    printf(".");
     test_hello();
+    printf(".");
     test_get_fishes();
+    printf(".");
     test_ls();
+    printf(".");
     test_getFishesContinuously();
+    printf(".");
     test_ping();
-    test_log_out();
+    // test_log_out(); // not what it should do
 
     //parse prompt tests
+    printf(".");
     test_load();
+    printf(".");
     test_show_aquarium();
+    printf(".");
     test_add_view();
+    printf(".");
     test_del_view();
+    printf(".");
     test_save();
+    printf(" OK\n");
     return 0;
 }

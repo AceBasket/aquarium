@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdlib.h>
 
 void exit_if(int condition, const char *prefix) {
     if (condition) {
@@ -11,6 +12,7 @@ void exit_if(int condition, const char *prefix) {
     }
 }
 
+<<<<<<< HEAD
 void free_parser(struct parse *p) {
     for (int i = 0; i < p->size; i++) {
         free(p->arguments[i]);
@@ -647,3 +649,6 @@ struct parse *parse_clients(char *str) {
         return p;
     }
 }
+=======
+
+>>>>>>> 6d94c0a14232168e20757cfea91708f8a2cd1104
