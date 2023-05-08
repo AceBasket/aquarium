@@ -58,7 +58,7 @@ public class Fish {
         return destinations.getFirst().getDestination();
     }
 
-    public int getLength() {
+    public int getLength() {//width
         return length;
     }
 

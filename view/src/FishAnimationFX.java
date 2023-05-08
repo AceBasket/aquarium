@@ -1,3 +1,11 @@
+import aquarium.*;
+import java.util.Random;
+import java.util.List;
+import java.io.*;
+import java.time.Instant;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -14,10 +22,23 @@ import javafx.util.Duration;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 
-import java.io.File;
-import java.util.Random;
-import java.util.List;
 
+
+import threads.*;
+import utils.ParserResult;
+
+
+// public class Main {
+//     PrintWriter logFile;
+
+//     public Main() {
+//         try {
+//             logFile = new PrintWriter("log_main.log");
+//         } catch (IOException e) {
+//             System.out.println("Error creating log file for main thread");
+//         }
+//     }
+// }
 public class FishAnimationFX extends Application {
 
     private final int VIEW_WIDTH = 600;
@@ -29,19 +50,56 @@ public class FishAnimationFX extends Application {
     private ImageView fish;
     private double fishX, fishY;
     private double fishVX, fishVY;
-    private ImageView view1, view2;
+    private ImageView view1;//, view2;
     private double viewX1, viewY1, viewX2, viewY2;
     private Random random = new Random();
-    private Pane pane1, pane2;
+    private Pane pane1;//, pane2;
 
+    PrintWriter logFile;
+    private ArrayList<String> fishesName;
+    private ArrayList<ImageView> fishesList;
+
+    public FishAnimationFX() {
+        fishesName = new ArrayList<String>();
+        fishesList = new ArrayList<ImageView>();
+        try {
+            logFile = new PrintWriter("log_main.log");
+        } catch (IOException e) {
+            System.out.println("Error creating log file for main thread");
+        }
+    }
 
     private DoubleProperty fishYProperty() {
         return fish.yProperty();
     }
+    public synchronized void addFish(ImageView fish, String name) {
+        if (!fishesName.contains(name)) {
+            fishesName.add(name);
+            fishesList.add(fish);
+            pane1.getChildren().add(fish);
+        }
+    }
+    public ImageView createView(){//(String fileName){
+        File fileA = new File("./img/ocean.jpeg");     
+        Image viewImage = new Image(fileA.toURI().toString());
+        ImageView view = new ImageView(viewImage);
+        double viewX = VIEW_WIDTH;
+        double viewY = VIEW_HEIGHT;
+        view.setFitWidth(viewX);
+        view.setFitHeight(viewY);
+        return view;
+    }
 
-    
-
-    
+    public ImageView createFish(int fishWidth, int fishHeight){
+        File fileF = new File("./img/fish4.png");
+        Image fishImage = new Image(fileF.toURI().toString());
+        ImageView fish = new ImageView(fishImage);
+        fishX = (VIEW_WIDTH - fishWidth) / 2;
+        fishY = (VIEW_HEIGHT - fishHeight) / 2;
+        fish.setFitWidth(fishWidth);
+        fish.setFitHeight(fishHeight);
+        return fish;
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -52,49 +110,13 @@ public class FishAnimationFX extends Application {
         //String arg2 = parameters.get(1);
         //String arg3 = parameters.get(2);
         
-        //view1 image
-        File fileA1 = new File("./img/ocean.jpeg");
-        
-        Image viewImage1 = new Image(fileA1.toURI().toString());
-        double pixelWidth = viewImage1.getWidth();
-        double pixelHeight = viewImage1.getHeight();
-        // System.out.println(viewImage1.getWidth());
-        // System.out.println(viewImage1.getHeight());
-        //Rectangle2D croppedPortion = new Rectangle2D(pixelWidth/2, pixelHeight/2, pixelWidth/2, pixelHeight/2);//x, y , width, height
-        view1 = new ImageView(viewImage1);
-        // target width and height:
-        // double scaledWidth = VIEW_WIDTH/2 ;
-        // double scaledHeight = VIEW_HEIGHT/2 ;
-        //view1.setViewport(croppedPortion);
-        // view1.setFitWidth(scaledWidth);
-        // view1.setFitHeight(scaledHeight);
-        //view1.setSmooth(true);
-        viewX1 = VIEW_WIDTH;
-
-        viewY1 = VIEW_HEIGHT;
-        view1.setFitWidth(viewX1);
-        view1.setFitHeight(viewY1);
-        
-
-        //view2
-        File fileA2 = new File("./img/ocean.jpeg");
-        Image viewImage2 = new Image(fileA2.toURI().toString());
-        view2 = new ImageView(viewImage2);
-        viewX2 = VIEW_WIDTH;
-        viewY2 = VIEW_HEIGHT;
-        view2.setFitWidth(viewX2);
-        view2.setFitHeight(viewY2);
-
+        //views
+        view1 = createView();//new ImageView(viewImage1);
+        //view2 = createView();
         
 
         //fish image
-        File fileF = new File("./img/fish4.png");
-        Image fishImage = new Image(fileF.toURI().toString());
-        fish = new ImageView(fishImage);
-        fishX = (VIEW_WIDTH - FISH_WIDTH) / 2;
-        fishY = (VIEW_HEIGHT - FISH_HEIGHT) / 2;
-        fish.setFitWidth(FISH_WIDTH);
-        fish.setFitHeight(FISH_HEIGHT);
+        //fish = createFish( FISH_WIDTH);
 
         // Timeline swimAnimation = new Timeline(
         // new KeyFrame(Duration.ZERO, new KeyValue(fishYProperty(), fishY)),
@@ -129,14 +151,14 @@ public class FishAnimationFX extends Application {
                     oldPane.getChildren().remove(fish);
 
                     // Add fish to new view
-                    Pane newPane = (oldPane == pane1) ? pane2 : pane1;
-                    newPane.getChildren().add(fish);
+                    //Pane newPane = (oldPane == pane1) ? pane2 : pane1;
+                    //newPane.getChildren().add(fish);
 
                     // Reset fish position and orientation
-                    fishX = (VIEW_WIDTH - FISH_WIDTH) / 2;
-                    fishY = (VIEW_HEIGHT - FISH_HEIGHT) / 2;
-                    fish.setRotate(0);
-                    fish.setScaleX(1);
+                    // fishX = (VIEW_WIDTH - FISH_WIDTH) / 2;
+                    // fishY = (VIEW_HEIGHT - FISH_HEIGHT) / 2;
+                    // fish.setRotate(0);
+                    // fish.setScaleX(1);
                 }
                 // Flip the image horizontally if the fish is moving left
                 if (fishVX < 0) {
@@ -153,8 +175,10 @@ public class FishAnimationFX extends Application {
         // Set up the first view
         pane1 = new Pane();
         pane1.getChildren().add(view1);
-        pane1.getChildren().add(fish);
-
+        //pane1.getChildren().add(fish);
+        for (ImageView fish : fishesList){
+            pane1.getChildren().add(fish);
+        }
        
         
         Scene scene1 = new Scene(pane1, VIEW_WIDTH, VIEW_HEIGHT);
@@ -165,27 +189,80 @@ public class FishAnimationFX extends Application {
         primaryStage.show();
 
         
-        //Set up the next view
-        pane2 = new Pane();
-        pane2.getChildren().add(view2);
-        pane2.getChildren().add(fish);
+        // //Set up the next view
+        // pane2 = new Pane();
+        // pane2.getChildren().add(view2);
+        // pane2.getChildren().add(fish);
 
-        // Set up the stage
-        Scene scene2 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
-        // //Scene scene3 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
-        Stage secondStage = new Stage();
-        // //Stage thirdStage = new Stage();
-        secondStage.setX(-50);
-        secondStage.setY(-50);
-        secondStage.setTitle("view2");
-        secondStage.setScene(scene2);
-        // //secondStage.setScene(scene3);
-        secondStage.show();
+        // // Set up the stage
+        // Scene scene2 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
+        // // //Scene scene3 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
+        // Stage secondStage = new Stage();
+        // // //Stage thirdStage = new Stage();
+        // secondStage.setX(-50);
+        // secondStage.setY(-50);
+        // secondStage.setTitle("view2");
+        // secondStage.setScene(scene2);
+        // // //secondStage.setScene(scene3);
+        // secondStage.show();
         
 
     }
 
     public static void main(String[] args) {
-        launch(args);
+        FishAnimationFX main = new FishAnimationFX();
+        try {
+            // main.logFile.println("Main");
+            // main.logFile.flush();
+            // View view = new View("192.168.191.78", 8888);
+            View view = new View("0.0.0.0", 8000);
+            // View view = new View(new File("src/affichage.cfg"));
+            Aquarium aquarium = new Aquarium();
+            ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
+            ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
+            Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue);
+            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue);
+            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue);
+            Thread prompt = new Thread(promptThread);
+            Thread server = new Thread(serverThread);
+            Thread io = new Thread(readFromServerThread);
+            io.start();
+            server.start();
+            prompt.start();
+
+            main.logFile.println("All threads running");
+            main.logFile.flush();
+            //créer une liste des poissons Image view et les passer en paramètre de launch.
+            while (true) {
+                // System.out.println("Main thread running");
+                if (!aquarium.getFishes().isEmpty()) {
+                    for (Fish fish : aquarium.getFishes()) {
+                        if (fish.getSizeDestinations() > 0) {
+                            //créer le poisson 
+                            ImageView fishIV = main.createFish(fish.getLength(), fish.getHeight());
+                            //l'ajouter dans la view
+                            main.addFish(fishIV, fish.getName());
+                            main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
+                                    + fish.getName() + " is at " + fish.getPosition().toString()
+                                    + " and needs to go to " + fish.getFirstDestination().toString() + " before "
+                                    + fish.getTimeToGetToFirstDestination());
+                            main.logFile.flush();
+                        }
+                    }
+                }
+                Thread.sleep(500);
+                launch(args);
+            }
+
+            // io.join();
+            // server.join();
+            // prompt.join();
+        } catch (IOException | InterruptedException e) {
+            // TODO: handle exception
+            main.logFile.println(e);
+            main.logFile.flush();
+        }
+    
     }
+    
 }
