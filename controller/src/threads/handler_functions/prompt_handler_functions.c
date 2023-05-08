@@ -1,5 +1,5 @@
 #include "prompt_handler_functions.h"
-#include "view.h"
+#include "../../aquarium/view.h"
 
 void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
     FILE *fd = fopen(parser->arguments[0], "r");
@@ -44,7 +44,7 @@ void show_handler(FILE *log, struct aquarium *aquarium) {
 }
 
 void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
-    struct coordinates coord = {atoi(parser->arguments[2]), atoi(parser->arguments[3])}; 
+    struct coordinates coord = { atoi(parser->arguments[2]), atoi(parser->arguments[3]) };
     struct view *view = create_view(parser->arguments[1], coord, atoi(parser->arguments[4]), atoi(parser->arguments[5]));
     add_view(aquarium, view);
     fprintf(stdout, "View added\n");

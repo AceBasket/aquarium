@@ -1,4 +1,7 @@
+#include <stdlib.h>
+#include <string.h>
 #include "fish.h"
+#include "../utils.h"
 
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt) {
     // create a new fish
@@ -21,6 +24,12 @@ struct fish *create_fish(char *name, struct coordinates top_left, int height, in
 void free_fish(struct fish *fish) {
     if (fish == NULL) {
         return;
+    }
+    struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
+    while (current_destination != NULL) {
+        STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
+        free(current_destination);
+        current_destination = STAILQ_FIRST(&fish->destinations_queue);
     }
     free(fish->name);
     free(fish);
@@ -105,8 +114,14 @@ struct fish *get_fishes(struct aquarium *aquarium) {
     return aquarium->fishes;
 }
 
-void add_specific_destination(struct fish *fish, struct fish_destination *destination) {
-    STAILQ_INSERT_TAIL(&fish->destinations_queue, destination, next);
+int add_specific_destination(struct fish *fish, struct fish_destination *destination) {
+    /* Deep copy necessary */
+    struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
+    new_destination->destination_coordinates.x = destination->destination_coordinates.x;
+    new_destination->destination_coordinates.y = destination->destination_coordinates.y;
+    new_destination->time_at_destination = destination->time_at_destination;
+    STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
+    return OK;
 }
 
 struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, int started) {
@@ -152,10 +167,8 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
     do {
         if ((started && current_fish->status == STARTED) || !started) {
             if ((current_fish->top_left.x >= view->top_left.x && current_fish->top_left.x <= view->top_left.x + view->width) && (current_fish->top_left.y >= view->top_left.y && current_fish->top_left.y <= view->top_left.y + view->height)) {
-                // if (current_fish->top_left.y >= view->top_left.y && current_fish->top_left.y <= view->top_left.y + view->height) {
                 fishes[i] = current_fish;
                 i++;
-            // }
             } else {
                 struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue);
                 struct fish *fish_with_destination_in_view = create_fish(current_fish->name, current_fish->top_left, current_fish->height, current_fish->width, current_fish->movement_pattern);
@@ -171,7 +184,9 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
             }
         }
         current_fish = current_fish->next;
+
     } while (current_fish != NULL);
+    fishes[i] = NULL; // end of the array
     return fishes;
 }
 
@@ -221,11 +236,11 @@ int start_fish(struct aquarium *aquarium, char *name) {
     return NOK;
 }
 
-int distance(struct coordinates destination, struct coordinates origin) {
+float distance(struct coordinates destination, struct coordinates origin) {
     return sqrt(pow(destination.x - origin.x, 2) + pow(destination.y - origin.y, 2));
 }
 
-void add_movement(struct aquarium *aquarium, struct fish *fish) {
+int add_movement(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
     new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
@@ -238,9 +253,9 @@ void add_movement(struct aquarium *aquarium, struct fish *fish) {
         time_at_destination_previous_destination = element->time_at_destination;
     }
     /* actual time + previous destination time + time to get to this destination */
-    new_destination->time_at_destination = time_at_destination_previous_destination + (distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed;
+    new_destination->time_at_destination = time_at_destination_previous_destination + (time_t)((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed);
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
-    // exit_if(fish->time_at_destination == -1, "time failed");
+    return OK;
 }
 
 int update_fish_coordinates(struct fish *fish) {
@@ -248,15 +263,19 @@ int update_fish_coordinates(struct fish *fish) {
     if (current_destination == NULL) {
         return NOK;
     }
-    fish->top_left = current_destination->destination_coordinates;
+    fish->top_left.x = current_destination->destination_coordinates.x;
+    fish->top_left.y = current_destination->destination_coordinates.y;
     return OK;
 }
 
-void remove_finished_movements(struct fish *fish) {
+int remove_finished_movements(struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
+
     while (current_destination != NULL) {
         if (current_destination->time_at_destination <= time(NULL)) {
-            update_fish_coordinates(fish);
+            if (update_fish_coordinates(fish) == NOK) {
+                return NOK;
+            };
             STAILQ_REMOVE_HEAD(&fish->destinations_queue, next);
             free(current_destination);
             current_destination = STAILQ_FIRST(&fish->destinations_queue);
@@ -264,6 +283,7 @@ void remove_finished_movements(struct fish *fish) {
             break;
         }
     }
+    return OK;
 }
 
 int len_movements_queue(struct fish *fish) {

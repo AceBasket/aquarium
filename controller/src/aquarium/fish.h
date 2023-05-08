@@ -1,7 +1,6 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
-#include <stdlib.h>
 #include "aquarium.h"
 #include "view.h"
 
@@ -33,13 +32,20 @@ int add_fish(struct aquarium *aquarium, struct fish *fish);
 int remove_fish(struct aquarium *aquarium, struct fish *fish);
 struct fish *get_fish_from_name(struct aquarium *aquarium, char *name);
 struct fish *get_fishes(struct aquarium *aquarium);
+int add_specific_destination(struct fish *fish, struct fish_destination *destination);
 struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, int started);
+struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started);
+int fish_is_in_view(struct fish *fish, struct view *view);
 int len_fishes(struct aquarium *aquarium);
 int start_fish(struct aquarium *aquarium, char *name);
-void add_movement(struct aquarium *aquarium, struct fish *fish);
-void remove_finished_movements(struct fish *fish);
+float distance(struct coordinates destination, struct coordinates origin);
+int add_movement(struct aquarium *aquarium, struct fish *fish);
+int update_fish_coordinates(struct fish *fish);
+int remove_finished_movements(struct fish *fish);
 int len_movements_queue(struct fish *fish);
 void free_fishes_array(struct fish **fishes, struct view *view);
 struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started);
+
+
 
 #endif // _FISH_H_ 

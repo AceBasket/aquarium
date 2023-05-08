@@ -2,8 +2,8 @@
 #define _SOCKET_AQUARIUM_H
 
 #include <stdlib.h>
-#include "aquarium.h"
-#include "view.h"
+#include "../aquarium/aquarium.h"
+#include "../aquarium/view.h"
 
 struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd);
 int x_coordinate_to_percentage(struct view *view, int x);

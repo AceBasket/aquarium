@@ -111,6 +111,7 @@ public class ServerThread implements Runnable {
                 // }
                 // }
                 // }
+                Thread.sleep(200); // 200ms = 0.2s
 
             }
 

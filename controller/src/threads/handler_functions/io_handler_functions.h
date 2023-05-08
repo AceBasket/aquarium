@@ -1,7 +1,8 @@
 #ifndef _IO_HANDLER_FUNCTIONS_H_
 #define _IO_HANDLER_FUNCTIONS_H_
 
-#include "aquarium.h"
+#include "../../aquarium/aquarium.h"
+#include "../../parser/parser.h"
 // #include "utils.h"
 
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
