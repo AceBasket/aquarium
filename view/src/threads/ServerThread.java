@@ -44,6 +44,7 @@ public class ServerThread implements Runnable {
                 // listFishesDestinations = false;
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations
+                    fish.removeExpiredDestinations();
                     if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
@@ -90,7 +91,7 @@ public class ServerThread implements Runnable {
                     default:
                         logFile.println("Not a command handled by server thread");
                         logFile.flush();
-                        Thread.sleep(1000); // sleep 1 second and try again
+                        Thread.sleep(500); // sleep 1 second and try again
                         break;
                 }
 
@@ -110,6 +111,7 @@ public class ServerThread implements Runnable {
                 // }
                 // }
                 // }
+                Thread.sleep(200); // 200ms = 0.2s
 
             }
 

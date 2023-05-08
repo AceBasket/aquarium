@@ -50,7 +50,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format");
+                            System.out.println("Invalid Argument Format1");
                         }
                         args.add(responseSplit[i]);
                     }
@@ -116,7 +116,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format");
+                                System.out.println("Invalid Argument Format2");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -136,7 +136,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format");
+                                System.out.println("Invalid Argument Format3");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -179,7 +179,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format");
+                            System.out.println("Invalid Argument Format4");
                         }
                     }
                     args.add(responseSplit[i]);

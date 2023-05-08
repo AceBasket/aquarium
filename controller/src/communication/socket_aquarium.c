@@ -1,5 +1,5 @@
-#include "aquarium.h"
-#include <stdlib.h>
+#include "socket_aquarium.h"
+
 struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd) {
     // if the aquarium is empty, return NULL
     if (aquarium->views == NULL) {
@@ -18,6 +18,13 @@ struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd) {
 
     // if the view is not in the aquarium, return NULL
     return NULL;
+}
+
+struct coordinates coordinates_to_percentages(struct view *view, struct coordinates coordinates) {
+    struct coordinates c;
+    c.x = x_coordinate_to_percentage(view, coordinates.x);
+    c.y = y_coordinate_to_percentage(view, coordinates.y);
+    return c;
 }
 
 int x_coordinate_to_percentage(struct view *view, int x) {

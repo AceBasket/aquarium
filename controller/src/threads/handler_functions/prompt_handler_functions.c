@@ -1,9 +1,10 @@
 #include "prompt_handler_functions.h"
+#include "../../aquarium/view.h"
 
-void load_handler(struct parse *parser, struct aquarium **aquarium) {
+void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
     FILE *fd = fopen(parser->arguments[0], "r");
     if (fd == NULL) {
-        fprintf(stderr, "ERROR: opening file\n");
+        fprintf(log, "ERROR: opening file\n");
         return;
     }
 
@@ -12,9 +13,8 @@ void load_handler(struct parse *parser, struct aquarium **aquarium) {
     struct view *view;
 
     *aquarium = create_aquarium(atoi(parsed_file->arguments[0]), atoi(parsed_file->arguments[1]));
-    exit_if(*aquarium == NULL || (*aquarium)->width == 0 || (*aquarium)->height == 0, "ERROR creating aquarium\n");
     if (*aquarium == NULL || (*aquarium)->width == 0 || (*aquarium)->height == 0) {
-        fprintf(stderr, "ERROR: creating aquarium\n");
+        fprintf(log, "ERROR: creating aquarium\n");
         return;
     }
 
@@ -23,41 +23,41 @@ void load_handler(struct parse *parser, struct aquarium **aquarium) {
         coord.y = atoi(parsed_file->arguments[i + 2]);
         view = create_view(parsed_file->arguments[i], coord, atoi(parsed_file->arguments[i + 3]), atoi(parsed_file->arguments[i + 4]));
         if (view == NULL) {
-            fprintf(stderr, "ERROR: creating view\n");
+            fprintf(log, "ERROR: creating view\n");
             return;
         }
         if (!add_view(*aquarium, view)) {
-            fprintf(stderr, "ERROR: adding view\n");
+            fprintf(log, "ERROR: adding view\n");
             return;
         }
     }
     fprintf(stdout, "Aquarium loaded (%d display view)\n", len_views(*aquarium));
 }
 
-void show_handler(struct aquarium *aquarium) {
+void show_handler(FILE *log, struct aquarium *aquarium) {
     if (aquarium == NULL) {
-        fprintf(stderr, "ERROR: no aquarium\n");
+        fprintf(log, "ERROR: no aquarium\n");
         return;
     }
     fprintf(stdout, "Showing aquarium\n");
     show_aquarium(aquarium, stdout);
 }
 
-void add_view_handler(struct parse *parser, struct aquarium *aquarium) {
-    struct coordinates coord = {atoi(parser->arguments[2]), atoi(parser->arguments[3])}; 
+void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
+    struct coordinates coord = { atoi(parser->arguments[2]), atoi(parser->arguments[3]) };
     struct view *view = create_view(parser->arguments[1], coord, atoi(parser->arguments[4]), atoi(parser->arguments[5]));
     add_view(aquarium, view);
     fprintf(stdout, "View added\n");
 }
 
-void del_view_handler(struct parse *parser, struct aquarium *aquarium) {
+void del_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
     remove_view(aquarium, get_view(aquarium, parser->arguments[1]));
     fprintf(stdout, "View %s deleted\n", parser->arguments[1]);
 }
 
-void save_handler(struct parse *parser, struct aquarium *aquarium) {
+void save_handler(FILE *log, struct parse *parser, struct aquarium *aquarium) {
     if (aquarium == NULL) {
-        fprintf(stderr, "ERROR: no aquarium\n");
+        fprintf(log, "ERROR: no aquarium\n");
         return;
     }
     save_aquarium(aquarium, parser->arguments[0]);

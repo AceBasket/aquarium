@@ -2,6 +2,8 @@ package threads;
 
 import aquarium.*;
 import utils.*;
+import utils.Parser.PossibleResponses;
+
 import java.io.*;
 import java.security.InvalidParameterException;
 import java.util.LinkedList;
@@ -38,9 +40,21 @@ public class PromptThread implements Runnable {
         ParserResult response;
         String command;
         boolean responseReceived = true;
+
+        ParserResult parsedCommand;
         while (true) {
             if (responseReceived) {
                 command = System.console().readLine(); // get user prompt
+                try {
+                    parsedCommand = Parser.parse(command);
+                    if (parsedCommand.getFunction() == PossibleResponses.STATUS) {
+                        PromptThreadHandlers.handleStatus(logFile, view.isConnected(), fishesList);
+                        continue;
+                    }
+                } catch (ParserException | InvalidParameterException e) {
+                    System.out.println(e.getMessage());
+                    continue;
+                }
                 commandQueue.add(command);
                 sendQueue.offer(command);
                 logFile.println("User asked for: " + command);
@@ -51,7 +65,7 @@ public class PromptThread implements Runnable {
                 while (response == null) {
                     logFile.println("Nothing to handle");
                     logFile.flush();
-                    Thread.sleep(1000); // sleep 0.1 second and try again
+                    Thread.sleep(500); // sleep 0.1 second and try again
                     response = receivedQueue.peek();
                 }
                 responseReceived = true;

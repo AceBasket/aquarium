@@ -86,4 +86,13 @@ public class PromptThreadHandlers {
             logFile.println(e);
         }
     }
+
+    public static void handleStatus(PrintWriter logFile, boolean isRunning, Aquarium fishesList) {
+        if (isRunning) {
+            System.out.println("OK : Connected to controller, " + fishesList.getFishes().size() + " fishes found");
+            for (Fish fish : fishesList.getFishes()) {
+                System.out.println(fish);
+            }
+        }
+    }
 }

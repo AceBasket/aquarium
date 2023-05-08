@@ -1,5 +1,7 @@
 #include "io_handler_functions.h"
-#include "socket_aquarium.h"
+#include "../../communication/socket_aquarium.h"
+#include "../../aquarium/fish.h"
+
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     if (strcmp(parser->status, "OK\n") != 0) {
@@ -26,7 +28,7 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
     while (fishes_in_view[iter] != NULL) {
         if (bool_get_next_destination) {
             if (len_movements_queue(fishes_in_view[iter]) < 2) {
-                fprintf(log, "Error: fish %s has no destination\n", fishes_in_view[iter]->name);
+                fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);
                 iter++;
                 continue;
             }
@@ -35,7 +37,7 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
             destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
         }
         if (destination == NULL) {
-            dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, time(NULL));
+            dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 0);
             iter++;
             continue;
         }
@@ -51,7 +53,7 @@ void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquari
     }
     struct view *view;
     if (parser->size == 3) {
-        view = get_view(aquarium, parser->arguments[1]);
+        view = get_view(aquarium, parser->arguments[2]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
@@ -72,10 +74,9 @@ void get_fishes_handler(FILE *log, __attribute__((unused))struct parse *parser, 
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    struct fish **fishes_in_view = get_fishes_in_view(aquarium, view, 1);
-    // printf("fishes in view: %p\n", fishes_in_view[0]);
+    struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
-    free(fishes_in_view);
+    free_fishes_array(fishes_in_view, view);
 }
 
 void ping_handler(FILE *log, struct parse *parser, int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
@@ -147,37 +148,37 @@ void log_out_handler(FILE *log, struct parse *parser, int socket_fd, struct aqua
     dprintf(socket_fd, "bye\n");
 }
 
-void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
-    if (handle_error(log, parser, socket_fd)) {
-        return;
-    }
-    dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
-    struct fish **fishes_in_view = get_fishes_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
-    if (fishes_in_view == NULL) {
-        fprintf(log, "Error: no fishes in view\n");
-        fflush(log);
-        dprintf(socket_fd, "\n");
-        return;
-    }
-    int iter = 0;
-    while (fishes_in_view[iter] != NULL) {
-        dprintf(socket_fd, "\tFish %s at %dx%d,%dx%d %s", fishes_in_view[iter]->name, fishes_in_view[iter]->top_left.x, fishes_in_view[iter]->top_left.y, fishes_in_view[iter]->width, fishes_in_view[iter]->height, fishes_in_view[iter]->status == STARTED ? "started" : "notStarted");
-        iter++;
-    }
-    dprintf(socket_fd, "\n");
-    free(fishes_in_view);
-}
+// void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
+//     if (handle_error(log, parser, socket_fd)) {
+//         return;
+//     }
+//     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
+//     struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
+//     if (fishes_in_view == NULL) {
+//         fprintf(log, "Error: no fishes in view\n");
+//         fflush(log);
+//         dprintf(socket_fd, "\n");
+//         return;
+//     }
+//     int iter = 0;
+//     while (fishes_in_view[iter] != NULL) {
+//         dprintf(socket_fd, "\tFish %s at %dx%d,%dx%d %s", fishes_in_view[iter]->name, fishes_in_view[iter]->top_left.x, fishes_in_view[iter]->top_left.y, fishes_in_view[iter]->width, fishes_in_view[iter]->height, fishes_in_view[iter]->status == STARTED ? "started" : "notStarted");
+//         iter++;
+//     }
+//     dprintf(socket_fd, "\n");
+//     free_fishes_array(fishes_in_view, view);
+// }
 
 void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    struct fish **fishes_in_view = get_fishes_in_view(aquarium, view, 1);
+    struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1);
     // dprintf(socket_fd, "\n"); // to signal end of lists to client
-    free(fishes_in_view);
+    free_fishes_array(fishes_in_view, view);
 }
 
 void get_fishes_continuously_handler(FILE *log, struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {

@@ -50,13 +50,13 @@ public class Main {
                         if (fish.getSizeDestinations() > 0) {
                             main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
                                     + fish.getName() + " is at " + fish.getPosition().toString()
-                                    + " and needs to go to " + fish.getFirstDestination().toString() + " before "
-                                    + fish.getTimeToGetToFirstDestination());
+                                    + " and needs to go to " + fish.getFirstDestination().toString() + " in "
+                                    + (fish.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond()) + " seconds");
                             main.logFile.flush();
                         }
                     }
                 }
-                Thread.sleep(1000);
+                Thread.sleep(500);
             }
 
             // io.join();

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 class FishDestination {
     private final Coordinates destination;
-    private final int deadline;
+    private final long deadline;
 
     public FishDestination(int destinationX, int destinationY, int movementDuration) {
         this.destination = new Coordinates(destinationX, destinationY);
@@ -16,11 +16,16 @@ class FishDestination {
         return destination;
     }
 
-    public int getDeadline() {
+    public long getDeadline() {
         return deadline;
     }
 
-    public boolean equals(FishDestination destination) {
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FishDestination)) {
+            return false;
+        }
+        FishDestination destination = (FishDestination) o;
         return this.destination.equals(destination.getDestination()) && this.deadline == destination.getDeadline();
     }
 }
@@ -66,7 +71,7 @@ public class Fish {
         return height;
     }
 
-    public int getTimeToGetToFirstDestination() {
+    public long getTimeToGetToFirstDestination() {
         return destinations.getFirst().getDeadline();
     }
 
@@ -87,7 +92,7 @@ public class Fish {
 
     public void removeExpiredDestinations() {
         while (!destinations.isEmpty()
-                && destinations.getFirst().getDeadline() <= (int) Instant.now().getEpochSecond()) {
+                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
             destinations.removeFirst();
         }
     }
@@ -99,5 +104,11 @@ public class Fish {
 
     public void start() {
         this.status = statusEnum.STARTED;
+    }
+
+    @Override
+    public String toString() {
+        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
+                + (status == statusEnum.STARTED ? "started" : "notstarted");
     }
 }
