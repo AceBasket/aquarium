@@ -1,6 +1,7 @@
 #include "io_handler_functions.h"
 #include "../../communication/socket_aquarium.h"
 #include "../../aquarium/fish.h"
+#include "../../utils.h"
 
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {

@@ -251,12 +251,110 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
             element = STAILQ_NEXT(element, next);
         }
         time_at_destination_previous_destination = element->time_at_destination;
+        add_intermediate_movements(aquarium, fish, element, new_destination);
     }
     /* actual time + previous destination time + time to get to this destination */
     new_destination->time_at_destination = time_at_destination_previous_destination + (time_t)((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed);
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
     return OK;
 }
+
+int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, struct fish_destination *origin, struct fish_destination *destination) {
+    struct fish_destination *new_destination;
+
+    /* get views for origin point and destination point */
+    struct view **views_origin = get_views_from_coordinates(aquarium, origin->destination_coordinates);
+    struct view **views_destination = get_views_from_coordinates(aquarium, destination->destination_coordinates);
+    int len_views_origin;
+    for (len_views_origin = 0; views_origin[len_views_origin] != NULL; len_views_origin++) {
+    }
+    int len_views_destination;
+    for (len_views_destination = 0; views_destination[len_views_destination] != NULL; len_views_destination++) {
+    }
+    struct view *views[len_views_origin + len_views_destination + 1];
+    for (int i = 0; i < len_views_origin; i++) {
+        views[i] = views_origin[i];
+    }
+    for (int i = 0; i < len_views_destination; i++) {
+        views[i + len_views_origin] = views_destination[i];
+    }
+    views[len_views_origin + len_views_destination] = NULL;
+
+    /* get intersections fro each view found above */
+    struct coordinates *intersections = get_instersections_btw_trajectory_and_views(views, &origin->destination_coordinates, &destination->destination_coordinates);
+    for (int i = 0; intersections[i].x != -1 || i < 2; i++) {
+        if (intersections[i].x == origin->destination_coordinates.x && intersections[i].y == origin->destination_coordinates.y) {
+            // if the intersection is the same as the one before, we don't add it
+            continue;
+        }
+        new_destination = malloc(sizeof(struct fish_destination));
+        new_destination->destination_coordinates.x = intersections[i].x;
+        new_destination->destination_coordinates.y = intersections[i].y;
+        new_destination->time_at_destination = origin->time_at_destination + (time_t)((distance(new_destination->destination_coordinates, origin->destination_coordinates)) / fish->speed);
+        STAILQ_INSERT_AFTER(&fish->destinations_queue, origin, new_destination, next);
+        origin = new_destination; // update origin
+    }
+    free(intersections);
+    return OK;
+}
+
+struct coordinates *get_instersections_btw_trajectory_and_views(struct view **views, struct coordinates *p1, struct coordinates *p2) {
+    int len_views;
+    for (len_views = 0; views[len_views] != NULL; len_views++) {
+    }
+    struct coordinates *intersections = malloc(sizeof(struct coordinates) * len_views);
+
+    if (p2->x == p1->x) {
+        for (int i = 0; i < len_views; i++) {
+            intersections[i].x = p1->x;
+            intersections[i].y = views[i]->top_left.y;
+        }
+        return intersections;
+    }
+    float slope_trajectory = (float)(p2->y - p1->y) / (float)(p2->x - p1->x); // a in y = ax+ b
+    float y_intercept_trajectory = p1->y - slope_trajectory * p1->x; // b in y = ax+ b
+    for (int i = 0; i < len_views; i++) {
+        float top_side_intersection = (views[i]->top_left.y - y_intercept_trajectory) / slope_trajectory;
+        float bottom_side_intersection = (views[i]->top_left.y + views[i]->height - y_intercept_trajectory) / slope_trajectory;
+        float left_side_intersection = slope_trajectory * views[i]->top_left.x + y_intercept_trajectory;
+        float right_side_intersection = slope_trajectory * (views[i]->top_left.x + views[i]->width) + y_intercept_trajectory;
+        /* Coordinates are cast to int ==> rounds down */
+        if (top_side_intersection <= views[i]->top_left.x + views[i]->width && top_side_intersection >= views[i]->top_left.x) {
+            intersections[i].x = top_side_intersection;
+            intersections[i].y = views[i]->top_left.y;
+        } else if (bottom_side_intersection <= views[i]->top_left.x + views[i]->width && bottom_side_intersection >= views[i]->top_left.x) {
+            intersections[i].x = bottom_side_intersection;
+            intersections[i].y = views[i]->top_left.y + views[i]->height;
+        } else if (left_side_intersection <= views[i]->top_left.y + views[i]->height && left_side_intersection >= views[i]->top_left.y) {
+            intersections[i].x = views[i]->top_left.x;
+            intersections[i].y = left_side_intersection;
+        } else if (right_side_intersection <= views[i]->top_left.y + views[i]->height && right_side_intersection >= views[i]->top_left.y) {
+            intersections[i].x = views[i]->top_left.x + views[i]->width;
+            intersections[i].y = right_side_intersection;
+        } else {
+            intersections[i].x = -1;
+            intersections[i].y = -1;
+        }
+    }
+
+    /* Now he have to sort the intersections */
+    int tmp;
+    for (int i = 1; i < len_views; i++) {
+        for (int j = i; j > 0; j--) {
+            if (distance(*p1, intersections[j]) < distance(*p1, intersections[j - 1])) {
+                tmp = intersections[j].x;
+                intersections[j].x = intersections[j - 1].x;
+                intersections[j - 1].x = tmp;
+                tmp = intersections[j].y;
+                intersections[j].y = intersections[j - 1].y;
+                intersections[j - 1].y = tmp;
+            }
+        }
+    }
+
+    return intersections;
+}
+
 
 int update_fish_coordinates(struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
