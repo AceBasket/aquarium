@@ -94,9 +94,13 @@ void *thread_io(void *parameters) {
                     }
                 }
 
-
+                // fprintf(log, "before parse_clients\n");
+                // fflush(log);
                 struct parse *parser = parse_clients(buffer);
                 enum func function_called = parser->func_name;
+                // fprintf(log, "after parse_clients\n");
+                // fprintf(log, "function_called: %d\n", function_called);
+                // fflush(log);
                 switch (function_called) {
                 case HELLO:
                     fprintf(log, "Hello from view %d\n", num_view);

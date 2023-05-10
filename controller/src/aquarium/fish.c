@@ -271,6 +271,19 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
     int len_views_destination;
     for (len_views_destination = 0; views_destination[len_views_destination] != NULL; len_views_destination++) {
     }
+    if (len_views_origin == len_views_destination) {
+        int i;
+        for (i = 0; i < len_views_origin; i++) {
+            if (views_origin[i] != views_destination[i]) {
+                // both points don't belong to the same view(s)
+                break;
+            }
+        }
+        if (i == len_views_origin) {
+            // both points belong to the same view(s)
+            return OK;
+        }
+    }
     struct view *views[len_views_origin + len_views_destination + 1];
     for (int i = 0; i < len_views_origin; i++) {
         views[i] = views_origin[i];
@@ -280,13 +293,18 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
     }
     views[len_views_origin + len_views_destination] = NULL;
 
-    /* get intersections fro each view found above */
+    /* get intersections for each view found above */
     struct coordinates *intersections = get_instersections_btw_trajectory_and_views(views, &origin->destination_coordinates, &destination->destination_coordinates);
-    for (int i = 0; intersections[i].x != -1 || i < 2; i++) {
+    printf("origin: %dx%d", origin->destination_coordinates.x, origin->destination_coordinates.y);
+    for (int i = 0; intersections[i].x != -1 && i < len_views_destination + len_views_origin + 1; i++) {
         if (intersections[i].x == origin->destination_coordinates.x && intersections[i].y == origin->destination_coordinates.y) {
             // if the intersection is the same as the one before, we don't add it
             continue;
+        } else if (intersections[i].x < 0 || intersections[i].y < 0) {
+            // if the intersection is not in the aquarium, we don't add it
+            continue;
         }
+        printf(" --> %dx%d", intersections[i].x, intersections[i].y);
         new_destination = malloc(sizeof(struct fish_destination));
         new_destination->destination_coordinates.x = intersections[i].x;
         new_destination->destination_coordinates.y = intersections[i].y;
@@ -294,11 +312,13 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
         STAILQ_INSERT_AFTER(&fish->destinations_queue, origin, new_destination, next);
         origin = new_destination; // update origin
     }
+    printf(" --> %dx%d\n", destination->destination_coordinates.x, destination->destination_coordinates.y);
     free(intersections);
     return OK;
 }
 
 struct coordinates *get_instersections_btw_trajectory_and_views(struct view **views, struct coordinates *p1, struct coordinates *p2) {
+    printf("from %dx%d to %dx%d\n", p1->x, p1->y, p2->x, p2->y);
     int len_views;
     for (len_views = 0; views[len_views] != NULL; len_views++) {
     }
@@ -318,23 +338,40 @@ struct coordinates *get_instersections_btw_trajectory_and_views(struct view **vi
         float bottom_side_intersection = (views[i]->top_left.y + views[i]->height - y_intercept_trajectory) / slope_trajectory;
         float left_side_intersection = slope_trajectory * views[i]->top_left.x + y_intercept_trajectory;
         float right_side_intersection = slope_trajectory * (views[i]->top_left.x + views[i]->width) + y_intercept_trajectory;
+        printf("top: %f, bottom: %f, left: %f, right: %f\n", top_side_intersection, bottom_side_intersection, left_side_intersection, right_side_intersection);
+        printf(" ==> top: %dx%d\n", (int)top_side_intersection, views[i]->top_left.y);
+        printf(" ==> bottom: %dx%d\n", (int)bottom_side_intersection, views[i]->top_left.y + views[i]->height);
+        printf(" ==> left: %dx%d\n", views[i]->top_left.x, (int)left_side_intersection);
+        printf(" ==> right: %dx%d\n", views[i]->top_left.x + views[i]->width, (int)right_side_intersection);
         /* Coordinates are cast to int ==> rounds down */
-        if (top_side_intersection <= views[i]->top_left.x + views[i]->width && top_side_intersection >= views[i]->top_left.x) {
+        if (top_side_intersection <= views[i]->top_left.x + views[i]->width && top_side_intersection >= views[i]->top_left.x && top_side_intersection >= p1->x && top_side_intersection <= p2->x) {
             intersections[i].x = top_side_intersection;
             intersections[i].y = views[i]->top_left.y;
-        } else if (bottom_side_intersection <= views[i]->top_left.x + views[i]->width && bottom_side_intersection >= views[i]->top_left.x) {
+            i++;
+        }
+        if (bottom_side_intersection <= views[i]->top_left.x + views[i]->width && bottom_side_intersection >= views[i]->top_left.x && bottom_side_intersection >= p1->x && bottom_side_intersection <= p2->x) {
             intersections[i].x = bottom_side_intersection;
             intersections[i].y = views[i]->top_left.y + views[i]->height;
-        } else if (left_side_intersection <= views[i]->top_left.y + views[i]->height && left_side_intersection >= views[i]->top_left.y) {
+            i++;
+        }
+        if (left_side_intersection <= views[i]->top_left.y + views[i]->height && left_side_intersection >= views[i]->top_left.y && left_side_intersection >= p1->y && left_side_intersection <= p2->y) {
             intersections[i].x = views[i]->top_left.x;
             intersections[i].y = left_side_intersection;
-        } else if (right_side_intersection <= views[i]->top_left.y + views[i]->height && right_side_intersection >= views[i]->top_left.y) {
+            i++;
+        }
+        if (right_side_intersection <= views[i]->top_left.y + views[i]->height && right_side_intersection >= views[i]->top_left.y && right_side_intersection >= p1->y && right_side_intersection <= p2->y) {
             intersections[i].x = views[i]->top_left.x + views[i]->width;
             intersections[i].y = right_side_intersection;
-        } else {
-            intersections[i].x = -1;
-            intersections[i].y = -1;
+            i++;
         }
+        // else {
+        //     intersections[i].x = -1;
+        //     intersections[i].y = -1;
+        // }
+    }
+    printf("intersections before sort:\n");
+    for (int i = 0; i < len_views; i++) {
+        printf(" ==> %dx%d\n", intersections[i].x, intersections[i].y);
     }
 
     /* Now he have to sort the intersections */
@@ -351,6 +388,11 @@ struct coordinates *get_instersections_btw_trajectory_and_views(struct view **vi
             }
         }
     }
+    // printf("intersections after sort:\n");
+    // for (int i = 0; i < len_views; i++) {
+    //     printf(" ==> %dx%d\n", intersections[i].x, intersections[i].y);
+    // }
+    // printf("\n\n");
 
     return intersections;
 }

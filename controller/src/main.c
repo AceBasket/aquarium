@@ -57,7 +57,6 @@ int main(int argc, char const *argv[]) {
                 // fprintf(log, "Movement added to %s: will go to %dx%d before %ld\n", current_fish->name, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.x, (*(current_fish->destinations_queue.stqh_last))->destination_coordinates.y, (*(current_fish->destinations_queue.stqh_last))->time_at_destination);
                 fprintf(log, "It is actually %ld and %s is at %dx%d\n", time(NULL), current_fish->name, current_fish->top_left.x, current_fish->top_left.y);
                 fflush(log);
-                assert(len == len_movements_queue(current_fish) - 1);
             }
             current_fish = current_fish->next;
         }

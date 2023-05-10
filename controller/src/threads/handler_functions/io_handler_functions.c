@@ -5,6 +5,8 @@
 
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
+    fprintf(log, "in handle error\n");
+    fflush(log);
     if (strcmp(parser->status, "OK\n") != 0) {
         dprintf(socket_fd, "%s", parser->status);
         fprintf(log, "%s", parser->status);
@@ -132,6 +134,8 @@ void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct a
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
+    fprintf(log, "start fish %s\n", parser->arguments[0]);
+    fflush(log);
     if (start_fish(aquarium, parser->arguments[0])) {
         dprintf(socket_fd, "OK\n");
         return;
