@@ -1,4 +1,4 @@
-#include "../src/aquarium.h"
+#include "../src/aquarium/aquarium.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

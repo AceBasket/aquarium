@@ -1,4 +1,5 @@
-#include "../src/view.h"
+#include "../src/aquarium/view.h"
+#include "../src/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -71,6 +72,23 @@ void test_get_view() {
     assert(free_aquarium(aquarium));
 }
 
+void test_get_views_from_coordinates() {
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *view2 = create_view("view2", (struct coordinates) { 25, 0 }, 50, 50);
+    struct view *view3 = create_view("view3", (struct coordinates) { 50, 50 }, 50, 50);
+    assert(add_view(aquarium, view) == OK);
+    assert(add_view(aquarium, view2) == OK);
+    assert(add_view(aquarium, view3) == OK);
+    struct view **views = get_views_from_coordinates(aquarium, (struct coordinates) { 50, 50 });
+    assert(views[0] == view);
+    assert(views[1] == view2);
+    assert(views[2] == view3);
+    assert(views[3] == NULL);
+    free(views);
+    assert(free_aquarium(aquarium));
+}
+
 int main() {
     printf("View tests: .");
     test_create_view();
@@ -84,6 +102,8 @@ int main() {
     test_remove_view_not_in_aquarium();
     printf(".");
     test_get_view();
+    printf(".");
+    test_get_views_from_coordinates();
     printf(" OK\n");
     return EXIT_SUCCESS;
 }

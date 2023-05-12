@@ -53,6 +53,6 @@ build/tst/%.o: tst/%.c
 	@${CC} ${CFLAGS} -c $< -o $@
 
 # each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
-build/tst/%.tst: build/tst/%.o build/src/utils.o build/src/aquarium.o build/src/view.o build/src/fish.o build/src/socket_aquarium.o
+build/tst/%_test.tst: build/tst/%_test.o build/src/aquarium/aquarium.o build/src/aquarium/view.o build/src/aquarium/fish.o build/src/communication/socket_aquarium.o build/src/parser/client_inputs_parser.o build/src/parser/prompt_parser.o build/src/parser/parser.o build/src/utils.o
 	@${CC} ${CFLAGS} $^ -o $@ -lm
 	@$@

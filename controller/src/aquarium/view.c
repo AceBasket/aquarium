@@ -110,11 +110,10 @@ struct view **get_views_from_coordinates(struct aquarium *aquarium, struct coord
         if (coordinates.x >= current->top_left.x && coordinates.x <= current->top_left.x + current->width && coordinates.y >= current->top_left.y && coordinates.y <= current->top_left.y + current->height) {
             // if the view is in the aquarium, return it
             views[nb_views] = current;
+            nb_views++;
         }
         current = current->next;
-        nb_views++;
     } while (current != NULL);
-
     // if the view is not in the aquarium, return NULL
     views[nb_views] = NULL;
     return views;

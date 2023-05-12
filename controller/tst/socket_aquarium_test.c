@@ -1,5 +1,6 @@
-#include "../src/aquarium.h"
-#include "../src/socket_aquarium.h"
+#include "../src/aquarium/aquarium.h"
+#include "../src/communication/socket_aquarium.h"
+#include "../src/utils.h"
 #include <assert.h>
 #include <stdlib.h>
 
