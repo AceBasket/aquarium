@@ -45,7 +45,8 @@ int remove_finished_movements(struct fish *fish);
 int len_movements_queue(struct fish *fish);
 void free_fishes_array(struct fish **fishes, struct view *view);
 struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started);
-
-
+int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, struct fish_destination *origin, struct fish_destination *destination);
+struct coordinates *get_instersections_btw_trajectory_and_views(struct view **views, struct coordinates *p1, struct coordinates *p2);
+void debug_destinations_queue(struct fish *fish);
 
 #endif // _FISH_H_ 
