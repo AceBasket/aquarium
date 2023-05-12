@@ -42,9 +42,12 @@ void test_remove_view() {
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
     struct view *view2 = create_view("view2", (struct coordinates) { 0, 0 }, 50, 50);
     struct view *view3 = create_view("view3", (struct coordinates) { 0, 0 }, 50, 50);
+    struct view *view4 = create_view("view4", (struct coordinates) { 0, 0 }, 50, 50);
     assert(add_view(aquarium, view) == OK);
     assert(add_view(aquarium, view2) == OK);
     assert(add_view(aquarium, view3) == OK);
+    assert(add_view(aquarium, view4) == OK);
+    assert(remove_view(aquarium, view4) == OK);
     assert(remove_view(aquarium, view2) == OK);
     assert(remove_view(aquarium, view) == OK);
     assert(remove_view(aquarium, view3) == OK);

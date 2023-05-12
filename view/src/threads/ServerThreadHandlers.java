@@ -1,6 +1,7 @@
 package threads;
 
 import java.io.PrintWriter;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
@@ -32,10 +33,13 @@ public class ServerThreadHandlers {
                 fishesList.setFishDestination(fish_to_update, Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // destination.x
                         Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // destination.y
                         Integer.parseInt(parsedResponse.getArgs().get(i + 5))); // time to get to destination
-                // logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
-                //         + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i + 2) + " in "
-                //         + parsedResponse.getArgs().get(i + 5) + " seconds");
-                logFile.println(parsedResponse.getArgs().get(i) + " updated. Has " + fish_to_update.getSizeDestinations() + " destinations");
+                // logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will
+                // go to "
+                // + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i
+                // + 2) + " in "
+                // + parsedResponse.getArgs().get(i + 5) + " seconds");
+                logFile.println(parsedResponse.getArgs().get(i) + " updated. Has "
+                        + fish_to_update.getSizeDestinations() + " destinations");
                 logFile.flush();
             } catch (IllegalArgumentException e) {
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " does not exist");
@@ -59,5 +63,11 @@ public class ServerThreadHandlers {
     public static void greetingHandler(PrintWriter logFile, View view, ParserResult parsedAnswer) {
         view.setId(parsedAnswer.getArgs().get(0));
         view.connect();
+    }
+
+    public static void noGreetingHandler(PrintWriter logFile, View view, ConcurrentLinkedQueue<String> sendQueue)
+            throws InterruptedException {
+        Thread.sleep(10000); // wait 10 seconds
+        sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
     }
 }
