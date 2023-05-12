@@ -30,6 +30,10 @@ build: dir ${BIN}
 	${BIN} 5 8000
 
 test: dir ${TEST}
+	@for test in ${TEST}; do \
+		echo "Running $$test"; \
+		$$test; \
+	done
 
 clean:
 	rm -rf build/ *.log
@@ -55,4 +59,3 @@ build/tst/%.o: tst/%.c
 # each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
 build/tst/%_test.tst: build/tst/%_test.o build/src/aquarium/aquarium.o build/src/aquarium/view.o build/src/aquarium/fish.o build/src/communication/socket_aquarium.o build/src/parser/client_inputs_parser.o build/src/parser/prompt_parser.o build/src/parser/parser.o build/src/utils.o
 	@${CC} ${CFLAGS} $^ -o $@ -lm
-	@$@

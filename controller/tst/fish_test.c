@@ -327,26 +327,11 @@ void test_add_intermediate_movements() {
     assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.x == 23);
     assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.y == 3);
     assert(free_aquarium(aquarium));
-
-    // struct aquarium *aquarium2 = create_aquarium(1000, 1000);
-    // struct view *view1 = create_view("view1", (struct coordinates) { 0, 0 }, 500, 500);
-    // struct view *view2 = create_view("view2", (struct coordinates) { 500, 0 }, 500, 500);
-    // struct view *view3 = create_view("view3", (struct coordinates) { 0, 500 }, 500, 500);
-    // struct view *view4 = create_view("view4", (struct coordinates) { 500, 500 }, 500, 500);
-    // struct fish *fish = create_fish("fish", (struct coordinates) { 915, 793 }, 10, 10, RANDOMWAYPOINT);
-
-    // struct fish_destination *dest1 = malloc(sizeof(struct fish_destination));
-    // dest1->destination_coordinates = (struct coordinates){ 500, 501 };
-    // struct fish_destination *dest2 = malloc(sizeof(struct fish_destination));
-    // dest2->destination_coordinates = (struct coordinates){ 497, 500 };
-    // struct fish_destination *dest3 = malloc(sizeof(struct fish_destination));
-    // dest3->destination_coordinates = (struct coordinates){ 335, 386 };
-    // struct fish_destination *dest4 = malloc(sizeof(struct fish_destination));
-    // dest4->destination_coordinates = (struct coordinates){ 403, 500 };
 }
 
 int main() {
-    printf("Fish tests: .");
+    // printf("Fish tests: .");
+    printf(".");
     test_create_fish();
     printf(".");
     test_add_fish();

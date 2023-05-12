@@ -404,7 +404,8 @@ void test_save() {
 int main(void) {
    //parse clients tests
     // test_status();
-    printf("Parser tests: .");
+    // printf("Parser tests: .");
+    printf(".");
     test_addFish();
     printf(".");
     test_delFish();

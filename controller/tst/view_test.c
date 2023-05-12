@@ -90,7 +90,8 @@ void test_get_views_from_coordinates() {
 }
 
 int main() {
-    printf("View tests: .");
+    // printf("View tests: .");
+    printf(".");
     test_create_view();
     printf(".");
     test_add_view();
