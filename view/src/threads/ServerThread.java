@@ -45,14 +45,14 @@ public class ServerThread implements Runnable {
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations
                     fish.removeExpiredDestinations();
-                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
+                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 1) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
                         if (!listFishesDestinations) {
-                            // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
-                            // fishes
-                            logFile.println("Sent ls");
-                            logFile.flush();
+                            // ask for list of fishes
+                            // sendQueue.offer(ServerThreadHandlers.doLs(logFile));
+                            // logFile.println("Sent ls");
+                            // logFile.flush();
                             listFishesDestinations = true;
                         }
                     }

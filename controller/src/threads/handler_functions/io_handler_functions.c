@@ -199,6 +199,5 @@ void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket
     parameters->aquarium_mutex = aquarium_mutex;
     pthread_mutex_unlock(aquarium_mutex);
     pthread_create(&handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
-    dprintf(socket_fd, "OK\n");
     pthread_mutex_lock(aquarium_mutex);
 }

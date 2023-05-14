@@ -35,7 +35,7 @@ struct fish *get_fishes(struct aquarium *aquarium);
 int add_specific_destination(struct fish *fish, struct fish_destination *destination);
 struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, int started);
 struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started);
-int fish_is_in_view(struct fish *fish, struct view *view);
+int coordinates_are_in_view(struct coordinates *c, struct view *view);
 int len_fishes(struct aquarium *aquarium);
 int start_fish(struct aquarium *aquarium, char *name);
 float distance(struct coordinates destination, struct coordinates origin);

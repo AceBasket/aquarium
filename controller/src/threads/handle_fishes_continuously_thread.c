@@ -19,7 +19,7 @@ void *get_fishes_continuously(void *parameters) {
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     pthread_mutex_unlock(aquarium_mutex);
     struct fish **fishes_in_view;
-    time_t minimum_time_to_destination = time(NULL) + 2;
+    time_t minimum_time_to_destination = 0;
     while (1) {
         pthread_mutex_lock(aquarium_mutex);
         fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 0); // 0 = false
@@ -51,6 +51,7 @@ void *get_fishes_continuously(void *parameters) {
                 debug_destinations_queue(log, fishes_in_view[0]);
                 print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0); // 0 = false
 
+
             }
 
         }
@@ -58,6 +59,10 @@ void *get_fishes_continuously(void *parameters) {
         free_fishes_array(fishes_in_view, view);
 
         pthread_mutex_unlock(aquarium_mutex);
-        sleep(minimum_time_to_destination - time(NULL));
+        if (minimum_time_to_destination > time(NULL)) {
+            sleep(minimum_time_to_destination - time(NULL));
+        } else {
+            sleep(1);
+        }
     }
 }

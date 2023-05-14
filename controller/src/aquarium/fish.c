@@ -139,12 +139,11 @@ struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, i
 
     do {
         if ((started && current_fish->status == STARTED) || !started) {
-            if (current_fish->top_left.x >= view->top_left.x && current_fish->top_left.x <= view->top_left.x + view->width) {
-                if (current_fish->top_left.y >= view->top_left.y && current_fish->top_left.y <= view->top_left.y + view->height) {
-                    fishes[i] = current_fish;
-                    i++;
-                }
+            if (coordinates_are_in_view(&current_fish->top_left, view) == OK) {
+                fishes[i] = current_fish;
+                i++;
             }
+
         }
         current_fish = current_fish->next;
     } while (current_fish != NULL);
@@ -168,23 +167,23 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
     do {
         if ((started && current_fish->status == STARTED) || !started) {
             // if fish is in view
-            if ((current_fish->top_left.x >= view->top_left.x && current_fish->top_left.x <= view->top_left.x + view->width) && (current_fish->top_left.y >= view->top_left.y && current_fish->top_left.y <= view->top_left.y + view->height)) {
-                fishes[i] = current_fish;
-                i++;
-            } else {
+            // if (coordinates_are_in_view(&current_fish->top_left, view) == OK) {
+            //     fishes[i] = current_fish;
+            //     i++;
+            // } else {
                 // if fish is not in view, check if it has a destination in view
-                struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue);
-                struct fish *fish_with_destination_in_view = create_fish(current_fish->name, current_fish->top_left, current_fish->height, current_fish->width, current_fish->movement_pattern);
-                while (current_destination != NULL) {
-                    if ((current_destination->destination_coordinates.x >= view->top_left.x && current_destination->destination_coordinates.x <= view->top_left.x + view->width) && (current_destination->destination_coordinates.y >= view->top_left.y && current_destination->destination_coordinates.y <= view->top_left.y + view->height)) {
-                        add_specific_destination(fish_with_destination_in_view, current_destination);
-                        break;
-                    }
-                    current_destination = STAILQ_NEXT(current_destination, next);
+            struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue);
+            struct fish *fish_with_destination_in_view = create_fish(current_fish->name, current_fish->top_left, current_fish->height, current_fish->width, current_fish->movement_pattern);
+            while (current_destination != NULL) {
+                if (coordinates_are_in_view(&current_destination->destination_coordinates, view) == OK) {
+                    add_specific_destination(fish_with_destination_in_view, current_destination);
+                    break;
                 }
-                fishes[i] = fish_with_destination_in_view;
-                i++;
+                current_destination = STAILQ_NEXT(current_destination, next);
             }
+            fishes[i] = fish_with_destination_in_view;
+            i++;
+        // }
         }
         current_fish = current_fish->next;
 
@@ -193,9 +192,9 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
     return fishes;
 }
 
-int fish_is_in_view(struct fish *fish, struct view *view) {
-    if (fish->top_left.x >= view->top_left.x && fish->top_left.x <= view->top_left.x + view->width) {
-        if (fish->top_left.y >= view->top_left.y && fish->top_left.y <= view->top_left.y + view->height) {
+int coordinates_are_in_view(struct coordinates *c, struct view *view) {
+    if (c->x >= view->top_left.x && c->x <= view->top_left.x + view->width) {
+        if (c->y >= view->top_left.y && c->y <= view->top_left.y + view->height) {
             return OK;
         }
     }
@@ -205,7 +204,7 @@ int fish_is_in_view(struct fish *fish, struct view *view) {
 void free_fishes_array(struct fish **fishes, __attribute__((unused))struct view *view) {
     int i = 0;
     while (fishes[i] != NULL) {
-        if (fish_is_in_view(fishes[i], view) == NOK) {
+        if (coordinates_are_in_view(&fishes[i]->top_left, view) == NOK) {
             free_fish(fishes[i]);
         }
         i++;
