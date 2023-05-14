@@ -2,14 +2,14 @@
 #include "../../communication/socket_aquarium.h"
 #include "../../aquarium/fish.h"
 #include "../../utils.h"
+#include "../handle_fishes_continuously_thread.h"
 
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
-    fprintf(log, "in handle error\n");
-    fflush(log);
     if (strcmp(parser->status, "OK\n") != 0) {
         dprintf(socket_fd, "%s", parser->status);
         fprintf(log, "%s", parser->status);
+        fflush(log);
         return OK;
     }
     return NOK;
@@ -18,10 +18,12 @@ int handle_error(FILE *log, struct parse *parser, int socket_fd) {
 void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd, int bool_get_next_destination) {
     if (fishes_in_view[0] == NULL) {
         fprintf(log, "Error: no fish in view\n");
+        fflush(log);
         return;
     }
     if (view == NULL) {
         fprintf(log, "Error: view is NULL\n");
+        fflush(log);
         return;
     }
 
@@ -186,9 +188,17 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
     free_fishes_array(fishes_in_view, view);
 }
 
-void get_fishes_continuously_handler(FILE *log, struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
+void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium, pthread_mutex_t *aquarium_mutex) {
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    ;
+    pthread_t handle_fishes_continuously_thread;
+    struct handle_fishes_continuously_parameters *parameters = malloc(sizeof(struct handle_fishes_continuously_parameters));
+    parameters->aquarium = aquarium;
+    parameters->socket_fd = socket_fd;
+    parameters->aquarium_mutex = aquarium_mutex;
+    pthread_mutex_unlock(aquarium_mutex);
+    pthread_create(&handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
+    dprintf(socket_fd, "OK\n");
+    pthread_mutex_lock(aquarium_mutex);
 }

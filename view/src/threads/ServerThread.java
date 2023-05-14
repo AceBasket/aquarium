@@ -49,7 +49,8 @@ public class ServerThread implements Runnable {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
                         if (!listFishesDestinations) {
-                            sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
+                            // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
+                            // fishes
                             logFile.println("Sent ls");
                             logFile.flush();
                             listFishesDestinations = true;
@@ -67,6 +68,9 @@ public class ServerThread implements Runnable {
                 switch (response.getFunction()) {
                     case GREETING:
                         ServerThreadHandlers.greetingHandler(logFile, view, receivedQueue.remove());
+                        sendQueue.offer("getFishesContinuously");
+                        logFile.println("Sent getFishesContinuously");
+                        logFile.flush();
                         break;
                     case NOGREETING:
                         logFile.println("Server is full");
