@@ -26,16 +26,16 @@ public class Parser {
             // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3,
             // RandomWAyPoint"));
         } catch (IOException e) {
-            System.out.println("The config file does not exist");
+            throw new ParserException("The config file does not exist");
         } catch (InvalidParameterException e) {
-            System.out.println("Parsing error");
+            throw new ParserException("Parsing error");
         }
 
     }
 
     public static ParserResult parse(String command) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
-        String[] responseSplit = command.split(" at | : |, |,| \\[|\\] \\[|\\]|x| ");
+        String[] responseSplit = command.split(" at | : |: |:|, |,| \\[|\\] \\[|\\]|x| ");
         if (responseSplit[0].equals("status")) {
             return new ParserResult(PossibleResponses.STATUS, args);
         } else if (responseSplit[0].equals("addFish")) {
@@ -50,7 +50,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format1");
+                            throw new ParserException("Invalid Argument Format");
                         }
                         args.add(responseSplit[i]);
                     }
@@ -116,7 +116,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format2");
+                                throw new ParserException("Invalid Argument Format");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -136,7 +136,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format3");
+                                throw new ParserException("Invalid Argument Format");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -159,7 +159,7 @@ public class Parser {
                 try {
                     Integer.parseInt(IDNb);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid ID Format");
+                    throw new ParserException("Invalid ID Format");
                 }
 
                 args.add(responseSplit[1]);
@@ -179,7 +179,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format4");
+                            throw new ParserException("Invalid Argument Format");
                         }
                     }
                     args.add(responseSplit[i]);
@@ -198,7 +198,7 @@ public class Parser {
                     Integer.parseInt(responseSplit[1]);
                     args.add(responseSplit[1]);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid Response Format to ping");
+                    throw new ParserException("Invalid Argument Format");
                 }
                 return new ParserResult(PossibleResponses.PONG, args);
             }
@@ -237,7 +237,7 @@ public class Parser {
         if (IP.length() == 0) {
             throw new ParserException("No IP");
         }
-        String[] IPSplit = IP.split(".");
+        String[] IPSplit = IP.split("\\.");
         if (IPSplit.length != 4) {
             throw new ParserException("Wrong IP format");
         }
@@ -245,7 +245,7 @@ public class Parser {
             try {
                 Integer.parseInt(IPSplit[i]);
             } catch (NumberFormatException e) {
-                System.out.println("IP contains letters");
+                throw new ParserException("IP contains letters");
             }
         }
         return IP;
