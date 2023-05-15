@@ -217,10 +217,10 @@ void test_add_specific_destination() {
     free(destination);
 }
 
-void test_fish_is_in_view() {
+void test_coordinates_are_in_view() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    assert(fish_is_in_view(fish, view) == 1);
+    assert(coordinates_are_in_view(&fish->top_left, view) == 1);
     free(fish->name);
     free(fish);
     free(view->name);
@@ -364,7 +364,7 @@ int main() {
     printf(".");
     test_add_specific_destination();
     printf(".");
-    test_fish_is_in_view();
+    test_coordinates_are_in_view();
     printf(".");
     test_len_fishes();
     printf(".");

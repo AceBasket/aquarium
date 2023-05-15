@@ -74,7 +74,7 @@ struct parse *parse_clients(char *str) {
         }
         adding_arg_to_parse(p, arg3);
 
-        char *arg4 = strtok(NULL, "x");
+        char *arg4 = strtok(NULL, "x ");
 
         if (arg4 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
@@ -87,7 +87,7 @@ struct parse *parse_clients(char *str) {
 
         adding_arg_to_parse(p, arg4);
 
-        char *arg5 = strtok(NULL, ",");
+        char *arg5 = strtok(NULL, ", ");
         if (arg5 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return p;
