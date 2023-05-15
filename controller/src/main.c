@@ -48,7 +48,7 @@ int main(int argc, char const *argv[]) {
         pthread_mutex_lock(&aquarium_mutex);
         fishes = aquarium->fishes;
         current_fish = fishes;
-        while (current_fish != NULL) {
+        while (current_fish != NULL && current_fish->status == STARTED) {
             remove_finished_movements(current_fish);
             if (len_movements_queue(current_fish) < 5) {
                 int len = len_movements_queue(current_fish);
