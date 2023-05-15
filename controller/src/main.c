@@ -56,6 +56,7 @@ int main(int argc, char const *argv[]) {
                 fprintf(log, "fish %s is at %dx%d and it is %ld\n", current_fish->name, current_fish->top_left.x, current_fish->top_left.y, time(NULL));
                 fprintf(log, "%s had %d destinations. Movement added\n", current_fish->name, len);
                 fflush(log);
+                debug_destinations_queue(log, current_fish);
             }
             current_fish = current_fish->next;
         }

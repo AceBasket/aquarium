@@ -50,7 +50,7 @@ struct parse *parse_clients(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@command should be like : addFish <nameFish> at <number>x<number>, <number>x<number>, <path>\n");
             return p;
         }
-        adding_arg_to_parse(p, command2);
+        // adding_arg_to_parse(p, command2);
 
         char *arg2 = strtok(NULL, "x");
         if (arg2 == NULL) {
@@ -74,7 +74,7 @@ struct parse *parse_clients(char *str) {
         }
         adding_arg_to_parse(p, arg3);
 
-        char *arg4 = strtok(NULL, "x");
+        char *arg4 = strtok(NULL, "x ");
 
         if (arg4 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
@@ -87,7 +87,7 @@ struct parse *parse_clients(char *str) {
 
         adding_arg_to_parse(p, arg4);
 
-        char *arg5 = strtok(NULL, ",");
+        char *arg5 = strtok(NULL, ", ");
         if (arg5 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <path>");
             return p;
@@ -165,14 +165,14 @@ struct parse *parse_clients(char *str) {
             strcpy(p->status, "ERROR: Command should be like : hello in as <ID> Or a simple hello\n");
             return p;
         }
-        adding_arg_to_parse(p, command);
+        // adding_arg_to_parse(p, command);
 
         command = strtok(NULL, " ");
         if (command == NULL || strcmp(command, "as") != 0) {
             strcpy(p->status, "ERROR: Command should be like: hello in as <ID> or a simple hello\n");
             return p;
         }
-        adding_arg_to_parse(p, command);
+        // adding_arg_to_parse(p, command);
 
         char *ID = strtok(NULL, " ");
         if (ID == NULL) {

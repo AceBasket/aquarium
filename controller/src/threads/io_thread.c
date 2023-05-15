@@ -36,7 +36,7 @@ void *thread_io(void *parameters) {
     }
     pthread_mutex_unlock(aquarium_mutex);
 
-// For communication with views
+    // For communication with views
     fd_set read_fds;
     int *views_socket_fd = (int *)params->views_socket_fd;
     int recv_bytes;
@@ -117,7 +117,7 @@ void *thread_io(void *parameters) {
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
                     pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex);
                     pthread_mutex_unlock(aquarium_mutex);
                     break;
                 case LS:

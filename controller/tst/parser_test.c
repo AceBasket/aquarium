@@ -20,14 +20,20 @@ void test_status() {
 
 void test_addFish() {
     struct parse *result = parse_clients("addFish PoissonNain at 61x52, 4x3, RandomPathway");
-    assert(result->size == 7);
+    assert(result->size == 6);
     assert(result->func_name == ADDFISH);
     int i = 0;
     assert(!strcmp(result->arguments[i], "PoissonNain"));
     i++;
-    assert(!strcmp(result->arguments[i], "at"));
-    i++;
     assert(!strcmp(result->arguments[i], "61"));
+    i++;
+    assert(!strcmp(result->arguments[i], "52"));
+    i++;
+    assert(!strcmp(result->arguments[i], "4"));
+    i++;
+    assert(!strcmp(result->arguments[i], "3"));
+    i++;
+    assert(!strcmp(result->arguments[i], "RandomPathway"));
 
     struct parse *result2 = parse_clients("addFish PoissonNain he");
     assert(strcmp(result2->status, "OK") != 0);
@@ -112,13 +118,9 @@ void test_startFish() {
 
 void test_hello() {
     struct parse *result1 = parse_clients("hello in as N12");
-    assert(result1->size == 3);
+    assert(result1->size == 1);
     assert(result1->func_name == HELLO);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "in"));
-    i++;
-    assert(!strcmp(result1->arguments[i], "as"));
-    i++;
     assert(!strcmp(result1->arguments[i], "N12"));
 
     struct parse *result2 = parse_clients("hello in as 12 HJK");
@@ -295,11 +297,9 @@ void test_show_aquarium() {
 
 void test_add_view() {
     struct parse *result1 = parse_prompt("add view N5 400x400+400+200");
-    assert(result1->size == 6);
+    assert(result1->size == 5);
     assert(result1->func_name == ADD_VIEW);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "view")); // this line should go
-    i++;
     assert(!strcmp(result1->arguments[i], "N5"));
     i++;
     assert(!strcmp(result1->arguments[i], "400"));
@@ -342,11 +342,9 @@ void test_add_view() {
 
 void test_del_view() {
     struct parse *result1 = parse_prompt("del view N34");
-    assert(result1->size == 2);
+    assert(result1->size == 1);
     assert(result1->func_name == DEL_VIEW);
     int i = 0;
-    assert(!strcmp(result1->arguments[i], "view")); // this line should go
-    i++;
     assert(!strcmp(result1->arguments[i], "N34"));
 
     struct parse *result2 = parse_prompt("del");

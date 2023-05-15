@@ -45,20 +45,20 @@ void show_handler(FILE *log, struct aquarium *aquarium) {
 }
 
 void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
-    struct coordinates coord = { atoi(parser->arguments[2]), atoi(parser->arguments[3]) };
-    struct view *view = create_view(parser->arguments[1], coord, atoi(parser->arguments[4]), atoi(parser->arguments[5]));
+    struct coordinates coord = { atoi(parser->arguments[1]), atoi(parser->arguments[2]) };
+    struct view *view = create_view(parser->arguments[0], coord, atoi(parser->arguments[3]), atoi(parser->arguments[4]));
     if (add_view(aquarium, view) == OK) {
-        fprintf(stdout, "View %s added\n", parser->arguments[1]);
+        fprintf(stdout, "View %s added\n", parser->arguments[0]);
     } else {
-        fprintf(stdout, "View %s already in the aquarium\n", parser->arguments[1]);
+        fprintf(stdout, "View %s already in the aquarium\n", parser->arguments[0]);
     }
 }
 
 void del_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
-    if (remove_view(aquarium, get_view(aquarium, parser->arguments[1])) == OK) {
-        fprintf(stdout, "View %s deleted\n", parser->arguments[1]);
+    if (remove_view(aquarium, get_view(aquarium, parser->arguments[0])) == OK) {
+        fprintf(stdout, "View %s deleted\n", parser->arguments[0]);
     } else {
-        fprintf(stdout, "View %s not found\n", parser->arguments[1]);
+        fprintf(stdout, "View %s not found\n", parser->arguments[0]);
     }
 }
 
