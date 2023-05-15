@@ -3,6 +3,7 @@
 #include "../threads/accept_thread.h"
 #include "../threads/prompt_thread.h"
 #include "../utils.h"
+#include "controller.h"
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
@@ -12,15 +13,25 @@
 
 
 
-void init_server(int nb_views, int port_number, struct aquarium **aquarium, pthread_mutex_t *aquarium_mutex, pthread_mutex_t *views_sockets_mutex) {
+void init_server(struct init_server_parameters *parameters) {
+    // Initialization of the parameters
+    int nb_views = parameters->nb_views;
+    int port_number = parameters->port_number;
+    struct aquarium **aquarium = parameters->aquarium;
+    pthread_mutex_t *aquarium_mutex = parameters->aquarium_mutex;
+    pthread_mutex_t *views_sockets_mutex = parameters->views_sockets_mutex;
+    int *prompt_thread_terminated = parameters->prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex = parameters->prompt_thread_terminated_mutex;
+    pthread_t *tid_accept = parameters->tid_accept;
+    pthread_t *tid_prompt = parameters->tid_prompt;
+    pthread_t *tid_io = parameters->tid_io;
+
     struct thread_prompt_parameters *prompt_parameters = malloc(sizeof(struct thread_prompt_parameters));
     struct thread_accept_parameters *accept_parameters = malloc(sizeof(struct thread_accept_parameters));
     int *views_sockets_fd = malloc(MAX_VIEWS * sizeof(int));
     for (int i = 0; i < MAX_VIEWS; i++) {
         views_sockets_fd[i] = -1;
     }
-    pthread_t tid_accept;
-    pthread_t tid_prompt;
 
     // Creation of the main socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -48,11 +59,16 @@ void init_server(int nb_views, int port_number, struct aquarium **aquarium, pthr
     accept_parameters->views_sockets = views_sockets_fd;
     accept_parameters->aquarium_mutex = aquarium_mutex;
     accept_parameters->aquarium = aquarium;
+    accept_parameters->prompt_thread_terminated = prompt_thread_terminated;
+    accept_parameters->prompt_thread_terminated_mutex = prompt_thread_terminated_mutex;
+    accept_parameters->tid_io = tid_io;
 
     prompt_parameters->aquarium = aquarium;
     prompt_parameters->aquarium_mutex = aquarium_mutex;
+    prompt_parameters->prompt_thread_terminated = prompt_thread_terminated;
+    prompt_parameters->prompt_thread_terminated_mutex = prompt_thread_terminated_mutex;
 
-    exit_if(pthread_create(&tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");
-    exit_if(pthread_create(&tid_prompt, NULL, thread_prompt, prompt_parameters) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(tid_prompt, NULL, thread_prompt, prompt_parameters) < 0, "ERROR on thread creation");
 
 }

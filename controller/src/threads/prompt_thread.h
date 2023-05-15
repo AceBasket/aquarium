@@ -7,6 +7,8 @@
 struct thread_prompt_parameters {
     struct aquarium **aquarium;
     pthread_mutex_t *aquarium_mutex;
+    int *prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex;
 };
 
 

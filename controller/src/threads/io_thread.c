@@ -20,20 +20,26 @@ void *thread_io(void *parameters) {
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
     pthread_mutex_t *aquarium_mutex = params->aquarium_mutex;
     struct aquarium **aquarium = params->aquarium;
+    int *prompt_thread_terminated = params->prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex = params->prompt_thread_terminated_mutex;
 
     FILE *log = fopen("log_io.log", "w");
     fprintf(log, "===== thread_io() =====\n");
     fflush(log);
 
     pthread_mutex_lock(aquarium_mutex);
-    while (*aquarium == NULL) {
+    pthread_mutex_lock(prompt_thread_terminated_mutex);
+    while (*aquarium == NULL && *prompt_thread_terminated == NOK) {
+        pthread_mutex_unlock(prompt_thread_terminated_mutex);
         pthread_mutex_unlock(aquarium_mutex);
         fprintf(log, "Waiting for aquarium to be initialized\n");
         fflush(log);
         sleep(1);
 
         pthread_mutex_lock(aquarium_mutex);
+        pthread_mutex_lock(prompt_thread_terminated_mutex);
     }
+    pthread_mutex_unlock(prompt_thread_terminated_mutex);
     pthread_mutex_unlock(aquarium_mutex);
 
     // For communication with views
@@ -42,13 +48,23 @@ void *thread_io(void *parameters) {
     int recv_bytes;
     char buffer[BUFFER_SIZE];
 
-    while (views_socket_fd[0] == -1) {
+    // If get_fishes_continuously is called
+    pthread_t handle_fishes_continuously_thread;
+
+    // Wait for views to be initialized
+    pthread_mutex_lock(prompt_thread_terminated_mutex);
+    while (views_socket_fd[0] == -1 && *prompt_thread_terminated == NOK) {
+        pthread_mutex_unlock(prompt_thread_terminated_mutex);
         fprintf(log, "Waiting for views to be initialized\n");
         fflush(log);
         sleep(1);
+        pthread_mutex_lock(prompt_thread_terminated_mutex);
     }
+    pthread_mutex_unlock(prompt_thread_terminated_mutex);
 
-    while (1) {
+    pthread_mutex_lock(prompt_thread_terminated_mutex);
+    while (*prompt_thread_terminated == NOK) {
+        pthread_mutex_unlock(prompt_thread_terminated_mutex);
         FD_ZERO(&read_fds);
         int max_fd = 0;
 
@@ -73,6 +89,19 @@ void *thread_io(void *parameters) {
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
+
+                    // If received Ctrl+D on prompt 
+                    pthread_mutex_lock(prompt_thread_terminated_mutex);
+                    if (*prompt_thread_terminated == NOK) {
+                        pthread_mutex_unlock(prompt_thread_terminated_mutex);
+                        fprintf(log, "===== thread_io() terminated (while reading from socket) =====\n");
+                        fflush(log);
+                        fclose(log);
+                        // free memory
+                        return NULL;
+                    }
+                    pthread_mutex_unlock(prompt_thread_terminated_mutex);
+
                     char char_read;
                     recv_bytes = recv(views_socket_fd[num_view], &char_read, 1, 0);
                     exit_if(recv_bytes == -1, "ERROR on recv");
@@ -117,7 +146,7 @@ void *thread_io(void *parameters) {
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
                     pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex, &handle_fishes_continuously_thread);
                     pthread_mutex_unlock(aquarium_mutex);
                     break;
                 case LS:
@@ -172,7 +201,13 @@ void *thread_io(void *parameters) {
                 fflush(log);
             }
         }
+        pthread_mutex_lock(prompt_thread_terminated_mutex);
     }
+    pthread_mutex_unlock(prompt_thread_terminated_mutex);
+    pthread_join(handle_fishes_continuously_thread, NULL);
+    fprintf(log, "===== thread_io() terminated =====\n");
+    fflush(log);
     fclose(log);
+    // free memory
     return EXIT_SUCCESS;
 }

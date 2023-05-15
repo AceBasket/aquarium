@@ -4,6 +4,7 @@
 #include "../aquarium/fish.h"
 #include "../aquarium/view.h"
 #include "../aquarium/aquarium.h"
+#include "../utils.h"
 #include <time.h>
 #include <unistd.h>
 
@@ -11,6 +12,8 @@ void *get_fishes_continuously(void *parameters) {
     struct aquarium *aquarium = ((struct handle_fishes_continuously_parameters *)parameters)->aquarium;
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
     pthread_mutex_t *aquarium_mutex = ((struct handle_fishes_continuously_parameters *)parameters)->aquarium_mutex;
+    int *prompt_thread_terminated = ((struct handle_fishes_continuously_parameters *)parameters)->prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex = ((struct handle_fishes_continuously_parameters *)parameters)->prompt_thread_terminated_mutex;
     FILE *log = fopen("log_handle_fishes_continuously.log", "w");
     fprintf(log, "===== get_fishes_continuously() =====\n");
     fflush(log);
@@ -20,7 +23,11 @@ void *get_fishes_continuously(void *parameters) {
     pthread_mutex_unlock(aquarium_mutex);
     struct fish **fishes_in_view;
     time_t minimum_time_to_destination = 0;
-    while (1) {
+
+    pthread_mutex_lock(prompt_thread_terminated_mutex);
+    while (*prompt_thread_terminated == NOK) {
+        pthread_mutex_unlock(prompt_thread_terminated_mutex);
+
         pthread_mutex_lock(aquarium_mutex);
         fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 0); // 0 = false
         if (fishes_in_view[0] == NULL) {
@@ -64,5 +71,11 @@ void *get_fishes_continuously(void *parameters) {
         } else {
             sleep(1);
         }
+        pthread_mutex_lock(prompt_thread_terminated_mutex);
     }
+    pthread_mutex_unlock(prompt_thread_terminated_mutex);
+    fprintf(log, "===== get_fishes_continuously() terminated =====\n");
+    fflush(log);
+    fclose(log);
+    return NULL;
 }

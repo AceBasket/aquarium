@@ -16,6 +16,10 @@ void *thread_accept(void *parameters) {
     socklen_t view_addr_len = params->view_addr_len;
     int main_socket_fd = params->socket_fd;
     int nb_views = params->nb_views;
+    int *prompt_thread_terminated = params->prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex = params->prompt_thread_terminated_mutex;
+    pthread_t *tid_io = params->tid_io;
+
     int new_socket_fd;
 
     fprintf(log, "===== thread_accept() =====\n");
@@ -24,19 +28,22 @@ void *thread_accept(void *parameters) {
     // Initialization of all views_socket[] to 0 so not checked
     memset(views_sockets, -1, sizeof(views_sockets) * MAX_VIEWS);
 
-    pthread_t tid_io;
     struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;
     io_parameters->aquarium_mutex = params->aquarium_mutex;
     io_parameters->aquarium = params->aquarium;
     io_parameters->views_sockets_mutex = params->views_sockets_mutex;
+    io_parameters->prompt_thread_terminated = prompt_thread_terminated;
+    io_parameters->prompt_thread_terminated_mutex = prompt_thread_terminated_mutex;
 
-    exit_if(pthread_create(&tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread creation");
         // exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
-    while (1) {
-
+    pthread_mutex_lock(prompt_thread_terminated_mutex);
+    while (*prompt_thread_terminated == NOK) {
+        pthread_mutex_unlock(prompt_thread_terminated_mutex);
         fprintf(log, "Waiting for a new connection...\n");
         fflush(log);
+
         view_addr_len = sizeof(view_addr);
         new_socket_fd = accept(main_socket_fd, (struct sockaddr *)&view_addr, &view_addr_len);
         exit_if(new_socket_fd < 0, "ERROR on accept");
@@ -51,7 +58,12 @@ void *thread_accept(void *parameters) {
             }
         }
         fflush(log);
+        pthread_mutex_lock(prompt_thread_terminated_mutex);
     }
+    pthread_mutex_unlock(prompt_thread_terminated_mutex);
+    free(io_parameters);
+    fprintf(log, "===== thread_accept() terminated =====\n");
+    fflush(log);
     fclose(log);
     return EXIT_SUCCESS;
 }

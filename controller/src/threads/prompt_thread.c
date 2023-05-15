@@ -15,6 +15,8 @@ void *thread_prompt(void *parameters) {
     struct thread_prompt_parameters *params = (struct thread_prompt_parameters *)parameters;
     struct aquarium **aquarium = params->aquarium;
     pthread_mutex_t *aquarium_mutex = params->aquarium_mutex;
+    int *prompt_thread_terminated = params->prompt_thread_terminated;
+    pthread_mutex_t *prompt_thread_terminated_mutex = params->prompt_thread_terminated_mutex;
 
     fprintf(log, "===== thread_prompt() =====\n");
     fflush(log);
@@ -29,6 +31,15 @@ void *thread_prompt(void *parameters) {
         // we get the line from the terminal where the user wrote his command
         do {
             char_read = fgetc(stdin);
+            if (char_read == EOF) {
+                fprintf(log, "===== thread_prompt() terminated =====\n");
+                fflush(log);
+                fclose(log);
+                pthread_mutex_lock(prompt_thread_terminated_mutex);
+                *prompt_thread_terminated = OK;
+                pthread_mutex_unlock(prompt_thread_terminated_mutex);
+                return EXIT_SUCCESS;
+            }
             buffer[i_buffer] = char_read;
             i_buffer++;
         } while (char_read != '\n' && char_read != EOF);
