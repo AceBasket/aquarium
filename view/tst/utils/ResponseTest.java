@@ -1,7 +1,7 @@
-import utils.*;
+package utils;
+
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 public class ResponseTest {
     public static void main(String[] args) throws IOException, ParserException {
@@ -13,35 +13,28 @@ public class ResponseTest {
             return;
         }
         ResponseTest test = new ResponseTest();
-        int nbTest = 0;
         System.out.print('.');
-        nbTest++;
         test.testParserOK();
         System.out.print('.');
-        nbTest++;
         test.testParserNOK();
         System.out.print('.');
-        nbTest++;
         test.testParserGreeting();
         System.out.print('.');
-        nbTest++;
         test.testParserNoGreeting();
         System.out.print('.');
-        nbTest++;
         test.testParserlist();
         System.out.print('.');
-        nbTest++;
         test.testParserPong();
         System.out.print('.');
-        nbTest++;
         test.testParserBye();
-        System.out.println("(ResponseTest) All " + nbTest + " tests passed");
+        System.out.println(" OK");
     }
-    void testParserOK () throws IOException, ParserException {
+
+    void testParserOK() throws IOException, ParserException {
 
     }
 
-    void testParserNOK () throws IOException, ParserException {
+    void testParserNOK() throws IOException, ParserException {
         String nok = "NOK : unknown";
         ParserResult result = Parser.parse(nok);
         ArrayList<String> arguments = result.getArgs();
@@ -67,23 +60,23 @@ public class ResponseTest {
         assert arguments.size() == 0 : "testNOK NOK: : args size a échoué";
     }
 
-    void testParserGreeting () throws IOException, ParserException {
+    void testParserGreeting() throws IOException, ParserException {
 
     }
 
-    void testParserNoGreeting () throws IOException, ParserException {
+    void testParserNoGreeting() throws IOException, ParserException {
 
     }
 
-    void testParserlist () throws IOException, ParserException {
+    void testParserlist() throws IOException, ParserException {
 
     }
 
-    void testParserPong () throws IOException, ParserException {
+    void testParserPong() throws IOException, ParserException {
 
     }
 
-    void testParserBye () throws IOException, ParserException {
+    void testParserBye() throws IOException, ParserException {
 
     }
 }

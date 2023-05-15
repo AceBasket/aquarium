@@ -29,7 +29,7 @@ void *get_fishes_continuously(void *parameters) {
         pthread_mutex_unlock(prompt_thread_terminated_mutex);
 
         pthread_mutex_lock(aquarium_mutex);
-        fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 0); // 0 = false
+        fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 0); // 0 = false
         if (fishes_in_view[0] == NULL) {
             pthread_mutex_unlock(aquarium_mutex);
             fprintf(log, "Error: no fishes in view\n");

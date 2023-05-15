@@ -90,6 +90,7 @@ int main(int argc, char const *argv[]) {
     }
     pthread_mutex_unlock(&prompt_thread_terminated_mutex);
     pthread_join(tid_prompt, NULL);
+    pthread_cancel(tid_io); // if io thread is waiting in recv --> cancellation point
     pthread_cancel(tid_accept); // if accept thread is waiting in accept --> cancellation point
     pthread_join(tid_io, NULL);
     pthread_join(tid_accept, NULL);

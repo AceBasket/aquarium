@@ -92,7 +92,7 @@ void *thread_io(void *parameters) {
 
                     // If received Ctrl+D on prompt 
                     pthread_mutex_lock(prompt_thread_terminated_mutex);
-                    if (*prompt_thread_terminated == NOK) {
+                    if (*prompt_thread_terminated == OK) {
                         pthread_mutex_unlock(prompt_thread_terminated_mutex);
                         fprintf(log, "===== thread_io() terminated (while reading from socket) =====\n");
                         fflush(log);
@@ -146,7 +146,7 @@ void *thread_io(void *parameters) {
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
                     pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex, &handle_fishes_continuously_thread);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex, &handle_fishes_continuously_thread, prompt_thread_terminated, prompt_thread_terminated_mutex);
                     pthread_mutex_unlock(aquarium_mutex);
                     break;
                 case LS:

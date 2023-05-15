@@ -28,7 +28,7 @@ void test_add_fish() {
     assert(aquarium->fishes == fish);
     assert(aquarium->fishes->next == fish2);
     assert(aquarium->fishes->next->next == NULL);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_add_fish_already_in_aquarium() {
@@ -36,7 +36,7 @@ void test_add_fish_already_in_aquarium() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 0, 0 }, 10, 10, RANDOMWAYPOINT);
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish) == NOK);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_remove_fish() {
@@ -48,7 +48,7 @@ void test_remove_fish() {
     assert(remove_fish(aquarium, fish2) == OK);
     assert(remove_fish(aquarium, fish) == OK);
     assert(aquarium->fishes == NULL);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_remove_fish_not_in_aquarium() {
@@ -57,7 +57,7 @@ void test_remove_fish_not_in_aquarium() {
     assert(remove_fish(aquarium, fish) == NOK);
     free(fish->name);
     free(fish);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_get_fish_from_name() {
@@ -67,7 +67,7 @@ void test_get_fish_from_name() {
     assert(get_fish_from_name(aquarium, "fish1") == fish);
     assert(get_fish_from_name(aquarium, "fish1")->name == fish->name);
     assert(strcmp(get_fish_from_name(aquarium, "fish1")->name, "fish1") == 0);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_get_fish_from_name_not_in_aquarium() {
@@ -77,7 +77,7 @@ void test_get_fish_from_name_not_in_aquarium() {
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish3) == OK);
     assert(get_fish_from_name(aquarium, "fish2") == NULL);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_start_fish() {
@@ -90,7 +90,7 @@ void test_start_fish() {
     assert(fish->status == STARTED);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(fish2->status == STARTED);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_start_fish_not_in_aquarium() {
@@ -99,7 +99,7 @@ void test_start_fish_not_in_aquarium() {
     assert(start_fish(aquarium, fish->name) == NOK);
     free(fish->name);
     free(fish);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_get_fishes_in_view() {
@@ -114,13 +114,13 @@ void test_get_fishes_in_view() {
     assert(start_fish(aquarium, fish->name) == OK);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(add_view(aquarium, view) == OK);
-    free(fishes); // free previous fishes to call get_fishes_in_view again
+    free_fishes_array(fishes, view); // free previous fishes to call get_fishes_in_view again
     fishes = get_fishes_in_view(aquarium, view, 1);
     assert(fishes[0] == fish);
     assert(fishes[1] == fish2);
     assert(fishes[2] == NULL);
-    free(fishes);
-    assert(free_aquarium(aquarium));
+    free_fishes_array(fishes, view);
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_get_fishes_in_view_not_in_aquarium() {
@@ -128,10 +128,10 @@ void test_get_fishes_in_view_not_in_aquarium() {
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
     struct fish **fishes = get_fishes_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL);
-    free(fishes);
+    free_fishes_array(fishes, view);
     free(view->name);
     free(view);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_add_fish_start_fish_get_fishes() {
@@ -145,61 +145,71 @@ void test_add_fish_start_fish_get_fishes() {
     struct fish **fishes = get_fishes_in_view(aquarium, get_view(aquarium, view->name), 1); // true
     assert(fishes[0] == fish);
     assert(fishes[1] == NULL);
-    free(fishes);
-    assert(free_aquarium(aquarium));
+    free_fishes_array(fishes, view);
+    assert(free_aquarium(aquarium) == OK);
 }
 
-void test_get_fishes_in_view_and_with_destination_in_view() {
+void test_get_fishes_with_destination_in_view() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct fish *fish2 = create_fish("fish2", (struct coordinates) { 3, 4 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0 });
+    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0 });
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
+    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish2) == OK);
-    struct fish **fishes = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
+    struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL); // fish not started
     assert(start_fish(aquarium, fish->name) == OK);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(add_view(aquarium, view) == OK);
-    free(fishes); // free previous fishes to call get_fishes_in_view again
-    fishes = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
-    assert(fishes[0] == fish);
-    assert(fishes[1] == fish2);
+    free_fishes_array(fishes, view); // free previous fishes to call get_fishes_in_view again
+    fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
+    assert(fishes[0]->top_left.x == fish->top_left.x);
+    assert(fishes[0]->top_left.y == fish->top_left.y);
+    assert(fishes[1]->top_left.x == fish2->top_left.x);
+    assert(fishes[1]->top_left.y == fish2->top_left.y);
     assert(fishes[2] == NULL);
-    free(fishes);
-    assert(free_aquarium(aquarium));
+    free_fishes_array(fishes, view);
+    assert(free_aquarium(aquarium) == OK);
 }
 
-void test_get_fishes_in_view_and_with_destination_in_view_not_in_aquarium() {
+void test_get_fishes_with_destination_in_view_not_in_aquarium() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    struct fish **fishes = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
+    struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 200, 2 }, .time_at_destination = 0 });
+    start_fish(aquarium, fish->name);
+    struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL);
-    free(fishes);
+    free_fishes_array(fishes, view);
     free(view->name);
     free(view);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
-void test_get_fishes_in_view_and_with_destination_in_view_no_destination_in_view() {
+void test_get_fishes_with_destination_in_view_no_destination_in_view() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct fish *fish2 = create_fish("fish2", (struct coordinates) { 3, 4 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
+    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish2) == OK);
-    struct fish **fishes = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
+    struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL); // fish not started
     assert(start_fish(aquarium, fish->name) == OK);
     assert(start_fish(aquarium, fish2->name) == OK);
     assert(add_view(aquarium, view) == OK);
-    free(fishes); // free previous fishes to call get_fishes_in_view again
-    fishes = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
-    assert(fishes[0] == fish);
-    assert(fishes[1] == fish2);
-    assert(fishes[2] == NULL);
-    free(fishes);
-    assert(free_aquarium(aquarium));
+    free_fishes_array(fishes, view); // free previous fishes to call get_fishes_in_view again
+    fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
+    assert(fishes[0] == NULL); // no destination in view
+    assert(fishes[1] == NULL);
+    free_fishes_array(fishes, view);
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_add_specific_destination() {
@@ -217,10 +227,10 @@ void test_add_specific_destination() {
     free(destination);
 }
 
-void test_fish_is_in_view() {
+void test_coordinates_are_in_view() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    assert(fish_is_in_view(fish, view) == 1);
+    assert(coordinates_are_in_view(&fish->top_left, view) == 1);
     free(fish->name);
     free(fish);
     free(view->name);
@@ -236,7 +246,7 @@ void test_len_fishes() {
     struct fish *fish2 = create_fish("fish2", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     assert(add_fish(aquarium, fish2) == OK);
     assert(len_fishes(aquarium) == 2);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_distance() {
@@ -255,7 +265,7 @@ void test_add_movement() {
     assert(fish->destinations_queue.stqh_first->destination_coordinates.y); // testing existence
     assert(fish->destinations_queue.stqh_first->time_at_destination); // testing existence
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_update_fish_coordinates() {
@@ -265,7 +275,7 @@ void test_update_fish_coordinates() {
     assert(add_movement(aquarium, fish) == OK);
     assert(update_fish_coordinates(fish) == OK);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_remove_finished_movements() {
@@ -276,7 +286,7 @@ void test_remove_finished_movements() {
     assert(update_fish_coordinates(fish) == OK);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
     assert(remove_finished_movements(fish) == OK);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_len_movements_queue() {
@@ -302,7 +312,7 @@ void test_len_movements_queue() {
     assert(len_movements_queue(fish) == 8);
     assert(add_movement(aquarium, fish) == OK);
     assert(len_movements_queue(fish) == 9);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 void test_add_intermediate_movements() {
@@ -326,7 +336,7 @@ void test_add_intermediate_movements() {
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next)->destination_coordinates.y == 2);
     assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.x == 23);
     assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.y == 3);
-    assert(free_aquarium(aquarium));
+    assert(free_aquarium(aquarium) == OK);
 }
 
 int main() {
@@ -356,15 +366,15 @@ int main() {
     printf(".");
     test_add_fish_start_fish_get_fishes();
     printf(".");
-    test_get_fishes_in_view_and_with_destination_in_view();
+    test_get_fishes_with_destination_in_view();
     printf(".");
-    test_get_fishes_in_view_and_with_destination_in_view_not_in_aquarium();
+    test_get_fishes_with_destination_in_view_not_in_aquarium();
     printf(".");
-    test_get_fishes_in_view_and_with_destination_in_view_no_destination_in_view();
+    test_get_fishes_with_destination_in_view_no_destination_in_view();
     printf(".");
     test_add_specific_destination();
     printf(".");
-    test_fish_is_in_view();
+    test_coordinates_are_in_view();
     printf(".");
     test_len_fishes();
     printf(".");

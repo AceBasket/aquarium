@@ -10,20 +10,15 @@ public class AquariumTest {
             return;
         }
         AquariumTest test = new AquariumTest();
-        int nbTest = 0;
         System.out.print('.');
-        nbTest++;
         test.testAddFish();
         System.out.print('.');
-        nbTest++;
         test.testRemoveFish();
         System.out.print('.');
-        nbTest++;
         test.testSetFishPosition();
         System.out.print('.');
-        nbTest++;
         test.testStartFish();
-        System.out.println("(AquariumTest) All " + nbTest + " tests passed");
+        System.out.println(" OK");
     }
 
     void testAddFish() {
