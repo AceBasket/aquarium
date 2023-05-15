@@ -22,9 +22,17 @@ void test_addFish() {
     int i = 0;
     assert(!strcmp(result->arguments[i], "PoissonNain"));
     i++;
-    assert(!strcmp(result->arguments[i], "at"));
-    i++;
+    // assert(!strcmp(result->arguments[i], "at"));
+    // i++;
     assert(!strcmp(result->arguments[i], "61"));
+    i++;
+    assert(!strcmp(result->arguments[i], "52"));
+    i++;
+    assert(!strcmp(result->arguments[i], "4"));
+    i++;
+    assert(!strcmp(result->arguments[i], "3"));
+    i++;
+    assert(!strcmp(result->arguments[i], "RandomPathway"));
 
     struct parse *result2 = parse_clients("addFish PoissonNain he");
     assert(strcmp(result2->status, "OK") != 0);

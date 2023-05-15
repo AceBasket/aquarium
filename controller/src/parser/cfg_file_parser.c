@@ -23,7 +23,6 @@ struct parse *parse_file(FILE *f) {
         }
 
         if (isdigit(line[0])) {
-            /* TODO check that the whole "word" is a number (not just the beginning) */
             // aquarium
             char *arg1 = strtok(line, "x");
             if (arg1 == NULL) {

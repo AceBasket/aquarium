@@ -65,7 +65,7 @@ struct parse *parse_prompt(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@the command should be like: add view N5 400x400+400+200\n");
             return p;
         }
-        adding_arg_to_parse(p, command2);
+        // adding_arg_to_parse(p, command2);
 
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
@@ -134,7 +134,7 @@ struct parse *parse_prompt(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@the command should be like: del view <view name>\n");
             return p;
         }
-        adding_arg_to_parse(p, command2);
+        // adding_arg_to_parse(p, command2);
 
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
