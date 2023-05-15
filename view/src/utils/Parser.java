@@ -26,20 +26,23 @@ public class Parser {
             // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3,
             // RandomWAyPoint"));
         } catch (IOException e) {
-            System.out.println("The config file does not exist");
+            throw new ParserException("The config file does not exist");
         } catch (InvalidParameterException e) {
-            System.out.println("Parsing error");
+            throw new ParserException("Parsing error");
         }
 
     }
 
     public static ParserResult parse(String command) throws ParserException {
         ArrayList<String> args = new ArrayList<String>();
-        String[] responseSplit = command.split(" at | : |, |,| \\[|\\] \\[|\\]|x| ");
+        String[] responseSplit = command.split(" at | : |: |:|, |,| \\[|\\] \\[|\\]|x| ");
         if (responseSplit[0].equals("status")) {
             return new ParserResult(PossibleResponses.STATUS, args);
         } else if (responseSplit[0].equals("addFish")) {
             if (responseSplit.length == 7) {
+                if (responseSplit[1].length() < 7) {
+                    throw new ParserException("The fish name is not Poisson*");
+                }
                 String poisson = responseSplit[1].substring(0, 7);
                 if (poisson.equals("Poisson")) {
                     args.add(responseSplit[1]);
@@ -47,7 +50,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format1");
+                            throw new ParserException("Invalid Argument Format");
                         }
                         args.add(responseSplit[i]);
                     }
@@ -63,6 +66,9 @@ public class Parser {
         } else if (responseSplit[0].equals("delFish")) {
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {
+                    if (responseSplit[i].length() < 7) {
+                        throw new ParserException("The fish name is not Poisson*");
+                    }
                     String poisson = responseSplit[i].substring(0, 7);
                     if (poisson.equals("Poisson")) {
                         args.add(responseSplit[i]);
@@ -77,6 +83,9 @@ public class Parser {
         } else if (responseSplit[0].equals("startFish")) {
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {
+                    if (responseSplit[i].length() < 7) {
+                        throw new ParserException("The fish name is not Poisson*");
+                    }
                     String poisson = responseSplit[i].substring(0, 7);
                     if (poisson.equals("Poisson")) {
                         args.add(responseSplit[i]);
@@ -107,7 +116,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format2");
+                                throw new ParserException("Invalid Argument Format");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -116,6 +125,9 @@ public class Parser {
                 } else if (responseSplit.length % 7 == 0) {
                     for (int i = 1; i < responseSplit.length; i++) {
                         if (i % 7 == 1 && i != 1) {
+                            if (responseSplit[i].length() < 7) {
+                                throw new ParserException("The fish name is not Poisson*");
+                            }
                             String poisson = responseSplit[i].substring(0, 7);
                             if (!poisson.equals("Poisson")) {
                                 throw new ParserException("The fish name is not Poisson*");
@@ -124,7 +136,7 @@ public class Parser {
                             try {
                                 Integer.parseInt(responseSplit[i]);
                             } catch (NumberFormatException e) {
-                                System.out.println("Invalid Argument Format3");
+                                throw new ParserException("Invalid Argument Format");
                             }
                         }
                         args.add(responseSplit[i]);
@@ -147,7 +159,7 @@ public class Parser {
                 try {
                     Integer.parseInt(IDNb);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid ID Format");
+                    throw new ParserException("Invalid ID Format");
                 }
 
                 args.add(responseSplit[1]);
@@ -167,7 +179,7 @@ public class Parser {
                         try {
                             Integer.parseInt(responseSplit[i]);
                         } catch (NumberFormatException e) {
-                            System.out.println("Invalid Argument Format4");
+                            throw new ParserException("Invalid Argument Format");
                         }
                     }
                     args.add(responseSplit[i]);
@@ -186,7 +198,7 @@ public class Parser {
                     Integer.parseInt(responseSplit[1]);
                     args.add(responseSplit[1]);
                 } catch (NumberFormatException e) {
-                    System.out.println("Invalid Response Format to ping");
+                    throw new ParserException("Invalid Argument Format");
                 }
                 return new ParserResult(PossibleResponses.PONG, args);
             }
@@ -215,14 +227,17 @@ public class Parser {
             fr.close();
             result = sb.toString();
         } catch (IOException e) {
-            System.out.println("The config file does not exist");
+            throw new ParserException("The config file does not exist");
         }
         return result;
     }
 
     public static String parserIP(File file) throws ParserException, IOException {
         String IP = parserManager(file, "controller-address");
-        String[] IPSplit = IP.split(".");
+        if (IP.length() == 0) {
+            throw new ParserException("No IP");
+        }
+        String[] IPSplit = IP.split("\\.");
         if (IPSplit.length != 4) {
             throw new ParserException("Wrong IP format");
         }
@@ -230,7 +245,7 @@ public class Parser {
             try {
                 Integer.parseInt(IPSplit[i]);
             } catch (NumberFormatException e) {
-                System.out.println("Wrong IP Format");
+                throw new ParserException("IP contains letters");
             }
         }
         return IP;
@@ -238,7 +253,9 @@ public class Parser {
 
     public static String parserID(File file) throws IOException, ParserException {
         String ID = parserManager(file, "id");
-        if (ID.length() < 2) {
+        if (ID.length() == 0) {
+            throw new ParserException("No ID");
+        } else if (ID.length() == 1) {
             throw new ParserException("Invalid size of ID");
         } else {
             String IDN = ID.substring(0, 1);
@@ -249,15 +266,19 @@ public class Parser {
             try {
                 Integer.parseInt(IDNb);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid ID Format");
+                throw new ParserException("Invalid ID Format");
             }
             return ID;
         }
     }
 
     public static int parserPort(File file) throws IOException, ParserException {
+        String portStr = parserManager(file, "controller-port");
+        if (portStr.length() == 0) {
+            throw new ParserException("No port");
+        }
         try {
-            int port = Integer.parseInt(parserManager(file, "controller-port"));
+            int port = Integer.parseInt(portStr);
             if (port < 0 | port > 65535) {
                 throw new ParserException("Unknown Port Number");
             } else if (port < 1024) {
@@ -270,8 +291,12 @@ public class Parser {
     }
 
     public static int parserTimeout(File file) throws IOException, ParserException {
+        String timeoutStr = parserManager(file, "display-timeout-value");
+        if (timeoutStr.length() == 0) {
+            throw new ParserException("No timeout");
+        }
         try {
-            int timeout = Integer.parseInt(parserManager(file, "display-timeout-value"));
+            int timeout = Integer.parseInt(timeoutStr);
             if (timeout < 0) {
                 throw new ParserException("Negative Timeout");
             }
@@ -282,7 +307,11 @@ public class Parser {
     }
 
     public static String parserResources(File file) throws IOException, ParserException {
-        return parserManager(file, "resources");
+        String resources = parserManager(file, "resources");
+        if (resources.length() == 0) {
+            throw new ParserException("No resources");
+        }
+        return resources;
     }
 
 }
