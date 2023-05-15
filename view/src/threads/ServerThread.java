@@ -41,6 +41,12 @@ public class ServerThread implements Runnable {
             logFile.println("Sent hello");
             logFile.flush();
             while (true) {
+                if (Thread.currentThread().isInterrupted()) {
+                    logFile.println("Server thread interrupted");
+                    logFile.flush();
+                    Thread.currentThread().interrupt();
+                    return;
+                }
                 // listFishesDestinations = false;
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations

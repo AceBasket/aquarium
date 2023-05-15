@@ -27,7 +27,7 @@ visual: ${FX_CLASSES}
 
 test: ${TST_CLASSES} 
 
-build/%.class: src/%.java build/utils/Parser.class
+build/%.class: src/%.java build/utils/Parser.class build/threads/*.class
 	${JC} ${JCFLAGS} $<
 
 ${TST_CLASSES}: build/%.class: tst/%.java
@@ -40,4 +40,4 @@ ${FX_CLASSES}: build/%.class: src/%.java
 
 
 clean:
-	${RM} build/*.class build/**/*.class *.log
+	${RM} ${CLASSES} *.log
