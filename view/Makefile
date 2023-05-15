@@ -20,8 +20,8 @@ FX_CLASSES = ${FX:src/%.java=build/%.class}
 
 default: source
 
-source: ${CLASSES}
-	${J} ${JFLAGS} Main
+source: ${CLASSES} ${FX_CLASSES}
+	${J} ${JFLAGS} MainFX
 
 visual: ${FX_CLASSES}
 
