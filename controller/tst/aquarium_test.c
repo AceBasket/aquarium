@@ -1,4 +1,4 @@
-#include "../src/aquarium.h"
+#include "../src/aquarium/aquarium.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -12,7 +12,8 @@ void test_create_aquarium() {
 }
 
 int main() {
-    printf("Aquarium tests: .");
+    // printf("Aquarium tests: .");
+    printf(".");
     test_create_aquarium();
     printf(" OK\n");
     return EXIT_SUCCESS;

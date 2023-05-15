@@ -36,7 +36,7 @@ void *thread_io(void *parameters) {
     }
     pthread_mutex_unlock(aquarium_mutex);
 
-// For communication with views
+    // For communication with views
     fd_set read_fds;
     int *views_socket_fd = (int *)params->views_socket_fd;
     int recv_bytes;
@@ -94,9 +94,13 @@ void *thread_io(void *parameters) {
                     }
                 }
 
-
+                // fprintf(log, "before parse_clients\n");
+                // fflush(log);
                 struct parse *parser = parse_clients(buffer);
                 enum func function_called = parser->func_name;
+                // fprintf(log, "after parse_clients\n");
+                // fprintf(log, "function_called: %d\n", function_called);
+                // fflush(log);
                 switch (function_called) {
                 case HELLO:
                     fprintf(log, "Hello from view %d\n", num_view);
@@ -113,7 +117,7 @@ void *thread_io(void *parameters) {
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
                     pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex);
                     pthread_mutex_unlock(aquarium_mutex);
                     break;
                 case LS:

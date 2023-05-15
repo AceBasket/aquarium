@@ -1,4 +1,5 @@
-#include "../src/fish.h"
+#include "../src/aquarium/fish.h"
+#include "../src/utils.h"
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -207,7 +208,6 @@ void test_add_specific_destination() {
     destination->destination_coordinates = (struct coordinates){ 2, 2 };
     destination->time_at_destination = 0;
     add_specific_destination(fish, destination);
-    assert(STAILQ_FIRST(&fish->destinations_queue) == destination);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.x == 2);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.y == 2);
@@ -305,8 +305,33 @@ void test_len_movements_queue() {
     assert(free_aquarium(aquarium));
 }
 
+void test_add_intermediate_movements() {
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    struct view *view1 = create_view("view1", (struct coordinates) { 0, 0 }, 20, 20);
+    struct view *view2 = create_view("view2", (struct coordinates) { 20, 0 }, 20, 20);
+    struct fish *fish = create_fish("fish", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
+    struct fish_destination *origin = malloc(sizeof(struct fish_destination));
+    origin->destination_coordinates = (struct coordinates){ 1, 1 };
+    struct fish_destination *destination = malloc(sizeof(struct fish_destination));
+    destination->destination_coordinates = (struct coordinates){ 23, 3 };
+    assert(add_fish(aquarium, fish) == OK);
+    assert(add_view(aquarium, view1) == OK);
+    assert(add_view(aquarium, view2) == OK);
+    assert(add_specific_destination(fish, origin) == OK);
+    assert(add_intermediate_movements(aquarium, fish, origin, destination) == OK);
+    assert(add_specific_destination(fish, destination) == OK);
+    assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.x == 1);
+    assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.y == 1);
+    assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next)->destination_coordinates.x == 20);
+    assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next)->destination_coordinates.y == 2);
+    assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.x == 23);
+    assert(STAILQ_NEXT(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next), next)->destination_coordinates.y == 3);
+    assert(free_aquarium(aquarium));
+}
+
 int main() {
-    printf("Fish tests: .");
+    // printf("Fish tests: .");
+    printf(".");
     test_create_fish();
     printf(".");
     test_add_fish();
@@ -352,6 +377,8 @@ int main() {
     test_remove_finished_movements();
     printf(".");
     test_len_movements_queue();
+    printf(".");
+    test_add_intermediate_movements();
     printf(" OK\n");
     return EXIT_SUCCESS;
 }

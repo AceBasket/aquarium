@@ -1,5 +1,6 @@
 #include "prompt_handler_functions.h"
 #include "../../aquarium/view.h"
+#include "../../utils.h"
 
 void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
     FILE *fd = fopen(parser->arguments[0], "r");
@@ -46,13 +47,19 @@ void show_handler(FILE *log, struct aquarium *aquarium) {
 void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
     struct coordinates coord = { atoi(parser->arguments[2]), atoi(parser->arguments[3]) };
     struct view *view = create_view(parser->arguments[1], coord, atoi(parser->arguments[4]), atoi(parser->arguments[5]));
-    add_view(aquarium, view);
-    fprintf(stdout, "View added\n");
+    if (add_view(aquarium, view) == OK) {
+        fprintf(stdout, "View %s added\n", parser->arguments[1]);
+    } else {
+        fprintf(stdout, "View %s already in the aquarium\n", parser->arguments[1]);
+    }
 }
 
 void del_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
-    remove_view(aquarium, get_view(aquarium, parser->arguments[1]));
-    fprintf(stdout, "View %s deleted\n", parser->arguments[1]);
+    if (remove_view(aquarium, get_view(aquarium, parser->arguments[1])) == OK) {
+        fprintf(stdout, "View %s deleted\n", parser->arguments[1]);
+    } else {
+        fprintf(stdout, "View %s not found\n", parser->arguments[1]);
+    }
 }
 
 void save_handler(FILE *log, struct parse *parser, struct aquarium *aquarium) {
