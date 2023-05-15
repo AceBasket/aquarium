@@ -48,12 +48,12 @@ public class ServerThread implements Runnable {
                     if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
-                        if (!listFishesDestinations) {
-                            sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
-                            logFile.println("Sent ls");
-                            logFile.flush();
-                            listFishesDestinations = true;
-                        }
+                        // if (!listFishesDestinations) {
+                        //     sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
+                        //     logFile.println("Sent ls");
+                        //     logFile.flush();
+                        //     listFishesDestinations = true;
+                        // }
                     }
                 }
                 response = receivedQueue.peek();
@@ -78,9 +78,10 @@ public class ServerThread implements Runnable {
                         listFishesDestinations = false;
                         break;
                     case BYE:
+                        receivedQueue.remove();
+                        ServerThreadHandlers.logOutHandler(logFile, view);
                         logFile.println("Logging out");
                         logFile.flush();
-                        // LOG OUT SOMEHOW
                         break;
                     case PONG:
                         logFile.println("Pong received");

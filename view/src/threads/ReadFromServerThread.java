@@ -56,7 +56,6 @@ public class ReadFromServerThread implements Runnable {
                 }
 
             } catch (IOException e) {
-                // TODO: handle exception
                 System.out.println(e.getMessage());
             } catch (ParserException e) {
                 logFile.println("ERROR: " + e.getMessage());
