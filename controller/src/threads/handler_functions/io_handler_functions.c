@@ -57,8 +57,8 @@ void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquari
         return;
     }
     struct view *view;
-    if (parser->size == 3) {
-        view = get_view(aquarium, parser->arguments[2]);
+    if (parser->size == 1) {
+        view = get_view(aquarium, parser->arguments[0]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
@@ -96,14 +96,13 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    // à changer une fois que Fatima aura corriger le parseur (stocke trop d'informations inutiles)
     if (get_fish_from_name(aquarium, parser->arguments[0]) != NULL) {
         dprintf(socket_fd, "NOK\n");
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    if (!add_fish(aquarium, create_fish(parser->arguments[0], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[2])), percentage_to_y_coordinate(view, atoi(parser->arguments[3])) }, atoi(parser->arguments[4]), atoi(parser->arguments[5]), RANDOMWAYPOINT))) {
-        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[0], atoi(parser->arguments[2]), atoi(parser->arguments[3]));
+    if (!add_fish(aquarium, create_fish(parser->arguments[0], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[1])), percentage_to_y_coordinate(view, atoi(parser->arguments[2])) }, atoi(parser->arguments[3]), atoi(parser->arguments[4]), RANDOMWAYPOINT))) {
+        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[0], atoi(parser->arguments[1]), atoi(parser->arguments[2]));
         dprintf(socket_fd, "NOK\n");
         return;
     }
