@@ -1,13 +1,7 @@
 #include "io_handler_functions.h"
-<<<<<<< HEAD:controller/src/io_handler_functions.c
-#include "socket_aquarium.h"
-#include "fish.h"
-#include "view.h"
-=======
 #include "../../communication/socket_aquarium.h"
 #include "../../aquarium/fish.h"
 
->>>>>>> 6d94c0a14232168e20757cfea91708f8a2cd1104:controller/src/threads/handler_functions/io_handler_functions.c
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     if (strcmp(parser->status, "OK\n") != 0) {

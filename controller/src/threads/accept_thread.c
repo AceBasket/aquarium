@@ -25,14 +25,18 @@ void *thread_accept(void *parameters) {
     memset(views_sockets, -1, sizeof(views_sockets) * MAX_VIEWS);
 
     pthread_t tid_io;
+    pthread_t tid_timeout;
     struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;
     io_parameters->aquarium_mutex = params->aquarium_mutex;
     io_parameters->aquarium = params->aquarium;
     io_parameters->views_sockets_mutex = params->views_sockets_mutex;
+    io_parameters->display_timeout_value = params->display_timeout_value;
 
-    exit_if(pthread_create(&tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread creation");
-        // exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
+    exit_if(pthread_create(&tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread io creation");
+    exit_if(pthread_create(&tid_timeout, NULL, thread_timeout, io_parameters) < 0, "ERROR on thread timeoout creation");
+    // exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
+    
     while (1) {
 
         fprintf(log, "Waiting for a new connection...\n");

@@ -16,6 +16,7 @@ struct thread_accept_parameters {
     pthread_mutex_t *views_sockets_mutex;
     pthread_mutex_t *aquarium_mutex;
     struct aquarium **aquarium;
+    int display_timeout_value;
 };
 
 void *thread_accept(void *parameters);

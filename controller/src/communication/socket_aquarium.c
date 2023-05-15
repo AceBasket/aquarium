@@ -2,7 +2,7 @@
 
 struct view *get_view_from_socket(struct aquarium *aquarium, int socket_fd) {
     // if the aquarium is empty, return NULL
-    if (aquarium->views == NULL) {
+    if (aquarium == NULL || aquarium->views == NULL) {
         return NULL;
     }
     // if the aquarium is not empty, check if the view is in the aquarium

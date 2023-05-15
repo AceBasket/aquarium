@@ -9,8 +9,10 @@ struct thread_io_parameters {
     struct aquarium **aquarium;
     pthread_mutex_t *aquarium_mutex;
     pthread_mutex_t *views_sockets_mutex;
+    int display_timeout_value;
 };
 
+void *thread_timeout(void *parameters);
 void *thread_io(void *parameters);
 
 #endif // _IO_THREAD_H_

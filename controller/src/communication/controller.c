@@ -3,6 +3,7 @@
 #include "../threads/accept_thread.h"
 #include "../threads/prompt_thread.h"
 #include "../utils.h"
+#include "../parser/cfg_file_parser.h"
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
@@ -14,6 +15,13 @@ void init_server(int nb_views, int port_number, struct aquarium **aquarium, pthr
     for (int i = 0; i < MAX_VIEWS; i++) {
         views_sockets_fd[i] = -1;
     }
+
+    FILE *fd = fopen("src/controller.cfg", "r");
+    exit_if(fd == NULL, "ERROR on opening file\n");
+    struct parse *parsed_file = parse_file(fd);
+    int display_timeout_value = atoi(parsed_file->arguments[3]);
+    // int display_timeout_value = 15;
+
     pthread_t tid_accept;
     pthread_t tid_prompt;
 
@@ -43,6 +51,7 @@ void init_server(int nb_views, int port_number, struct aquarium **aquarium, pthr
     accept_parameters->views_sockets = views_sockets_fd;
     accept_parameters->aquarium_mutex = aquarium_mutex;
     accept_parameters->aquarium = aquarium;
+    accept_parameters->display_timeout_value = display_timeout_value;
 
     prompt_parameters->aquarium = aquarium;
     prompt_parameters->aquarium_mutex = aquarium_mutex;

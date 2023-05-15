@@ -23,7 +23,6 @@ struct parse *parse_file(FILE *f) {
         }
 
         if (isdigit(line[0])) {
-            /* TODO check that the whole "word" is a number (not just the beginning) */
             // aquarium
             char *arg1 = strtok(line, "x");
             if (arg1 == NULL) {
@@ -57,7 +56,7 @@ struct parse *parse_file(FILE *f) {
             if (arg1 == NULL) {
                 strcpy(p->status, "ERROR: No view provided\n");
                 return p;
-            } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || !is_number(arg1, 1)) {
+            } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || is_number(arg1, 1)) {
                 strcpy(p->status, "ERROR: No name provided for the view\nThe name of the view should be like: N<number>\n");
                 return p;
             }
