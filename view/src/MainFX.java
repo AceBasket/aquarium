@@ -6,6 +6,11 @@ import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.ArrayList;
 
+
+
+import threads.*;
+import utils.ParserResult;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -21,7 +26,7 @@ import javafx.animation.Interpolator;
 import javafx.util.Duration;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
-
+import javafx.application.Platform;
 
 
 import threads.*;
@@ -75,11 +80,12 @@ public class MainFX extends Application {
     // private DoubleProperty fishYProperty() {
     //     return fish.yProperty();
     // }
-    public synchronized void addFish(ImageView fish, String name) {
+    public void addFish(ImageView fish, String name) {
         if (!fishesName.contains(name)) {
             fishesName.add(name);
             fishesList.add(fish);
             pane.getChildren().add(fish);
+            //System.out.println("the fish was added in the ImageView\n");
         }
     }
     public ImageView createView(){//(String fileName){
@@ -97,21 +103,18 @@ public class MainFX extends Application {
         File fileF = new File("./img/fish4.png");
         Image fishImage = new Image(fileF.toURI().toString());
         ImageView fish = new ImageView(fishImage);
-        fishX = (VIEW_WIDTH - fishWidth) / 2;
-        fishY = (VIEW_HEIGHT - fishHeight) / 2;
-        fish.setFitWidth(fishWidth);
-        fish.setFitHeight(fishHeight);
+        fishX = (VIEW_WIDTH - FISH_WIDTH)/2 ; //fishWidth) / 2;
+        fishY = (VIEW_HEIGHT - FISH_HEIGHT)/2; //fishHeight) / 2;
+        fish.setFitWidth(FISH_WIDTH);//fishWidth);
+        fish.setFitHeight(FISH_HEIGHT);//fishHeight);
         return fish;
     }
 
     @Override
     public void start(Stage primaryStage) {
         //récupérer les arguments avec getParameters.
-        List<String> parameters = getParameters().getRaw();
+        //List<String> parameters = getParameters().getRaw();
 
-        //String arg1 = parameters.get(0);
-        //String arg2 = parameters.get(1);
-        //String arg3 = parameters.get(2);
         
         //views
         view = createView();//new ImageView(viewImage1);
@@ -153,10 +156,11 @@ public class MainFX extends Application {
                     // Check if fish is outside the bounds of view
                     if (fish.getBoundsInParent().getMaxX() < 0 || fish.getBoundsInParent().getMinX() > VIEW_WIDTH ||
                             fish.getBoundsInParent().getMaxY() < 0 || fish.getBoundsInParent().getMinY() > VIEW_HEIGHT) {
+                        System.out.println("the fish is outside the bounds\n");
                         // Remove fish from old view
-                        Pane oldPane = (Pane) fish.getParent();
-                        oldPane.getChildren().remove(fish);
-
+                        //Pane oldPane = (Pane) fish.getParent();
+                        //oldPane.getChildren().remove(fish);
+                        //pane.getChildren().remove(fish);
                         // Add fish to new view
                         //Pane newPane = (oldPane == pane1) ? pane2 : pane1;
                         //newPane.getChildren().add(fish);
@@ -186,9 +190,9 @@ public class MainFX extends Application {
         pane = new Pane();
         pane.getChildren().add(view);
         //pane.getChildren().add(fish);
-        for (ImageView fish : fishesList){
-            pane.getChildren().add(fish);
-        }
+        // for (ImageView fish : fishesList){
+        //     pane.getChildren().add(fish);
+        // }
        
         
         Scene scene = new Scene(pane, VIEW_WIDTH, VIEW_HEIGHT);
@@ -198,82 +202,56 @@ public class MainFX extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        
-        // //Set up the next view
-        // pane2 = new Pane();
-        // pane2.getChildren().add(view2);
-        // pane2.getChildren().add(fish);
-
-        // // Set up the stage
-        // Scene scene2 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
-        // // //Scene scene3 = new Scene(pane2, VIEW_WIDTH, VIEW_HEIGHT);
-        // Stage secondStage = new Stage();
-        // // //Stage thirdStage = new Stage();
-        // secondStage.setX(-50);
-        // secondStage.setY(-50);
-        // secondStage.setTitle("view2");
-        // secondStage.setScene(scene2);
-        // // //secondStage.setScene(scene3);
-        // secondStage.show();
-        
-
-    }
-
-    public static void main(String[] args) {
-        MainFX main = new MainFX();
+        Thread mainThread = new Thread(() -> {
         try {
-            // main.logFile.println("Main");
-            // main.logFile.flush();
-            // View view = new View("192.168.191.78", 8888);
             View view = new View("0.0.0.0", 8000);
-            // View view = new View(new File("src/affichage.cfg"));
             Aquarium aquarium = new Aquarium();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
             ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
             Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue);
             Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue);
             Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue);
-            Thread prompt = new Thread(promptThread);
-            Thread server = new Thread(serverThread);
             Thread io = new Thread(readFromServerThread);
+            Thread server = new Thread(serverThread);
+            Thread prompt = new Thread(promptThread);
             io.start();
             server.start();
             prompt.start();
 
-            main.logFile.println("All threads running");
-            main.logFile.flush();
-            launch(args);
-            //créer une liste des poissons Image view et les passer en paramètre de launch.
             while (true) {
-                // System.out.println("Main thread running");
+                
                 if (!aquarium.getFishes().isEmpty()) {
                     for (Fish fish : aquarium.getFishes()) {
+                        
                         if (fish.getSizeDestinations() > 0) {
-                            //créer le poisson 
-                            ImageView fishIV = main.createFish(fish.getLength(), fish.getHeight());
-                            //l'ajouter dans la view
-                            main.addFish(fishIV, fish.getName());
-                            main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
+                            //System.out.println("creat fish view\n"+ fish.getSizeDestinations());
+                            Platform.runLater(() -> {
+                                ImageView fishIV = createFish(fish.getLength(), fish.getHeight());
+                                addFish(fishIV, fish.getName());
+                            });
+                            
+                            logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
                                     + fish.getName() + " is at " + fish.getPosition().toString()
                                     + " and needs to go to " + fish.getFirstDestination().toString() + " before "
                                     + fish.getTimeToGetToFirstDestination());
-                            main.logFile.flush();
+                            logFile.flush();
                         }
                     }
                 }
                 Thread.sleep(500);
-                
             }
-
-            // io.join();
-            // server.join();
-            // prompt.join();
         } catch (IOException | InterruptedException e) {
-            // TODO: handle exception
-            main.logFile.println(e);
-            main.logFile.flush();
+            logFile.println(e);
+            logFile.flush();
         }
-    
+    });
+    mainThread.start();
+
     }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     
 }
