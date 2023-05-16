@@ -14,8 +14,7 @@ struct thread_accept_parameters {
     pthread_mutex_t *views_sockets_mutex;
     pthread_mutex_t *aquarium_mutex;
     struct aquarium **aquarium;
-    int *prompt_thread_terminated;
-    pthread_mutex_t *prompt_thread_terminated_mutex;
+    pthread_mutex_t *terminate_threads_mutex;
     pthread_t *tid_io;
 };
 

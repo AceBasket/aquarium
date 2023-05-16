@@ -7,10 +7,9 @@
 #include "aquarium/aquarium.h"
 #include "aquarium/fish.h"
 #include "utils.h"
-
 #include "communication/controller.h"
 
-
+volatile int terminate_threads = NOK;
 
 int main(int argc, char const *argv[]) {
 
@@ -21,12 +20,13 @@ int main(int argc, char const *argv[]) {
     // Port number
     int port_number = atoi(argv[2]);
 
+    signal(SIGPIPE, sigpipe_handler);
+
     // Initialization of the server
     struct aquarium *aquarium = NULL; // global aquarium
     pthread_mutex_t aquarium_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_t views_sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
-    int prompt_thread_terminated = NOK;
-    pthread_mutex_t prompt_thread_terminated_mutex = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t terminate_threads_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_t tid_accept;
     pthread_t tid_prompt;
     pthread_t tid_io;
@@ -36,8 +36,7 @@ int main(int argc, char const *argv[]) {
         .aquarium = &aquarium,
         .aquarium_mutex = &aquarium_mutex,
         .views_sockets_mutex = &views_sockets_mutex,
-        .prompt_thread_terminated = &prompt_thread_terminated,
-        .prompt_thread_terminated_mutex = &prompt_thread_terminated_mutex,
+        .terminate_threads_mutex = &terminate_threads_mutex,
         .tid_accept = &tid_accept,
         .tid_prompt = &tid_prompt,
         .tid_io = &tid_io
@@ -50,24 +49,24 @@ int main(int argc, char const *argv[]) {
     fflush(log);
 
     pthread_mutex_lock(&aquarium_mutex);
-    pthread_mutex_lock(&prompt_thread_terminated_mutex);
-    while (aquarium == NULL && prompt_thread_terminated == NOK) {
-        pthread_mutex_unlock(&prompt_thread_terminated_mutex);
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (aquarium == NULL && terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
         pthread_mutex_unlock(&aquarium_mutex);
         sleep(1);
         pthread_mutex_lock(&aquarium_mutex);
-        pthread_mutex_lock(&prompt_thread_terminated_mutex);
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
-    pthread_mutex_unlock(&prompt_thread_terminated_mutex);
+    pthread_mutex_unlock(&terminate_threads_mutex);
     pthread_mutex_unlock(&aquarium_mutex);
 
     pthread_mutex_lock(&aquarium_mutex);
     struct fish *fishes = aquarium->fishes;
     struct fish *current_fish = fishes;
     pthread_mutex_unlock(&aquarium_mutex);
-    pthread_mutex_lock(&prompt_thread_terminated_mutex);
-    while (prompt_thread_terminated == NOK) {
-        pthread_mutex_unlock(&prompt_thread_terminated_mutex);
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
         pthread_mutex_lock(&aquarium_mutex);
         fishes = aquarium->fishes;
         current_fish = fishes;
@@ -86,9 +85,9 @@ int main(int argc, char const *argv[]) {
         pthread_mutex_unlock(&aquarium_mutex);
 
         usleep(200000); // 200ms = 0.2 s
-        pthread_mutex_lock(&prompt_thread_terminated_mutex);
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
-    pthread_mutex_unlock(&prompt_thread_terminated_mutex);
+    pthread_mutex_unlock(&terminate_threads_mutex);
     pthread_join(tid_prompt, NULL);
     pthread_cancel(tid_io); // if io thread is waiting in recv --> cancellation point
     pthread_cancel(tid_accept); // if accept thread is waiting in accept --> cancellation point

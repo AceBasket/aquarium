@@ -9,8 +9,7 @@ struct thread_io_parameters {
     struct aquarium **aquarium;
     pthread_mutex_t *aquarium_mutex;
     pthread_mutex_t *views_sockets_mutex;
-    int *prompt_thread_terminated;
-    pthread_mutex_t *prompt_thread_terminated_mutex;
+    pthread_mutex_t *terminate_threads_mutex;
 };
 
 void *thread_io(void *parameters);

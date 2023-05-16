@@ -10,8 +10,7 @@ struct init_server_parameters {
     struct aquarium **aquarium;
     pthread_mutex_t *aquarium_mutex;
     pthread_mutex_t *views_sockets_mutex;
-    int *prompt_thread_terminated;
-    pthread_mutex_t *prompt_thread_terminated_mutex;
+    pthread_mutex_t *terminate_threads_mutex;
     pthread_t *tid_accept;
     pthread_t *tid_prompt;
     pthread_t *tid_io;

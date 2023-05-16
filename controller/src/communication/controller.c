@@ -20,8 +20,7 @@ void init_server(struct init_server_parameters *parameters) {
     struct aquarium **aquarium = parameters->aquarium;
     pthread_mutex_t *aquarium_mutex = parameters->aquarium_mutex;
     pthread_mutex_t *views_sockets_mutex = parameters->views_sockets_mutex;
-    int *prompt_thread_terminated = parameters->prompt_thread_terminated;
-    pthread_mutex_t *prompt_thread_terminated_mutex = parameters->prompt_thread_terminated_mutex;
+    pthread_mutex_t *terminate_threads_mutex = parameters->terminate_threads_mutex;
     pthread_t *tid_accept = parameters->tid_accept;
     pthread_t *tid_prompt = parameters->tid_prompt;
     pthread_t *tid_io = parameters->tid_io;
@@ -59,14 +58,12 @@ void init_server(struct init_server_parameters *parameters) {
     accept_parameters->views_sockets = views_sockets_fd;
     accept_parameters->aquarium_mutex = aquarium_mutex;
     accept_parameters->aquarium = aquarium;
-    accept_parameters->prompt_thread_terminated = prompt_thread_terminated;
-    accept_parameters->prompt_thread_terminated_mutex = prompt_thread_terminated_mutex;
+    accept_parameters->terminate_threads_mutex = terminate_threads_mutex;
     accept_parameters->tid_io = tid_io;
 
     prompt_parameters->aquarium = aquarium;
     prompt_parameters->aquarium_mutex = aquarium_mutex;
-    prompt_parameters->prompt_thread_terminated = prompt_thread_terminated;
-    prompt_parameters->prompt_thread_terminated_mutex = prompt_thread_terminated_mutex;
+    prompt_parameters->terminate_threads_mutex = terminate_threads_mutex;
 
     exit_if(pthread_create(tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");
     exit_if(pthread_create(tid_prompt, NULL, thread_prompt, prompt_parameters) < 0, "ERROR on thread creation");

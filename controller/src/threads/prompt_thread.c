@@ -12,11 +12,12 @@
 void *thread_prompt(void *parameters) {
     FILE *log = fopen("log_prompt.log", "w");
 
+    signal(SIGPIPE, sigpipe_handler);
+
     struct thread_prompt_parameters *params = (struct thread_prompt_parameters *)parameters;
     struct aquarium **aquarium = params->aquarium;
     pthread_mutex_t *aquarium_mutex = params->aquarium_mutex;
-    int *prompt_thread_terminated = params->prompt_thread_terminated;
-    pthread_mutex_t *prompt_thread_terminated_mutex = params->prompt_thread_terminated_mutex;
+    pthread_mutex_t *terminate_threads_mutex = params->terminate_threads_mutex;
 
     fprintf(log, "===== thread_prompt() =====\n");
     fflush(log);
@@ -25,7 +26,9 @@ void *thread_prompt(void *parameters) {
     char char_read;
     int i_buffer;
 
-    while (1) {
+    pthread_mutex_lock(terminate_threads_mutex);
+    while (terminate_threads == NOK) {
+        pthread_mutex_unlock(terminate_threads_mutex);
         i_buffer = 0;
 
         // we get the line from the terminal where the user wrote his command
@@ -35,9 +38,9 @@ void *thread_prompt(void *parameters) {
                 fprintf(log, "===== thread_prompt() terminated =====\n");
                 fflush(log);
                 fclose(log);
-                pthread_mutex_lock(prompt_thread_terminated_mutex);
-                *prompt_thread_terminated = OK;
-                pthread_mutex_unlock(prompt_thread_terminated_mutex);
+                pthread_mutex_lock(terminate_threads_mutex);
+                terminate_threads = OK;
+                pthread_mutex_unlock(terminate_threads_mutex);
                 return EXIT_SUCCESS;
             }
             buffer[i_buffer] = char_read;
@@ -91,8 +94,11 @@ void *thread_prompt(void *parameters) {
         }
         free_parser(parser);
         fflush(log);
+        pthread_mutex_lock(terminate_threads_mutex);
     }
-
+    pthread_mutex_unlock(terminate_threads_mutex);
+    fprintf(log, "===== thread_prompt() terminated =====\n");
+    fflush(log);
     fclose(log);
     return EXIT_SUCCESS;
 }
