@@ -36,27 +36,25 @@ import utils.ParserResult;
 
 public class MainFX extends Application {
 
-    private final int VIEW_WIDTH = 600;
-    private final int VIEW_HEIGHT = 400;
-    private final int FISH_WIDTH = 150;
-    private final int FISH_HEIGHT = 100;
+    private final int VIEW_WIDTH = 1280;
+    private final int VIEW_HEIGHT = 720;
+    //private final int FISH_WIDTH = 150;
+    //private final int FISH_HEIGHT = 100;
     //private static final int BUFFER_WIDTH = 50;
 
-    //private ImageView fish;
-    private double fishX, fishY;
-    //private double fishVX, fishVY;
-    private ImageView view;//, view2;
     private double viewX1, viewY1, viewX2, viewY2;
     private Random random = new Random();
     private Pane pane;//, pane2;
 
     PrintWriter logFile;
-    private ArrayList<String> fishesName;
-    private ArrayList<ImageView> fishesList;
+    //private ArrayList<String> fishesName;
+    private ArrayList<ImageView> fishesImage;
+    private ArrayList<Fish> fishes;
 
     public MainFX() {
-        fishesName = new ArrayList<String>();
-        fishesList = new ArrayList<ImageView>();
+        //fishesName = new ArrayList<String>();
+        fishesImage = new ArrayList<ImageView>();
+        fishes = new ArrayList<Fish>();
         try {
             logFile = new PrintWriter("log_main.log");
         } catch (IOException e) {
@@ -64,27 +62,31 @@ public class MainFX extends Application {
         }
     }
 
-    //mainly to crop the image 
-    public double[] imageProportionsToPixel(double xI, double yI, Image img, int viewWidth, int viewHeight){// x and y are coordinates in the image
-        double pixelWidth = img.getWidth();
-        double pixelHeight = img.getHeight();
-
-        double xP = xI * pixelWidth/viewWidth;
-        double yP = yI * pixelHeight/viewHeight;
-
-        double[] coordinates = new double[2];
-        coordinates[0] = xP;
-        coordinates[1] = yP;
-        return coordinates;
+    //prends une cordonnée X en pixel et renvoie une valeur entre 0 et 100
+    public double pixelToPourcentageX(double pixelX){
+        return (pixelX * 100)/ VIEW_WIDTH;
+    }
+    //prends une cordonnée Y en pixel et renvoie une valeur entre 0 et 100
+    public double pixelToPourcentageY(double pixelY){
+        return (pixelY * 100)/ VIEW_WIDTH;
+    }
+    //prends une cordonnée X entre 0 et 100 et renvoie une valeur en pixel
+    public double pourcentageToPixelX(int pourcenatgeX){
+        return (pourcenatgeX * VIEW_WIDTH)/100;
+    }
+    //prends une cordonnée Y entre 0 et 100 et renvoie une valeur en pixel
+    public double pourcentageToPixelY(int pourcentageY){
+        return (pourcentageY * VIEW_WIDTH)/100;
     }
     // private DoubleProperty fishYProperty() {
     //     return fish.yProperty();
     // }
-    public void addFish(ImageView fish, String name) {
-        if (!fishesName.contains(name)) {
-            fishesName.add(name);
-            fishesList.add(fish);
-            pane.getChildren().add(fish);
+    public void addFish(ImageView fishIV, String name, Fish fish) {
+        if (!fishes.contains(fish)){//(!fishesName.contains(name)) {
+            //fishesName.add(name);
+            fishes.add(fish);
+            fishesImage.add(fishIV);
+            pane.getChildren().add(fishIV);
             //System.out.println("the fish was added in the ImageView\n");
         }
     }
@@ -99,84 +101,101 @@ public class MainFX extends Application {
         return view;
     }
 
-    public ImageView createFish(int fishWidth, int fishHeight){
+    public ImageView createFish(Coordinates position, int fishWidth, int fishHeight){
         File fileF = new File("./img/fish4.png");
         Image fishImage = new Image(fileF.toURI().toString());
         ImageView fish = new ImageView(fishImage);
-        fishX = (VIEW_WIDTH - FISH_WIDTH)/2 ; //fishWidth) / 2;
-        fishY = (VIEW_HEIGHT - FISH_HEIGHT)/2; //fishHeight) / 2;
-        fish.setFitWidth(FISH_WIDTH);//fishWidth);
-        fish.setFitHeight(FISH_HEIGHT);//fishHeight);
+
+        double fishX = pourcentageToPixelX( position.getX());
+        double fishY = pourcentageToPixelY(position.getY());
+        fish.setFitWidth(pourcentageToPixelX(fishWidth));
+        fish.setFitHeight(pourcentageToPixelY(fishHeight));
+        fish.setX(fishX);
+        fish.setY(fishY);
         return fish;
     }
 
     @Override
     public void start(Stage primaryStage) {
-        //récupérer les arguments avec getParameters.
-        //List<String> parameters = getParameters().getRaw();
 
         
         //views
-        view = createView();//new ImageView(viewImage1);
-        //view2 = createView();
-        
-
-        //fish image
-        //fish = createFish( FISH_WIDTH);
-
-        // Timeline swimAnimation = new Timeline(
-        // new KeyFrame(Duration.ZERO, new KeyValue(fishYProperty(), fishY)),
-        // new KeyFrame(Duration.seconds(2), new KeyValue(fishYProperty(), fishY + 50, Interpolator.EASE_BOTH)),
-        // new KeyFrame(Duration.seconds(4), new KeyValue(fishYProperty(), fishY - 50, Interpolator.EASE_BOTH)),
-        // new KeyFrame(Duration.seconds(6), new KeyValue(fishYProperty(), fishY))
-        // );
-
-        // swimAnimation.setCycleCount(Timeline.INDEFINITE);
-        // swimAnimation.play();
-
+        view = createView();
         // Set up the animation timer
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                for (ImageView fish : fishesList){
-                    double fishVX = 0;
-                    double fishVY = 0;
-                    double fishX = fish.getX();
-                    double fishY = fish.getY();
-                    if (random.nextDouble() < 0.02) {
-                        fishVX = random.nextDouble() * 6 - 3; 
-                        fishVY = random.nextDouble() * 6 - 3; 
-                    }
-                    fishX += fishVX;
-                    fishY += fishVY;
+                for (int i = 0; i < fishes.size(); i++){
+                    System.out.println(fishes.size());
+                    // Assuming you have a target coordinate (targetX, targetY) and a duration in seconds
+                    
+                    Fish fish = fishes.get(i);
+                    Coordinates destination = fish.getFirstDestination();
+                    Coordinates destinationP = new Coordinates((int)pourcentageToPixelX(destination.getX()), (int)pourcentageToPixelY(destination.getY()));
+                    double duration = (double)fish.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond();
 
-                    fish.setX(fishX);
-                    fish.setY(fishY);
-                    //this should change depending on the view
+                    ImageView fishIV = fishesImage.get(i);
+                    double fishX = fishIV.getX();
+                    double fishY = fishIV.getY();
+                    System.out.println("fishX "+fishX + " fishY "+fishY);
+                    // Calculate the distance between the current position and the target position
+                    double distanceX = destinationP.getX() - fishX;
+                    double distanceY = destinationP.getY()  - fishY;
+                   
+                    //System.out.println("destination  " + destinationP );
+                    // Calculate the velocity components
+                     System.out.println("DX "+distanceX + " DY "+ distanceY+ "\n");
+                    System.out.println("duration " +duration+"\n");
+                    
+                    double errorMargin = 1.0;  // Define a small margin of error
+                    if (Math.abs(distanceX) <= errorMargin && Math.abs(distanceY) <= errorMargin) {
+                        // Set the position of the fish to the destination
+                        fishX = destinationP.getX();
+                        fishY = destinationP.getY();
+                    }
+
+                    else if (duration !=0){
+                        double velocityX = distanceX / (duration ); // Divide by the number of frames per second (e.g., 60)
+                        double velocityY = distanceY / (duration ); // Adjust the frame rate as needed
+                        System.out.println("VX "+velocityX + " vY "+ velocityY+ "\n");
+                        // Update the fish's position based on the velocity components
+                        fishX += velocityX;
+                        fishY += velocityY;
+                    }
+
+     
+
+
+
+                    // Set the new position of the fish
+                    fishIV.setX(fishX);
+                    fishIV.setY(fishY);
+                    
+                    // Check if the fish has reached (or passed) the target position
+                    // if ((velocityX > 0 && fishX >= destinationP.getX()) || (velocityX < 0 && fishX <= destinationP.getX())
+                    //         || (velocityY > 0 && fishY >= destinationP.getY()) || (velocityY < 0 && fishY <= destinationP.getY())) {
+                    //     // Fish has reached (or passed) the target position, do something
+                    //     fishX = destinationP.getX();
+                    //     fishY = destinationP.getY();
+                    // }
+                    //////////////////////////////////////////////////////////
+                    
+
                     // Check if fish is outside the bounds of view
-                    if (fish.getBoundsInParent().getMaxX() < 0 || fish.getBoundsInParent().getMinX() > VIEW_WIDTH ||
-                            fish.getBoundsInParent().getMaxY() < 0 || fish.getBoundsInParent().getMinY() > VIEW_HEIGHT) {
-                        System.out.println("the fish is outside the bounds\n");
-                        // Remove fish from old view
-                        //Pane oldPane = (Pane) fish.getParent();
-                        //oldPane.getChildren().remove(fish);
-                        //pane.getChildren().remove(fish);
-                        // Add fish to new view
-                        //Pane newPane = (oldPane == pane1) ? pane2 : pane1;
-                        //newPane.getChildren().add(fish);
+                    // if (fishIV.getBoundsInParent().getMaxX() < 0 || fishIV.getBoundsInParent().getMinX() > VIEW_WIDTH ||
+                    //         fishIV.getBoundsInParent().getMaxY() < 0 || fishIV.getBoundsInParent().getMinY() > VIEW_HEIGHT) {
+                    //     pane.getChildren().remove(fishIV);
+                    //     //fishesName.remove(name);
+                    //     fishes.remove(fish);
+                    //     fishesImage.remove(fishIV);
 
-                        // Reset fish position and orientation
-                        // fishX = (VIEW_WIDTH - FISH_WIDTH) / 2;
-                        // fishY = (VIEW_HEIGHT - FISH_HEIGHT) / 2;
-                        // fish.setRotate(0);
-                        // fish.setScaleX(1);
-                    }
+                    // }
                     // Flip the image horizontally if the fish is moving left
-                    if (fishVX < 0) {
-                        fish.setScaleX(-1);
-                    } else {
-                        fish.setScaleX(1);
-                    }
+                    // if (velocityX < 0) {
+                    //     fishIV.setScaleX(-1);
+                    // } else {
+                    //     fishIV.setScaleX(1);
+                    // }
 
                     }
              
@@ -189,11 +208,7 @@ public class MainFX extends Application {
         // Set up the first view
         pane = new Pane();
         pane.getChildren().add(view);
-        //pane.getChildren().add(fish);
-        // for (ImageView fish : fishesList){
-        //     pane.getChildren().add(fish);
-        // }
-       
+
         
         Scene scene = new Scene(pane, VIEW_WIDTH, VIEW_HEIGHT);
         
@@ -226,8 +241,8 @@ public class MainFX extends Application {
                         if (fish.getSizeDestinations() > 0) {
                             //System.out.println("creat fish view\n"+ fish.getSizeDestinations());
                             Platform.runLater(() -> {
-                                ImageView fishIV = createFish(fish.getLength(), fish.getHeight());
-                                addFish(fishIV, fish.getName());
+                                ImageView fishIV = createFish(fish.getPosition(), fish.getLength(), fish.getHeight());
+                                addFish(fishIV, fish.getName(), fish);
                             });
                             
                             logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
