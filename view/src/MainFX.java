@@ -38,10 +38,12 @@ public class MainFX extends Application {
 
     private final int VIEW_WIDTH = 1280;
     private final int VIEW_HEIGHT = 720;
-    //private final int FISH_WIDTH = 150;
-    //private final int FISH_HEIGHT = 100;
+    private final int FISH_WIDTH = 150;
+    private final int FISH_HEIGHT = 100;
     //private static final int BUFFER_WIDTH = 50;
 
+
+    private ImageView view;//, view2;
     private double viewX1, viewY1, viewX2, viewY2;
     private Random random = new Random();
     private Pane pane;//, pane2;
@@ -146,15 +148,7 @@ public class MainFX extends Application {
                     // Calculate the velocity components
                      System.out.println("DX "+distanceX + " DY "+ distanceY+ "\n");
                     System.out.println("duration " +duration+"\n");
-                    
-                    double errorMargin = 1.0;  // Define a small margin of error
-                    if (Math.abs(distanceX) <= errorMargin && Math.abs(distanceY) <= errorMargin) {
-                        // Set the position of the fish to the destination
-                        fishX = destinationP.getX();
-                        fishY = destinationP.getY();
-                    }
-
-                    else if (duration !=0){
+                    if(duration !=0){
                         double velocityX = distanceX / (duration ); // Divide by the number of frames per second (e.g., 60)
                         double velocityY = distanceY / (duration ); // Adjust the frame rate as needed
                         System.out.println("VX "+velocityX + " vY "+ velocityY+ "\n");
