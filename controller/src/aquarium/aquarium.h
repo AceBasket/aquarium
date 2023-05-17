@@ -10,9 +10,6 @@
 // #include "fish.h"
 // #include "view.h"
 
-#define OK 1
-#define NOK 0
-
 struct coordinates {
     int x;
     int y;

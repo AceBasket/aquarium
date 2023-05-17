@@ -49,10 +49,16 @@ public class ReadFromServerThread implements Runnable {
                     logFile.flush();
                     parsedResponse = Parser.parse(response);
                     receivedQueue.offer(parsedResponse);
-                    if (receivedQueue.peek().getFunction() != parsedResponse.getFunction()) {
-                        logFile.println("ERROR: parsed response wasn't added to queue");
-                        logFile.flush();
-                    }
+                    // if (receivedQueue.peek().getFunction() != parsedResponse.getFunction()) {
+                    // logFile.println("ERROR: parsed response wasn't added to queue. Last response
+                    // was: "
+                    // + receivedQueue.peek().getFunction() + " and this response is: "
+                    // + parsedResponse.getFunction() + " and the response is: " + response);
+                    // for (ParserResult result : receivedQueue) {
+                    // logFile.println("Queue contains: " + result.getFunction());
+                    // }
+                    // logFile.flush();
+                    // }
                 }
 
             } catch (IOException e) {

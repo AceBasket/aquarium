@@ -25,7 +25,7 @@ public class Main {
             // main.logFile.println("Main");
             // main.logFile.flush();
             // View view = new View("192.168.191.78", 8888);
-            View view = new View("0.0.0.0", 8889);
+            View view = new View("0.0.0.0", 8000);
             // View view = new View(new File("src/affichage.cfg"));
             Aquarium aquarium = new Aquarium();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();

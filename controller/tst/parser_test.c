@@ -3,6 +3,9 @@
 #include <setjmp.h>
 #include <stdint.h>
 #include "../src/utils.h"
+#include "../src/parser/client_inputs_parser.h"
+#include "../src/parser/prompt_parser.h"
+
 
 
 void test_status() {
@@ -132,7 +135,7 @@ void test_hello() {
 
     struct parse *result5 = parse_clients("hello");
     assert(result5->size == 0);
-    assert(result5->func_name == HELLO);    
+    assert(result5->func_name == HELLO);
 
     free_parser(result1);
     free_parser(result2);
@@ -401,7 +404,8 @@ void test_save() {
 int main(void) {
    //parse clients tests
     // test_status();
-    printf("Parser tests: .");
+    // printf("Parser tests: .");
+    printf(".");
     test_addFish();
     printf(".");
     test_delFish();

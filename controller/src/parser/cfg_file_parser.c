@@ -19,6 +19,7 @@ struct parse *parse_file(FILE *f) {
         for (size_t i = 0; i < size; i++) {
             if (line[i] == '\n') {
                 line[i] = '\0';
+                break;
             }
         }
 
@@ -56,7 +57,7 @@ struct parse *parse_file(FILE *f) {
             if (arg1 == NULL) {
                 strcpy(p->status, "ERROR: No view provided\n");
                 return p;
-            } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || is_number(arg1, 1)) {
+            } else if (strlen(arg1) < 2 || !isalpha(arg1[0]) || !is_number(arg1, 1)) {
                 strcpy(p->status, "ERROR: No name provided for the view\nThe name of the view should be like: N<number>\n");
                 return p;
             }
@@ -104,6 +105,39 @@ struct parse *parse_file(FILE *f) {
 
             if (strtok(NULL, "") != NULL) {
                 strcpy(p->status, "ERROR: The information about the view should be given like: N5 400x400+400+200\n");
+                return p;
+            }
+        }
+        
+        else if (isalpha(line[0]) && isalpha(line[1])) {
+            char *arg1 = strtok(line, " ");
+            if (arg1 == NULL) {
+                strcpy(p->status, "ERROR: Incorrect file formatting\n");
+                return p;
+            } else if (is_number(arg1, 0)) {
+                strcpy(p->status, "ERROR: Incorrect variable name\n");
+                return p;
+            }
+            adding_arg_to_parse(p, arg1);
+
+            char *arg2 = strtok(NULL, " ");
+            if (arg2 == NULL || strcmp(arg2, "=") != 0) {
+                strcpy(p->status, "ERROR: Incorrect file formatting\n");
+                return p;
+            }           
+
+            char *arg3 = strtok(NULL, "");
+            if (arg3 == NULL) {
+                sprintf(p->status, "ERROR: No value for the variable %s\n", arg1);
+                return p;
+            } else if (!is_number(arg3, 0)) {
+                sprintf(p->status, "ERROR: Incorrect value for the variable %s\n", arg1);
+                return p;
+            }
+            adding_arg_to_parse(p, arg3);
+
+            if (strtok(NULL, "") != NULL) {
+                strcpy(p->status, "ERROR: \n");
                 return p;
             }
         }
