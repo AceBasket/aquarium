@@ -4,11 +4,7 @@
 #include "../aquarium/aquarium.h"
 
 
-struct thread_prompt_parameters {
-    struct aquarium **aquarium;
-    pthread_mutex_t *aquarium_mutex;
-    pthread_mutex_t *terminate_threads_mutex;
-};
+struct thread_prompt_parameters {};
 
 
 void *thread_prompt(void *parameters);

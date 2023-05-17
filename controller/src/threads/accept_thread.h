@@ -11,10 +11,6 @@ struct thread_accept_parameters {
     socklen_t view_addr_len;
     struct sockaddr_in view_addr;
     int *views_sockets;
-    pthread_mutex_t *views_sockets_mutex;
-    pthread_mutex_t *aquarium_mutex;
-    struct aquarium **aquarium;
-    pthread_mutex_t *terminate_threads_mutex;
     pthread_t *tid_io;
 };
 

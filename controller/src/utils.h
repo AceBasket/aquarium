@@ -11,6 +11,10 @@
 #define BUFFER_size 512
 
 extern volatile int terminate_threads;
+extern struct aquarium *aquarium; // global aquarium 
+extern pthread_mutex_t aquarium_mutex;
+extern pthread_mutex_t views_sockets_mutex;
+extern pthread_mutex_t terminate_threads_mutex;
 
 void exit_if(int condition, const char *prefix);
 void sigpipe_handler(int signum);

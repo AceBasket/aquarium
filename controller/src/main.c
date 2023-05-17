@@ -10,6 +10,10 @@
 #include "communication/controller.h"
 
 volatile int terminate_threads = NOK;
+struct aquarium *aquarium = NULL; // global aquarium
+pthread_mutex_t aquarium_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t views_sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t terminate_threads_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char const *argv[]) {
 
@@ -23,20 +27,12 @@ int main(int argc, char const *argv[]) {
     signal(SIGPIPE, sigpipe_handler);
 
     // Initialization of the server
-    struct aquarium *aquarium = NULL; // global aquarium
-    pthread_mutex_t aquarium_mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_t views_sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_t terminate_threads_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_t tid_accept;
     pthread_t tid_prompt;
     pthread_t tid_io;
     struct init_server_parameters parameters = {
         .nb_views = nb_views,
         .port_number = port_number,
-        .aquarium = &aquarium,
-        .aquarium_mutex = &aquarium_mutex,
-        .views_sockets_mutex = &views_sockets_mutex,
-        .terminate_threads_mutex = &terminate_threads_mutex,
         .tid_accept = &tid_accept,
         .tid_prompt = &tid_prompt,
         .tid_io = &tid_io

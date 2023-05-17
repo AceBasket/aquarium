@@ -188,16 +188,13 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
     free_fishes_array(fishes_in_view, view);
 }
 
-void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium, pthread_mutex_t *aquarium_mutex, pthread_t *handle_fishes_continuously_thread, pthread_mutex_t *terminate_threads_mutex) {
+void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket_fd, pthread_t *handle_fishes_continuously_thread) {
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
     struct handle_fishes_continuously_parameters *parameters = malloc(sizeof(struct handle_fishes_continuously_parameters));
-    parameters->aquarium = aquarium;
     parameters->socket_fd = socket_fd;
-    parameters->aquarium_mutex = aquarium_mutex;
-    parameters->terminate_threads_mutex = terminate_threads_mutex;
-    pthread_mutex_unlock(aquarium_mutex);
+    pthread_mutex_unlock(&aquarium_mutex);
     pthread_create(handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
-    pthread_mutex_lock(aquarium_mutex);
+    pthread_mutex_lock(&aquarium_mutex);
 }
