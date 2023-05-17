@@ -14,7 +14,6 @@ struct aquarium *aquarium = NULL; // global aquarium
 pthread_mutex_t aquarium_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t views_sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t terminate_threads_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t views_sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char const *argv[]) {
 

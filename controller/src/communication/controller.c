@@ -32,6 +32,10 @@ void init_server(struct init_server_parameters *parameters) {
     FILE *fd = fopen("src/controller.cfg", "r");
     exit_if(fd == NULL, "ERROR on opening file\n");
     struct parse *parsed_file = parse_file(fd);
+    for (int i = 0; i < parsed_file->size; i++) {
+        printf("%s\n", parsed_file->arguments[i]);
+        fflush(stdout);
+    }
     int display_timeout_value = atoi(parsed_file->arguments[3]);
 
 
