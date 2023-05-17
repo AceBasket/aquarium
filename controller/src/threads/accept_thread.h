@@ -12,6 +12,8 @@ struct thread_accept_parameters {
     struct sockaddr_in view_addr;
     int *views_sockets;
     pthread_t *tid_io;
+    pthread_t *tid_timeout;
+    int display_timeout_value;
 };
 
 void *thread_accept(void *parameters);

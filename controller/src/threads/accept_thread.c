@@ -20,6 +20,7 @@ void *thread_accept(void *parameters) {
     int main_socket_fd = params->socket_fd;
     int nb_views = params->nb_views;
     pthread_t *tid_io = params->tid_io;
+    pthread_t *tid_timeout = params->tid_timeout;
 
     int new_socket_fd;
 
@@ -31,9 +32,11 @@ void *thread_accept(void *parameters) {
 
     struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;
+    io_parameters->display_timeout_value = params->display_timeout_value;
 
-    exit_if(pthread_create(tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread creation");
-        // exit_if(pthread_detach(tid_io) != 0, "ERROR in thread detachment");
+    exit_if(pthread_create(tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread io creation");
+    exit_if(pthread_create(tid_timeout, NULL, thread_timeout, io_parameters) < 0, "ERROR on thread timeoout creation");
+
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);

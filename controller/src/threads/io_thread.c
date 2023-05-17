@@ -15,6 +15,38 @@
 #define MAX_VIEWS 8 
 
 
+void *thread_timeout(void *parameters) {
+    struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
+    int *views_socket_fd = params->views_socket_fd;
+    int timeout = params->display_timeout_value;
+
+    while (1) {
+        for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
+            if (views_socket_fd[num_view] != -1) {
+                time_t current_time = time(NULL);
+
+                struct view *view = NULL;
+                while (view == NULL) {
+                    view = get_view_from_socket(aquarium, views_socket_fd[num_view]);
+                    usleep(300000);
+                }
+
+                // Disconnects the view when it has been inactive for too long
+                if (view != NULL && current_time - view->time_last_ping >= timeout) {
+                    dprintf(views_socket_fd[num_view], "bye\n");
+                    pthread_mutex_lock(&views_sockets_mutex);
+                    close(views_socket_fd[num_view]);
+                    views_socket_fd[num_view] = -1;
+                    view->socket_fd = -1;
+                    pthread_mutex_unlock(&views_sockets_mutex);
+                    break;
+                }
+            }
+        }
+        sleep(1);
+    }
+}
+
 
 void *thread_io(void *parameters) {
 
@@ -43,7 +75,7 @@ void *thread_io(void *parameters) {
 
     // For communication with views
     fd_set read_fds;
-    int *views_socket_fd = (int *)params->views_socket_fd;
+    int *views_socket_fd = params->views_socket_fd;
     int recv_bytes;
     char buffer[BUFFER_SIZE];
 
@@ -84,6 +116,8 @@ void *thread_io(void *parameters) {
                 // we have data on the num_view socket
                 fprintf(log, "Received data from view %d\n", num_view);
                 fflush(log);
+
+                struct view *view = get_view_from_socket(aquarium, views_socket_fd[num_view]);
 
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
@@ -195,6 +229,11 @@ void *thread_io(void *parameters) {
                 default:
                     dprintf(views_socket_fd[num_view], "%s", parser->status);
                     break;
+                }
+                if (view != NULL) {
+                    pthread_mutex_lock(&views_sockets_mutex);
+                    view->time_last_ping = time(NULL);
+                    pthread_mutex_unlock(&views_sockets_mutex);
                 }
                 free_parser(parser);
                 fflush(log);

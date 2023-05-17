@@ -66,17 +66,17 @@ public class ServerThreadHandlers {
         view.connect();
     }
 
-    public static void noGreetingHandler(PrintWriter logFile, View view, ConcurrentLinkedQueue<String> sendQueue)
-            throws InterruptedException {
-        Thread.sleep(10000); // wait 10 seconds
-        sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
-    }
-
     public static void logOutHandler(PrintWriter logFile, View view) {
         try {
             view.close();
         } catch (IOException e) {
             logFile.println("Can't close the connection from the view" + view.getId());
         }
+    }
+
+    public static void noGreetingHandler(PrintWriter logFile, View view, ConcurrentLinkedQueue<String> sendQueue)
+            throws InterruptedException {
+        Thread.sleep(10000); // wait 10 seconds
+        sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
     }
 }

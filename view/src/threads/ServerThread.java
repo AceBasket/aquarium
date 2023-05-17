@@ -31,7 +31,6 @@ public class ServerThread implements Runnable {
         logFile.flush();
 
         ParserResult response;
-        boolean listFishesDestinations = false;
         // boolean responseReceived = false;
 
         // First thing first is greeting the server
@@ -55,10 +54,11 @@ public class ServerThread implements Runnable {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
                         // if (!listFishesDestinations) {
-                        //     sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of fishes
-                        //     logFile.println("Sent ls");
-                        //     logFile.flush();
-                        //     listFishesDestinations = true;
+                        // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
+                        // fishes
+                        // logFile.println("Sent ls");
+                        // logFile.flush();
+                        // listFishesDestinations = true;
                         // }
                     }
                 }
