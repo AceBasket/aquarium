@@ -7,6 +7,7 @@ import aquarium.Aquarium;
 import aquarium.Fish;
 import aquarium.View;
 import utils.ParserResult;
+import java.io.IOException;
 
 public class ServerThreadHandlers {
     public static String doHello(PrintWriter logFile, View view) {
@@ -69,5 +70,13 @@ public class ServerThreadHandlers {
             throws InterruptedException {
         Thread.sleep(10000); // wait 10 seconds
         sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
+    }
+
+    public static void logOutHandler(PrintWriter logFile, View view) {
+        try {
+            view.close();
+        } catch (IOException e) {
+            logFile.println("Can't close the connection from the view" + view.getId());
+        }
     }
 }

@@ -109,8 +109,6 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[0]);
     fprintf(log, "fish %s at %dx%d in aquarium added\n", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
     dprintf(socket_fd, "OK\n");
-
-
 }
 
 void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -128,7 +126,6 @@ void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
         return;
     }
     dprintf(socket_fd, "NOK\n");
-
 }
 
 void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -142,16 +139,17 @@ void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct a
         return;
     }
     dprintf(socket_fd, "NOK\n");
-
 }
 
-void log_out_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
-    if (handle_error(log, parser, socket_fd)) {
+void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aquarium *aquarium) {
+    if (handle_error(log, parser, *socket_fd)) {
         return;
     }
-    struct view *view = get_view_from_socket(aquarium, socket_fd);
+    struct view *view = get_view_from_socket(aquarium, *socket_fd);
+    dprintf(*socket_fd, "Bye\n");
+    close(*socket_fd);
     view->socket_fd = -1;
-    dprintf(socket_fd, "bye\n");
+    *socket_fd = -1;
 }
 
 // void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {

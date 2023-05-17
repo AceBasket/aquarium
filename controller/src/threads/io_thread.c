@@ -181,7 +181,7 @@ void *thread_io(void *parameters) {
                 case LOG:
                     fprintf(log, "LOGOUT out from view %d\n", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
-                    log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    log_out_handler(log, parser, &views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 // case STATUS:
