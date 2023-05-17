@@ -21,12 +21,11 @@ void init_server(struct init_server_parameters *parameters) {
     pthread_t *tid_prompt = parameters->tid_prompt;
     pthread_t *tid_io = parameters->tid_io;
 
-    struct thread_prompt_parameters *prompt_parameters = malloc(sizeof(struct thread_prompt_parameters));
     struct thread_accept_parameters *accept_parameters = malloc(sizeof(struct thread_accept_parameters));
     int *views_sockets_fd = malloc(MAX_VIEWS * sizeof(int));
-    for (int i = 0; i < MAX_VIEWS; i++) {
-        views_sockets_fd[i] = -1;
-    }
+    // for (int i = 0; i < MAX_VIEWS; i++) {
+    //     views_sockets_fd[i] = -1;
+    // }
 
     // Creation of the main socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -54,6 +53,6 @@ void init_server(struct init_server_parameters *parameters) {
     accept_parameters->tid_io = tid_io;
 
     exit_if(pthread_create(tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");
-    exit_if(pthread_create(tid_prompt, NULL, thread_prompt, prompt_parameters) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(tid_prompt, NULL, thread_prompt, NULL) < 0, "ERROR on thread creation");
 
 }

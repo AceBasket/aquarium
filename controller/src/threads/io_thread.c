@@ -48,7 +48,7 @@ void *thread_io(void *parameters) {
     char buffer[BUFFER_SIZE];
 
     // If get_fishes_continuously is called
-    pthread_t handle_fishes_continuously_thread;
+    pthread_t handle_fishes_continuously_thread = 0; // value will be changed if pthread_create called
 
     // Wait for views to be initialized
     pthread_mutex_lock(&terminate_threads_mutex);
@@ -204,6 +204,7 @@ void *thread_io(void *parameters) {
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
     pthread_join(handle_fishes_continuously_thread, NULL);
+    free(parameters);
     fprintf(log, "===== thread_io() terminated =====\n");
     fflush(log);
     fclose(log);

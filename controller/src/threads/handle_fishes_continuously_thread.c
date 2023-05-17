@@ -73,6 +73,7 @@ void *get_fishes_continuously(void *parameters) {
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
+    free(parameters);
     fprintf(log, "===== get_fishes_continuously() terminated =====\n");
     fflush(log);
     fclose(log);

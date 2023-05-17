@@ -27,7 +27,7 @@ void *thread_accept(void *parameters) {
     fflush(log);
 
     // Initialization of all views_socket[] to 0 so not checked
-    memset(views_sockets, -1, sizeof(views_sockets) * MAX_VIEWS);
+    memset(views_sockets, -1, sizeof(int) * MAX_VIEWS);
 
     struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;
@@ -57,7 +57,9 @@ void *thread_accept(void *parameters) {
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
-    free(io_parameters);
+    free(((struct thread_accept_parameters *)parameters)->views_sockets);
+    free(((struct thread_accept_parameters *)parameters)->views_sockets);
+    free(parameters);
     fprintf(log, "===== thread_accept() terminated =====\n");
     fflush(log);
     fclose(log);

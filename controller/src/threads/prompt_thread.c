@@ -95,6 +95,7 @@ void *thread_prompt(void *parameters) {
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
+    free(parameters);
     fprintf(log, "===== thread_prompt() terminated =====\n");
     fflush(log);
     fclose(log);
