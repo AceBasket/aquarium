@@ -6,9 +6,6 @@
 
 struct thread_io_parameters {
     int *views_socket_fd;
-    struct aquarium **aquarium;
-    pthread_mutex_t *aquarium_mutex;
-    pthread_mutex_t *views_sockets_mutex;
 };
 
 void *thread_io(void *parameters);

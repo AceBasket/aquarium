@@ -29,6 +29,12 @@ public class ReadFromServerThread implements Runnable {
         String response;
         ParserResult parsedResponse;
         while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                logFile.println("IO thread interrupted");
+                logFile.flush();
+                Thread.currentThread().interrupt();
+                return;
+            }
             try {
                 // while (sendQueue.isEmpty()) { // Just for right now, we have a logic problem
                 // (don't know how many lines

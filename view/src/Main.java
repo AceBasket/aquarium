@@ -51,10 +51,17 @@ public class Main {
                             main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
                                     + fish.getName() + " is at " + fish.getPosition().toString()
                                     + " and needs to go to " + fish.getFirstDestination().toString() + " in "
-                                    + (fish.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond()) + " seconds");
+                                    + (fish.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond())
+                                    + " seconds");
                             main.logFile.flush();
                         }
                     }
+                }
+
+                if (prompt.isInterrupted()) {
+                    server.interrupt();
+                    io.interrupt();
+                    return;
                 }
                 Thread.sleep(500);
             }

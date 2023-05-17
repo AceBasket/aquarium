@@ -10,20 +10,15 @@ public class CoordinatesTest {
             return;
         }
         CoordinatesTest test = new CoordinatesTest();
-        int nbTest = 0;
         System.out.print('.');
-        nbTest++;
         test.testGetX();
         System.out.print('.');
-        nbTest++;
         test.testGetY();
         System.out.print('.');
-        nbTest++;
         test.testEquals();
         System.out.print('.');
-        nbTest++;
         test.testDistance();
-        System.out.println("(CoordinatesTest) All " + nbTest + " tests passed");
+        System.out.println(" OK");
     }
 
     void testGetX() {

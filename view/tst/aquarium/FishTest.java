@@ -12,45 +12,32 @@ public class FishTest {
             return;
         }
         FishTest test = new FishTest();
-        int nbTest = 0;
         System.out.print('.');
-        nbTest++;
         test.testGetName();
         System.out.print('.');
-        nbTest++;
         test.testGetPosition();
         System.out.print('.');
-        nbTest++;
         test.testGetFirstDestination();
         System.out.print('.');
-        nbTest++;
         test.testAddNewDestination();
         System.out.print('.');
-        nbTest++;
         test.testStart();
         System.out.print('.');
-        nbTest++;
         test.testSetPosition();
         System.out.print('.');
-        nbTest++;
         test.testGetStatus();
         System.out.print('.');
-        nbTest++;
         test.testGetLength();
         System.out.print('.');
-        nbTest++;
         test.testGetHeight();
-        // System.out.print('.');
-        // nbTest++;
-        // test.testGetTimeToGetToFirstDestination();
         System.out.print('.');
-        nbTest++;
+        test.testGetTimeToGetToFirstDestination();
+        System.out.print('.');
         test.testGetSizeDestinations();
         System.out.print('.');
-        nbTest++;
         test.testRemoveExpiredDestinations();
 
-        System.out.println("(FishTest) All " + nbTest + " tests passed");
+        System.out.println(" OK");
     }
 
     void testGetName() {
@@ -72,6 +59,7 @@ public class FishTest {
     void testAddNewDestination() {
         Fish f = new Fish("Nemo", 1, 2, 3, 4);
         f.addNewDestination(3, 4, 5);
+        f.start();
         assert f.getSizeDestinations() == 1;
         assert f.getFirstDestination().equals(new Coordinates(3, 4));
     }
@@ -93,6 +81,7 @@ public class FishTest {
         Fish f = new Fish("Nemo", 1, 2, 3, 4);
         f.addNewDestination(3, 4, 0);
         f.addNewDestination(5, 6, 1);
+        f.start();
         assert f.getSizeDestinations() == 2;
         f.removeExpiredDestinations();
         assert f.getFirstDestination().equals(new Coordinates(5, 6));
@@ -108,6 +97,7 @@ public class FishTest {
         Fish f = new Fish("Nemo", 1, 2, 3, 4);
         f.addNewDestination(3, 4, 1);
         f.addNewDestination(5, 6, 2);
+        f.start();
         assert f.getSizeDestinations() == 2;
     }
 
@@ -126,13 +116,10 @@ public class FishTest {
         assert f.getStatus() == Fish.statusEnum.STOPPED;
     }
 
-    // void testGetTimeToGetToFirstDestination() {
-    // Fish f = new Fish("Nemo", 1, 2, 3, 4);
-    // f.addNewDestination(3, 4, 5);
-    // assert f.getTimeToGetToFirstDestination() < Instant.now().getEpochSecond() +
-    // 5;
-    // assert Instant.now().getEpochSecond() + 4 <
-    // f.getTimeToGetToFirstDestination();
-    // }
+    void testGetTimeToGetToFirstDestination() {
+        Fish f = new Fish("Nemo", 1, 2, 3, 4);
+        f.addNewDestination(3, 4, 5);
+        assert f.getTimeToGetToFirstDestination() == Instant.now().getEpochSecond() + 5;
+    }
 
 }

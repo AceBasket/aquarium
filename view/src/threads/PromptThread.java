@@ -45,6 +45,10 @@ public class PromptThread implements Runnable {
         while (true) {
             if (responseReceived) {
                 command = System.console().readLine(); // get user prompt
+                if (command == null) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
                 try {
                     parsedCommand = Parser.parse(command);
                     if (parsedCommand.getFunction() == PossibleResponses.STATUS) {

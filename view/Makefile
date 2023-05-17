@@ -26,18 +26,20 @@ source: ${CLASSES}
 visual: ${FX_CLASSES}
 
 test: ${TST_CLASSES} 
+	@for test in ${TSTS:tst/%.java=%}; do \
+		echo "Running $$test"; \
+		${J} ${JFLAGS} -ea $$test; \
+	done
 
-build/%.class: src/%.java build/utils/Parser.class
+build/%.class: src/%.java #build/utils/Parser.class build/threads/*.class
 	${JC} ${JCFLAGS} $<
 
 ${TST_CLASSES}: build/%.class: tst/%.java
 	${JC} ${JCFLAGS} $<
-	${J} ${JFLAGS} -ea $*
 
 ${FX_CLASSES}: build/%.class: src/%.java
 	${JC} ${JCFLAGS} ${FXFLAGS} $<
-	${J} ${JFLAGS} ${FXFLAGS} $*
 
 
 clean:
-	${RM} build/*.class build/**/*.class *.log
+	${RM} build/aquarium/* build/threads/* build/utils/* *.log build/Main.class

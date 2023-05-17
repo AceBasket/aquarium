@@ -17,24 +17,29 @@
 
 
 void *thread_io(void *parameters) {
+
+    signal(SIGPIPE, sigpipe_handler);
+
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
-    pthread_mutex_t *aquarium_mutex = params->aquarium_mutex;
-    struct aquarium **aquarium = params->aquarium;
 
     FILE *log = fopen("log_io.log", "w");
     fprintf(log, "===== thread_io() =====\n");
     fflush(log);
 
-    pthread_mutex_lock(aquarium_mutex);
-    while (*aquarium == NULL) {
-        pthread_mutex_unlock(aquarium_mutex);
+    pthread_mutex_lock(&aquarium_mutex);
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (aquarium == NULL && terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
+        pthread_mutex_unlock(&aquarium_mutex);
         fprintf(log, "Waiting for aquarium to be initialized\n");
         fflush(log);
         sleep(1);
 
-        pthread_mutex_lock(aquarium_mutex);
+        pthread_mutex_lock(&aquarium_mutex);
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
-    pthread_mutex_unlock(aquarium_mutex);
+    pthread_mutex_unlock(&terminate_threads_mutex);
+    pthread_mutex_unlock(&aquarium_mutex);
 
     // For communication with views
     fd_set read_fds;
@@ -42,13 +47,23 @@ void *thread_io(void *parameters) {
     int recv_bytes;
     char buffer[BUFFER_SIZE];
 
-    while (views_socket_fd[0] == -1) {
+    // If get_fishes_continuously is called
+    pthread_t handle_fishes_continuously_thread;
+
+    // Wait for views to be initialized
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (views_socket_fd[0] == -1 && terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
         fprintf(log, "Waiting for views to be initialized\n");
         fflush(log);
         sleep(1);
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
+    pthread_mutex_unlock(&terminate_threads_mutex);
 
-    while (1) {
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
         FD_ZERO(&read_fds);
         int max_fd = 0;
 
@@ -73,6 +88,19 @@ void *thread_io(void *parameters) {
                 // read data until we get a \n
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
+
+                    // If received Ctrl+D on prompt 
+                    pthread_mutex_lock(&terminate_threads_mutex);
+                    if (terminate_threads == OK) {
+                        pthread_mutex_unlock(&terminate_threads_mutex);
+                        fprintf(log, "===== thread_io() terminated (while reading from socket) =====\n");
+                        fflush(log);
+                        fclose(log);
+                        // free memory
+                        return NULL;
+                    }
+                    pthread_mutex_unlock(&terminate_threads_mutex);
+
                     char char_read;
                     recv_bytes = recv(views_socket_fd[num_view], &char_read, 1, 0);
                     exit_if(recv_bytes == -1, "ERROR on recv");
@@ -104,57 +132,57 @@ void *thread_io(void *parameters) {
                 switch (function_called) {
                 case HELLO:
                     fprintf(log, "Hello from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    hello_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    hello_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case GETFISHES:
                     fprintf(log, "Get fishes from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    get_fishes_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case GFCONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], *aquarium, aquarium_mutex);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], &handle_fishes_continuously_thread);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case LS:
                     fprintf(log, "List fishes from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    ls_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    ls_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case PING:
                     fprintf(log, "Ping from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    ping_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    ping_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case ADDFISH:
                     fprintf(log, "Add fish from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    add_fish_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    add_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case DELFISH:
                     fprintf(log, "Delete fish from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    del_fish_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    del_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case STARTFISH:
                     fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[0], num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    start_fish_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 case LOG:
                     fprintf(log, "LOGOUT out from view %d\n", num_view);
-                    pthread_mutex_lock(aquarium_mutex);
-                    log_out_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                    pthread_mutex_unlock(aquarium_mutex);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    log_out_handler(log, parser, views_socket_fd[num_view], aquarium);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     break;
                 // case STATUS:
                 //     fprintf(log, "Status from view %d\n", num_view);
@@ -172,7 +200,13 @@ void *thread_io(void *parameters) {
                 fflush(log);
             }
         }
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
+    pthread_mutex_unlock(&terminate_threads_mutex);
+    pthread_join(handle_fishes_continuously_thread, NULL);
+    fprintf(log, "===== thread_io() terminated =====\n");
+    fflush(log);
     fclose(log);
+    // free memory
     return EXIT_SUCCESS;
 }
