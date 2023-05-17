@@ -80,7 +80,7 @@ void *thread_io(void *parameters) {
     char buffer[BUFFER_SIZE];
 
     // If get_fishes_continuously is called
-    pthread_t handle_fishes_continuously_thread;
+    pthread_t handle_fishes_continuously_thread = 0; // To not have a non-initialized value
 
     // Wait for views to be initialized
     pthread_mutex_lock(&terminate_threads_mutex);

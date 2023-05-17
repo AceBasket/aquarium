@@ -27,8 +27,8 @@ void *thread_accept(void *parameters) {
     fprintf(log, "===== thread_accept() =====\n");
     fflush(log);
 
-    // Initialization of all views_socket[] to 0 so not checked
-    memset(views_sockets, -1, sizeof(views_sockets) * MAX_VIEWS);
+    // Initialization of all views_socket[] to -1 so not checked
+    memset(views_sockets, -1, MAX_VIEWS*sizeof(int));
 
     struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;

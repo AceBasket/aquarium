@@ -21,6 +21,7 @@ void init_server(struct init_server_parameters *parameters) {
     pthread_t *tid_accept = parameters->tid_accept;
     pthread_t *tid_prompt = parameters->tid_prompt;
     pthread_t *tid_io = parameters->tid_io;
+    pthread_t *tid_timeout = parameters->tid_timeout;
 
     struct thread_prompt_parameters *prompt_parameters = malloc(sizeof(struct thread_prompt_parameters));
     struct thread_accept_parameters *accept_parameters = malloc(sizeof(struct thread_accept_parameters));
@@ -32,10 +33,6 @@ void init_server(struct init_server_parameters *parameters) {
     FILE *fd = fopen("src/controller.cfg", "r");
     exit_if(fd == NULL, "ERROR on opening file\n");
     struct parse *parsed_file = parse_file(fd);
-    for (int i = 0; i < parsed_file->size; i++) {
-        printf("%s\n", parsed_file->arguments[i]);
-        fflush(stdout);
-    }
     int display_timeout_value = atoi(parsed_file->arguments[3]);
 
 
@@ -63,6 +60,7 @@ void init_server(struct init_server_parameters *parameters) {
     accept_parameters->view_addr = ctrl_addr;
     accept_parameters->views_sockets = views_sockets_fd;
     accept_parameters->tid_io = tid_io;
+    accept_parameters->tid_timeout = tid_timeout;
     accept_parameters->display_timeout_value = display_timeout_value;
 
     exit_if(pthread_create(tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");

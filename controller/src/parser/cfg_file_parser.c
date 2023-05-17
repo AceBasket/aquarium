@@ -2,14 +2,14 @@
 
 struct parse *parse_file(FILE *f) {
     size_t size = 100;
-    char *line = malloc(size * sizeof(char));
+    char *line = calloc(size, sizeof(char)); // No uninitialized memory
     ssize_t read = 0;
 
     struct parse *p = malloc(sizeof(*p));
     p->status = malloc(sizeof(char) * 200);
     strcpy(p->status, "OK\n");
-    // p->size = 1;
-    // p->arguments = malloc(sizeof(char *));
+    p->size = 0;
+    p->arguments = malloc(sizeof(char *));
 
     while (read != -1) {
         read = getline(&line, &size, f);
@@ -47,6 +47,39 @@ struct parse *parse_file(FILE *f) {
 
             if (strtok(NULL, "") != NULL) {
                 strcpy(p->status, "ERROR: The information about the aquarium should be given like: 1000x1000\n");
+                return p;
+            }
+        }
+
+        else if (isalpha(line[0]) && isalpha(line[1])) {
+            char *arg1 = strtok(line, " ");
+            if (arg1 == NULL) {
+                strcpy(p->status, "ERROR: Incorrect file formatting\n");
+                return p;
+            } else if (is_number(arg1, 0)) {
+                strcpy(p->status, "ERROR: Incorrect variable name\n");
+                return p;
+            }
+            adding_arg_to_parse(p, arg1);
+
+            char *arg2 = strtok(NULL, " ");
+            if (arg2 == NULL || strcmp(arg2, "=") != 0) {
+                strcpy(p->status, "ERROR: Incorrect file formatting\n");
+                return p;
+            }
+
+            char *arg3 = strtok(NULL, "");
+            if (arg3 == NULL) {
+                sprintf(p->status, "ERROR: No value for the variable %s\n", arg1);
+                return p;
+            } else if (!is_number(arg3, 0)) {
+                sprintf(p->status, "ERROR: Incorrect value for the variable %s\n", arg1);
+                return p;
+            }
+            adding_arg_to_parse(p, arg3);
+
+            if (strtok(NULL, "") != NULL) {
+                strcpy(p->status, "ERROR: \n");
                 return p;
             }
         }
@@ -105,39 +138,6 @@ struct parse *parse_file(FILE *f) {
 
             if (strtok(NULL, "") != NULL) {
                 strcpy(p->status, "ERROR: The information about the view should be given like: N5 400x400+400+200\n");
-                return p;
-            }
-        }
-        
-        else if (isalpha(line[0]) && isalpha(line[1])) {
-            char *arg1 = strtok(line, " ");
-            if (arg1 == NULL) {
-                strcpy(p->status, "ERROR: Incorrect file formatting\n");
-                return p;
-            } else if (is_number(arg1, 0)) {
-                strcpy(p->status, "ERROR: Incorrect variable name\n");
-                return p;
-            }
-            adding_arg_to_parse(p, arg1);
-
-            char *arg2 = strtok(NULL, " ");
-            if (arg2 == NULL || strcmp(arg2, "=") != 0) {
-                strcpy(p->status, "ERROR: Incorrect file formatting\n");
-                return p;
-            }           
-
-            char *arg3 = strtok(NULL, "");
-            if (arg3 == NULL) {
-                sprintf(p->status, "ERROR: No value for the variable %s\n", arg1);
-                return p;
-            } else if (!is_number(arg3, 0)) {
-                sprintf(p->status, "ERROR: Incorrect value for the variable %s\n", arg1);
-                return p;
-            }
-            adding_arg_to_parse(p, arg3);
-
-            if (strtok(NULL, "") != NULL) {
-                strcpy(p->status, "ERROR: \n");
                 return p;
             }
         }

@@ -10,6 +10,7 @@ struct init_server_parameters {
     pthread_t *tid_accept;
     pthread_t *tid_prompt;
     pthread_t *tid_io;
+    pthread_t *tid_timeout;
 };
 
 void init_server(struct init_server_parameters *parameters);

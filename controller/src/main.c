@@ -30,12 +30,14 @@ int main(int argc, char const *argv[]) {
     pthread_t tid_accept;
     pthread_t tid_prompt;
     pthread_t tid_io;
+    pthread_t tid_timeout;
     struct init_server_parameters parameters = {
         .nb_views = nb_views,
         .port_number = port_number,
         .tid_accept = &tid_accept,
         .tid_prompt = &tid_prompt,
-        .tid_io = &tid_io
+        .tid_io = &tid_io,
+        .tid_timeout = &tid_timeout
     };
     init_server(&parameters);
 
