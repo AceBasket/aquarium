@@ -56,10 +56,31 @@ int main(int argc, char const *argv[]) {
     pthread_mutex_unlock(&terminate_threads_mutex);
     pthread_mutex_unlock(&aquarium_mutex);
 
-    pthread_mutex_lock(&aquarium_mutex);
-    struct fish *fishes = aquarium->fishes;
-    struct fish *current_fish = fishes;
-    pthread_mutex_unlock(&aquarium_mutex);
+    struct fish *fishes;
+    struct fish *current_fish;
+
+    pthread_mutex_lock(&terminate_threads_mutex);
+    if (terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
+
+        fprintf(log, "Aquarium initialized\n");
+        fflush(log);
+        pthread_mutex_lock(&aquarium_mutex);
+        fishes = aquarium->fishes;
+        current_fish = fishes;
+        pthread_mutex_unlock(&aquarium_mutex);
+
+        pthread_mutex_lock(&terminate_threads_mutex);
+    } else {
+        pthread_mutex_unlock(&terminate_threads_mutex);
+
+        fprintf(log, "Aquarium not initialized\n");
+        fflush(log);
+
+        pthread_mutex_lock(&terminate_threads_mutex);
+    }
+    pthread_mutex_unlock(&terminate_threads_mutex);
+
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
