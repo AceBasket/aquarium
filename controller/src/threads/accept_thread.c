@@ -8,7 +8,6 @@
 #include "io_thread.h"
 
 void *thread_accept(void *parameters) {
-    FILE *log = fopen("log_accept.log", "w");
 
     signal(SIGPIPE, sigpipe_handler);
 
@@ -21,6 +20,8 @@ void *thread_accept(void *parameters) {
     int nb_views = params->nb_views;
     pthread_t *tid_io = params->tid_io;
     pthread_t *tid_timeout = params->tid_timeout;
+    struct thread_io_parameters *io_parameters = params->io_parameters;
+    FILE *log = params->log;
 
     int new_socket_fd;
 
@@ -30,18 +31,18 @@ void *thread_accept(void *parameters) {
     // Initialization of all views_socket[] to -1 so not checked
     memset(views_sockets, -1, MAX_VIEWS*sizeof(int));
 
-    struct thread_io_parameters *io_parameters = malloc(sizeof(struct thread_io_parameters));
     io_parameters->views_socket_fd = views_sockets;
     io_parameters->display_timeout_value = params->display_timeout_value;
 
     exit_if(pthread_create(tid_io, NULL, thread_io, io_parameters) < 0, "ERROR on thread io creation");
-    exit_if(pthread_create(tid_timeout, NULL, thread_timeout, io_parameters) < 0, "ERROR on thread timeoout creation");
+    exit_if(pthread_create(tid_timeout, NULL, thread_timeout, io_parameters) < 0, "ERROR on thread timeout creation");
 
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
         fprintf(log, "Waiting for a new connection...\n");
         fflush(log);
+        
 
         view_addr_len = sizeof(view_addr);
         new_socket_fd = accept(main_socket_fd, (struct sockaddr *)&view_addr, &view_addr_len);
@@ -63,6 +64,5 @@ void *thread_accept(void *parameters) {
     free(io_parameters);
     fprintf(log, "===== thread_accept() terminated =====\n");
     fflush(log);
-    fclose(log);
     return EXIT_SUCCESS;
 }

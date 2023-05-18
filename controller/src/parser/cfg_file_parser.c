@@ -142,6 +142,6 @@ struct parse *parse_file(FILE *f) {
             }
         }
     }
-
+    free(line);
     return p;
 }

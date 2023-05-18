@@ -19,8 +19,11 @@ void *thread_timeout(void *parameters) {
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
     int *views_socket_fd = params->views_socket_fd;
     int timeout = params->display_timeout_value;
+    FILE *log = params->log;
 
-    while (1) {
+    pthread_mutex_lock(&terminate_threads_mutex);
+    while (terminate_threads == NOK) {
+        pthread_mutex_unlock(&terminate_threads_mutex);
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
             if (views_socket_fd[num_view] != -1) {
                 time_t current_time = time(NULL);
@@ -34,6 +37,8 @@ void *thread_timeout(void *parameters) {
                 // Disconnects the view when it has been inactive for too long
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     dprintf(views_socket_fd[num_view], "bye\n");
+                    fprintf(log, "View %d disconnected\n", num_view);
+                    fflush(log);
                     pthread_mutex_lock(&views_sockets_mutex);
                     close(views_socket_fd[num_view]);
                     views_socket_fd[num_view] = -1;
@@ -44,7 +49,10 @@ void *thread_timeout(void *parameters) {
             }
         }
         sleep(1);
+        pthread_mutex_lock(&terminate_threads_mutex);
     }
+    pthread_mutex_unlock(&terminate_threads_mutex);
+    return NULL;
 }
 
 
@@ -53,8 +61,8 @@ void *thread_io(void *parameters) {
     signal(SIGPIPE, sigpipe_handler);
 
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
+    FILE *log = params->log;
 
-    FILE *log = fopen("log_io.log", "w");
     fprintf(log, "===== thread_io() =====\n");
     fflush(log);
 
@@ -77,7 +85,7 @@ void *thread_io(void *parameters) {
     fd_set read_fds;
     int *views_socket_fd = params->views_socket_fd;
     int recv_bytes;
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {}; // No uninitialized memory
 
     // If get_fishes_continuously is called
     pthread_t handle_fishes_continuously_thread = 0; // To not have a non-initialized value
@@ -129,8 +137,6 @@ void *thread_io(void *parameters) {
                         pthread_mutex_unlock(&terminate_threads_mutex);
                         fprintf(log, "===== thread_io() terminated (while reading from socket) =====\n");
                         fflush(log);
-                        fclose(log);
-                        // free memory
                         return NULL;
                     }
                     pthread_mutex_unlock(&terminate_threads_mutex);
@@ -245,7 +251,5 @@ void *thread_io(void *parameters) {
     pthread_join(handle_fishes_continuously_thread, NULL);
     fprintf(log, "===== thread_io() terminated =====\n");
     fflush(log);
-    fclose(log);
-    // free memory
     return EXIT_SUCCESS;
 }

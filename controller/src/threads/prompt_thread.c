@@ -10,7 +10,7 @@
 
 
 void *thread_prompt(void *parameters) {
-    FILE *log = fopen("log_prompt.log", "w");
+    FILE *log = ((struct thread_prompt_parameters *)parameters)->log;
 
     signal(SIGPIPE, sigpipe_handler);
 
@@ -20,7 +20,7 @@ void *thread_prompt(void *parameters) {
     fprintf(log, "===== thread_prompt() =====\n");
     fflush(log);
 
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE] = {}; // No uninitialized memory
     char char_read;
     int i_buffer;
 
@@ -33,17 +33,22 @@ void *thread_prompt(void *parameters) {
         do {
             char_read = fgetc(stdin);
             if (char_read == EOF) {
-                fprintf(log, "===== thread_prompt() terminated =====\n");
-                fflush(log);
-                fclose(log);
                 pthread_mutex_lock(&terminate_threads_mutex);
                 terminate_threads = OK;
                 pthread_mutex_unlock(&terminate_threads_mutex);
-                return EXIT_SUCCESS;
+                break;
             }
             buffer[i_buffer] = char_read;
             i_buffer++;
         } while (char_read != '\n' && char_read != EOF);
+
+        pthread_mutex_lock(&terminate_threads_mutex);
+        if (terminate_threads == OK) {
+            pthread_mutex_unlock(&terminate_threads_mutex);
+            break;
+        }
+        pthread_mutex_unlock(&terminate_threads_mutex);
+
         buffer[i_buffer - 1] = '\0';
 
         fprintf(log, "Command: '%s' of size %ld\n", buffer, strlen(buffer));
@@ -51,7 +56,7 @@ void *thread_prompt(void *parameters) {
 
         // we parse this line
         struct parse *parser = parse_prompt(buffer);
-        int function = (int)parser->func_name;
+        enum func function = parser->func_name;
         fprintf(log, "Function to execute: %d\n", function);
         fflush(log);
 
@@ -97,6 +102,5 @@ void *thread_prompt(void *parameters) {
     pthread_mutex_unlock(&terminate_threads_mutex);
     fprintf(log, "===== thread_prompt() terminated =====\n");
     fflush(log);
-    fclose(log);
     return EXIT_SUCCESS;
 }

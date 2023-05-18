@@ -7,6 +7,7 @@
 struct thread_io_parameters {
     int *views_socket_fd;
     int display_timeout_value;
+    FILE *log;
 };
 
 void *thread_timeout(void *parameters);

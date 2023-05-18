@@ -8,6 +8,9 @@
 #include "aquarium/fish.h"
 #include "utils.h"
 #include "communication/controller.h"
+#include "threads/accept_thread.h"
+#include "threads/prompt_thread.h"
+#include "threads/io_thread.h"
 
 volatile int terminate_threads = NOK;
 struct aquarium *aquarium = NULL; // global aquarium
@@ -37,7 +40,15 @@ int main(int argc, char const *argv[]) {
         .tid_accept = &tid_accept,
         .tid_prompt = &tid_prompt,
         .tid_io = &tid_io,
-        .tid_timeout = &tid_timeout
+        .tid_timeout = &tid_timeout,
+        .io_log = fopen("log_io.log", "w"),
+        .accept_log = fopen("log_accept.log", "w"),
+        .prompt_log = fopen("log_prompt.log", "w"),
+        .timeout_log = fopen("log_timeout.log", "w"),
+        .prompt_parameters = malloc(sizeof(struct thread_prompt_parameters)),
+        .accept_parameters = malloc(sizeof(struct thread_accept_parameters)),
+        .io_parameters = malloc(sizeof(struct thread_io_parameters)),
+        .views_sockets_fd = malloc(sizeof(int) * MAX_VIEWS)
     };
     init_server(&parameters);
 
@@ -112,6 +123,15 @@ int main(int argc, char const *argv[]) {
     pthread_cancel(tid_accept); // if accept thread is waiting in accept --> cancellation point
     pthread_join(tid_io, NULL);
     pthread_join(tid_accept, NULL);
+    pthread_join(tid_timeout, NULL);
+    fclose(parameters.io_log);
+    fclose(parameters.accept_log);
+    fclose(parameters.prompt_log);
+    fclose(parameters.timeout_log);
+    free(parameters.prompt_parameters);
+    free(parameters.accept_parameters);
+    free(parameters.io_parameters);
+    free(parameters.views_sockets_fd);
     fprintf(log, "Terminated accept thread\n");
     fprintf(log, "===== thread_main() terminated =====\n");
     fflush(log);

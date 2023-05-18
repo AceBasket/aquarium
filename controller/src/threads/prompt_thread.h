@@ -4,7 +4,9 @@
 #include "../aquarium/aquarium.h"
 
 
-struct thread_prompt_parameters {};
+struct thread_prompt_parameters {
+    FILE *log;
+};
 
 
 void *thread_prompt(void *parameters);
