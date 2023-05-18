@@ -15,13 +15,12 @@ public class PromptThread implements Runnable {
     private final ConcurrentLinkedQueue<String> sendQueue;
     private final LinkedList<String> commandQueue;
     private View view;
-    private Aquarium fishesList;
+    private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
 
-    public PromptThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+    public PromptThread(View view, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue) {
         this.view = view;
-        this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         this.commandQueue = new LinkedList<String>();

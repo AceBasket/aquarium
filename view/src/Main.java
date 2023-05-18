@@ -27,18 +27,20 @@ public class Main {
             // View view = new View("192.168.191.78", 8888);
             View view = new View("0.0.0.0", 8000);
             // View view = new View(new File("src/affichage.cfg"));
-            Aquarium aquarium = new Aquarium();
+            Aquarium aquarium = Aquarium.getInstance();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
             ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
             Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue);
-            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue);
-            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue);
+            Runnable serverThread = new ServerThread(view, receivedQueue, sendQueue);
+            Runnable promptThread = new PromptThread(view, receivedQueue, sendQueue);
             Thread prompt = new Thread(promptThread);
             Thread server = new Thread(serverThread);
             Thread io = new Thread(readFromServerThread);
+            AquariumFX aquariumFX = new AquariumFX();
             io.start();
             server.start();
             prompt.start();
+            AquariumFX.launch(AquariumFX.class, argv);
 
             main.logFile.println("All threads running");
             main.logFile.flush();

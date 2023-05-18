@@ -6,3 +6,4 @@ controller/build/
 view/build/
 view/lib/
 *.log
+view/chatgpt

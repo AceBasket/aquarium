@@ -5,8 +5,17 @@ import java.util.ArrayList;
 public class Aquarium {
     private ArrayList<Fish> fishesList;
 
-    public Aquarium() {
+    private Aquarium() {
+        // Private constructor to prevent instantiation
         fishesList = new ArrayList<Fish>();
+    }
+
+    private static class AquariumHolder {
+        private static final Aquarium INSTANCE = new Aquarium();
+    }
+
+    public static Aquarium getInstance() {
+        return AquariumHolder.INSTANCE;
     }
 
     public synchronized void addFish(Fish fish) {

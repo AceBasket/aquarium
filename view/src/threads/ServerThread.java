@@ -7,15 +7,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerThread implements Runnable {
     private View view;
-    private Aquarium fishesList;
+    private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
     private final ConcurrentLinkedQueue<ParserResult> receivedQueue;
     private final ConcurrentLinkedQueue<String> sendQueue;
 
-    public ServerThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+    public ServerThread(View view, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue) {
         this.view = view;
-        this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         try {
@@ -84,7 +83,7 @@ public class ServerThread implements Runnable {
                         break;
                     case LISTFISHES:
                         ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
-                        listFishesDestinations = false;
+                        // listFishesDestinations = false;
                         break;
                     case BYE:
                         receivedQueue.remove();

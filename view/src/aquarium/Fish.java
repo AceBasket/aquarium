@@ -51,19 +51,19 @@ public class Fish {
         this.status = statusEnum.STOPPED;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public Coordinates getPosition() {
+    public synchronized Coordinates getPosition() {
         return position;
     }
 
-    public Coordinates getFirstDestination() {
+    public synchronized Coordinates getFirstDestination() {
         return destinations.getFirst().getDestination();
     }
 
-    public int getLength() {//width
+    public int getLength() {// width
         return length;
     }
 
@@ -71,33 +71,38 @@ public class Fish {
         return height;
     }
 
-    public long getTimeToGetToFirstDestination() {
+    public synchronized long getTimeToGetToFirstDestination() {
         return destinations.getFirst().getDeadline();
     }
 
+    /* TODO: remove this method */
     public statusEnum getStatus() {
         return status;
     }
 
-    public void setPosition(int positionX, int positionY) {
+    public boolean isStarted() {
+        return status == statusEnum.STARTED;
+    }
+
+    public synchronized void setPosition(int positionX, int positionY) {
         this.position = new Coordinates(positionX, positionY);
     }
 
-    public void addNewDestination(int destinationX, int destinationY, int movementDuration) {
+    public synchronized void addNewDestination(int destinationX, int destinationY, int movementDuration) {
         FishDestination newDestination = new FishDestination(destinationX, destinationY, movementDuration);
         if (!destinations.contains(newDestination)) {
             destinations.addLast(newDestination);
         }
     }
 
-    public void removeExpiredDestinations() {
+    public synchronized void removeExpiredDestinations() {
         while (!destinations.isEmpty()
                 && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
             destinations.removeFirst();
         }
     }
 
-    public int getSizeDestinations() {
+    public synchronized int getSizeDestinations() {
         /* Only counts STARTED fishes */
         return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
     }
@@ -110,5 +115,14 @@ public class Fish {
     public String toString() {
         return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
                 + (status == statusEnum.STARTED ? "started" : "notstarted");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Fish)) {
+            return false;
+        }
+        Fish fish = (Fish) o;
+        return this.name.equals(fish.getName());
     }
 }
