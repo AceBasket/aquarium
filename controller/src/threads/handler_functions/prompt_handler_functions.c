@@ -2,7 +2,19 @@
 #include "../../aquarium/view.h"
 #include "../../utils.h"
 
+int handle_prompt_error(FILE *log, struct parse *parser) {
+    if (strcmp(parser->status, "OK\n") != 0) {
+        fprintf(log, "%s", parser->status);
+        fflush(log);
+        return OK;
+    }
+    return NOK;
+}
+
 void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
+    if (handle_prompt_error(log, parser)) {
+        return;
+    }
     FILE *fd = fopen(parser->arguments[0], "r");
     if (fd == NULL) {
         fprintf(log, "ERROR: opening file\n");
@@ -33,6 +45,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
         }
     }
     fprintf(stdout, "Aquarium loaded (%d display view)\n", len_views(*aquarium));
+    fclose(fd);
 }
 
 void show_handler(FILE *log, struct aquarium *aquarium) {
@@ -45,6 +58,9 @@ void show_handler(FILE *log, struct aquarium *aquarium) {
 }
 
 void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
+    if (handle_prompt_error(log, parser)) {
+        return;
+    }
     struct coordinates coord = { atoi(parser->arguments[1]), atoi(parser->arguments[2]) };
     struct view *view = create_view(parser->arguments[0], coord, atoi(parser->arguments[3]), atoi(parser->arguments[4]));
     if (add_view(aquarium, view) == OK) {
@@ -55,6 +71,9 @@ void add_view_handler(__attribute__((unused))FILE *log, struct parse *parser, st
 }
 
 void del_view_handler(__attribute__((unused))FILE *log, struct parse *parser, struct aquarium *aquarium) {
+    if (handle_prompt_error(log, parser)) {
+        return;
+    }
     if (remove_view(aquarium, get_view(aquarium, parser->arguments[0])) == OK) {
         fprintf(stdout, "View %s deleted\n", parser->arguments[0]);
     } else {
@@ -63,6 +82,9 @@ void del_view_handler(__attribute__((unused))FILE *log, struct parse *parser, st
 }
 
 void save_handler(FILE *log, struct parse *parser, struct aquarium *aquarium) {
+    if (handle_prompt_error(log, parser)) {
+        return;
+    }
     if (aquarium == NULL) {
         fprintf(log, "ERROR: no aquarium\n");
         return;
