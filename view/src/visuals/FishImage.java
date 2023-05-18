@@ -29,13 +29,16 @@ public class FishImage {
 
     // A constructor that takes the image file name, the initial position, the
     // speed, the direction and the aquarium size
-    public FishImage(String fileName, Fish fishData) {
+    public FishImage(String fileName, Fish fishData, double aquariumWidth, double aquariumHeight) {
         try {
 
             // Load the image from the file
             image = new Image(fileName);
             // Create an image view with the image
             imageView = new ImageView(image);
+            // Set the image view dimensions to match the image dimensions
+            imageView.setFitWidth(percentagesToPixel(fishData.getWidth(), aquariumWidth));
+            imageView.setFitHeight(percentagesToPixel(fishData.getHeight(), aquariumHeight));
         } catch (Exception e) {
             System.out.println("Error loading image. Current working directory: " + System.getProperty("user.dir"));
             System.out.println("Trying to access: " + System.getProperty("user.dir") + "/" + fileName);

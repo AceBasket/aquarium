@@ -30,13 +30,7 @@ public class AquariumFX extends Application {
 
         // Set the background image using CSS
         String backgroundImageUrl = getClass().getResource("/img/ocean.jpeg").toExternalForm();
-        pane.setStyle("-fx-background-image: url('" + backgroundImageUrl + "');");
-
-        for (Fish fish : aquarium.getFishes()) {
-            FishImage fishImage = new FishImage("img/fish1.png", fish);
-            pane.getChildren().add(fishImage.getImageView());
-            fishesInAquarium.add(fishImage);
-        }
+        pane.setStyle("-fx-background-image: url('" + backgroundImageUrl + "'); -fx-background-size: cover;");
 
         // Create a scene with the pane and set its size to match the aquarium window
         // size
@@ -49,6 +43,12 @@ public class AquariumFX extends Application {
         primaryStage.setScene(scene);
         // Show the stage
         primaryStage.show();
+
+        for (Fish fish : aquarium.getFishes()) {
+            FishImage fishImage = new FishImage("img/fish1.png", fish, scene.getWidth(), scene.getHeight());
+            pane.getChildren().add(fishImage.getImageView());
+            fishesInAquarium.add(fishImage);
+        }
 
         while (aquarium.getFishes().isEmpty()) {
             System.out.println("Waiting for fishes");
@@ -84,7 +84,8 @@ public class AquariumFX extends Application {
                     // System.out.println(fish.getName() + " is in aquarium: " + fishIsInAquarium);
                     if (!fishIsInAquarium) {
                         System.out.println("Adding fish " + fish + " to fishesInAquarium + image");
-                        FishImage fishImage = new FishImage("./img/fish1.png", fish);
+                        FishImage fishImage = new FishImage("./img/fish1.png", fish, scene.getWidth(),
+                                scene.getHeight());
                         pane.getChildren().add(fishImage.getImageView());
                         fishesInAquarium.add(fishImage);
                     }

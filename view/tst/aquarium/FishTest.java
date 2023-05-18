@@ -103,7 +103,7 @@ public class FishTest {
 
     void testGetLength() {
         Fish f = new Fish("Nemo", 1, 2, 3, 4);
-        assert f.getLength() == 3;
+        assert f.getWidth() == 3;
     }
 
     void testGetHeight() {

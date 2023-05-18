@@ -37,7 +37,7 @@ public class Fish {
 
     private final String name;
     private Coordinates position;
-    private final int length;
+    private final int width;
     private final int height;
     private statusEnum status;
     private LinkedList<FishDestination> destinations;
@@ -46,7 +46,7 @@ public class Fish {
         this.name = name;
         this.position = new Coordinates(positionX, positionY);
         this.destinations = new LinkedList<FishDestination>();
-        this.length = length;
+        this.width = length;
         this.height = height;
         this.status = statusEnum.STOPPED;
     }
@@ -63,8 +63,8 @@ public class Fish {
         return destinations.getFirst().getDestination();
     }
 
-    public int getLength() {// width
-        return length;
+    public int getWidth() {// width
+        return width;
     }
 
     public int getHeight() {
@@ -113,7 +113,7 @@ public class Fish {
 
     @Override
     public String toString() {
-        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
+        return "Fish " + name + " at " + position + ", " + width + "x" + height + ", "
                 + (status == statusEnum.STARTED ? "started" : "notstarted");
     }
 
