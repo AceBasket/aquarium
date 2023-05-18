@@ -31,7 +31,6 @@ public class ServerThread implements Runnable {
         logFile.flush();
 
         ParserResult response;
-        boolean listFishesDestinations = false;
         // boolean responseReceived = false;
 
         // First thing first is greeting the server
@@ -41,6 +40,12 @@ public class ServerThread implements Runnable {
             logFile.println("Sent hello");
             logFile.flush();
             while (true) {
+                if (Thread.currentThread().isInterrupted()) {
+                    logFile.println("Server thread interrupted");
+                    logFile.flush();
+                    Thread.currentThread().interrupt();
+                    return;
+                }
                 // listFishesDestinations = false;
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations
@@ -48,13 +53,13 @@ public class ServerThread implements Runnable {
                     if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 1) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
-                        if (!listFishesDestinations) {
-                            // ask for list of fishes
-                            // sendQueue.offer(ServerThreadHandlers.doLs(logFile));
-                            // logFile.println("Sent ls");
-                            // logFile.flush();
-                            listFishesDestinations = true;
-                        }
+                        // if (!listFishesDestinations) {
+                        // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
+                        // fishes
+                        // logFile.println("Sent ls");
+                        // logFile.flush();
+                        // listFishesDestinations = true;
+                        // }
                     }
                 }
                 response = receivedQueue.peek();
@@ -82,9 +87,10 @@ public class ServerThread implements Runnable {
                         listFishesDestinations = false;
                         break;
                     case BYE:
+                        receivedQueue.remove();
+                        ServerThreadHandlers.logOutHandler(logFile, view);
                         logFile.println("Logging out");
                         logFile.flush();
-                        // LOG OUT SOMEHOW
                         break;
                     case PONG:
                         logFile.println("Pong received");

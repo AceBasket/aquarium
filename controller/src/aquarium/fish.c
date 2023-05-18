@@ -152,7 +152,7 @@ struct fish **get_fishes_in_view(struct aquarium *aquarium, struct view *view, i
     return fishes;
 }
 
-struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started) {
+struct fish **get_fishes_with_destination_in_view(struct aquarium *aquarium, struct view *view, int started) {
     struct fish **fishes = malloc(sizeof(struct fish *) * (len_fishes(aquarium) + 1));
     exit_if(fishes == NULL, "malloc failed");
     exit_if(view == NULL, "view is NULL");
@@ -164,7 +164,9 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
         return fishes;
     }
 
+
     do {
+        int fish_found_bool = NOK;
         if ((started && current_fish->status == STARTED) || !started) {
             // if fish is in view
             // if (coordinates_are_in_view(&current_fish->top_left, view) == OK) {
@@ -177,12 +179,17 @@ struct fish **get_fishes_in_view_and_with_destination_in_view(struct aquarium *a
             while (current_destination != NULL) {
                 if (coordinates_are_in_view(&current_destination->destination_coordinates, view) == OK) {
                     add_specific_destination(fish_with_destination_in_view, current_destination);
+                    fish_found_bool = OK;
                     break;
                 }
                 current_destination = STAILQ_NEXT(current_destination, next);
             }
-            fishes[i] = fish_with_destination_in_view;
-            i++;
+            if (fish_found_bool == OK) {
+                fishes[i] = fish_with_destination_in_view;
+                i++;
+            } else {
+                free_fish(fish_with_destination_in_view);
+            }
         // }
         }
         current_fish = current_fish->next;

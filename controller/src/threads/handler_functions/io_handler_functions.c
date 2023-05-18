@@ -79,7 +79,7 @@ void get_fishes_handler(FILE *log, __attribute__((unused))struct parse *parser, 
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
+    struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 1);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
     free_fishes_array(fishes_in_view, view);
 }
@@ -109,8 +109,6 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[0]);
     fprintf(log, "fish %s at %dx%d in aquarium added\n", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
     dprintf(socket_fd, "OK\n");
-
-
 }
 
 void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -128,7 +126,6 @@ void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
         return;
     }
     dprintf(socket_fd, "NOK\n");
-
 }
 
 void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -142,16 +139,17 @@ void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct a
         return;
     }
     dprintf(socket_fd, "NOK\n");
-
 }
 
-void log_out_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
-    if (handle_error(log, parser, socket_fd)) {
+void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aquarium *aquarium) {
+    if (handle_error(log, parser, *socket_fd)) {
         return;
     }
-    struct view *view = get_view_from_socket(aquarium, socket_fd);
+    struct view *view = get_view_from_socket(aquarium, *socket_fd);
+    dprintf(*socket_fd, "Bye\n");
+    close(*socket_fd);
     view->socket_fd = -1;
-    dprintf(socket_fd, "bye\n");
+    *socket_fd = -1;
 }
 
 // void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -159,7 +157,7 @@ void log_out_handler(FILE *log, struct parse *parser, int socket_fd, struct aqua
 //         return;
 //     }
 //     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
-//     struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
+//     struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
 //     if (fishes_in_view == NULL) {
 //         fprintf(log, "Error: no fishes in view\n");
 //         fflush(log);
@@ -180,23 +178,20 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
-    struct fish **fishes_in_view = get_fishes_in_view_and_with_destination_in_view(aquarium, view, 1);
+    struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 1);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
     print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1);
     // dprintf(socket_fd, "\n"); // to signal end of lists to client
     free_fishes_array(fishes_in_view, view);
 }
 
-void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium, pthread_mutex_t *aquarium_mutex) {
+void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket_fd, pthread_t *handle_fishes_continuously_thread) {
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    pthread_t handle_fishes_continuously_thread;
     struct handle_fishes_continuously_parameters *parameters = malloc(sizeof(struct handle_fishes_continuously_parameters));
-    parameters->aquarium = aquarium;
     parameters->socket_fd = socket_fd;
-    parameters->aquarium_mutex = aquarium_mutex;
-    pthread_mutex_unlock(aquarium_mutex);
-    pthread_create(&handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
-    pthread_mutex_lock(aquarium_mutex);
+    pthread_mutex_unlock(&aquarium_mutex);
+    pthread_create(handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
+    pthread_mutex_lock(&aquarium_mutex);
 }

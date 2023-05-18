@@ -13,6 +13,7 @@ struct view *create_view(char *name, struct coordinates top_left, int width, int
     strcpy(view->name, name);
     view->next = NULL;
     view->socket_fd = -1; //to store the socket file descriptor
+    view->time_last_ping = time(NULL);
     return view;
 }
 
