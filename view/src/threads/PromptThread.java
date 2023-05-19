@@ -53,7 +53,6 @@ public class PromptThread implements Runnable {
             if (responseReceived) {
                 logFile.println("Waiting for user prompt");
                 logFile.flush();
-                System.out.print("> ");
                 command = System.console().readLine(); // get user prompt
                 if (command == null) {
                     sendQueue.offer(PromptThreadHandlers.doLogOut(logFile));
