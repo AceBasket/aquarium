@@ -61,7 +61,8 @@ public class Main {
                     }
                 }
 
-                if (server.isInterrupted()) {
+                if (server.isInterrupted() || prompt.isInterrupted()) {
+                    server.interrupt();
                     prompt.interrupt();
                     io.interrupt();
                     server.join();

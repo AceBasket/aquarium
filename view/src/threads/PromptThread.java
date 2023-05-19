@@ -57,6 +57,8 @@ public class PromptThread implements Runnable {
                 command = System.console().readLine(); // get user prompt
                 if (command == null) {
                     sendQueue.offer(PromptThreadHandlers.doLogOut(logFile));
+                    Thread.currentThread().interrupt();
+                    logFile.println("Interrupting prompt thread after Ctrl+D");
                     responseReceived = false;
                     continue;
                 }

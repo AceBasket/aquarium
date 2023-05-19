@@ -79,7 +79,7 @@ public class ReadFromServerThread implements Runnable {
                     view.talkToServer(sendQueue.remove());
                 }
 
-                if (view.serverConnected() && view.serverIsTalking()) {
+                if (view.serverIsTalking()) {
                     response = view.listenToServer();
                     logFile.println("Server answered: " + response);
                     logFile.flush();
