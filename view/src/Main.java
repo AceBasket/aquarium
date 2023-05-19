@@ -21,7 +21,8 @@ public class Main {
     }
 
     public static void main(String[] argv) {
-        long id = Thread.currentThread().getId();
+        long id = ProcessHandle.current().pid();
+        System.out.println("Process id: " + id);
         Main main = new Main(id);
         try {
             // main.logFile.println("Main");
@@ -64,8 +65,14 @@ public class Main {
                     prompt.interrupt();
                     io.interrupt();
                     server.join();
+                    main.logFile.println("Server thread finished");
+                    main.logFile.flush();
                     prompt.join();
+                    main.logFile.println("Prompt thread finished");
+                    main.logFile.flush();
                     io.join();
+                    main.logFile.println("IO thread finished");
+                    main.logFile.flush();
                     view.close();
                     main.logFile.println("Main thread interrupted");
                     main.logFile.flush();

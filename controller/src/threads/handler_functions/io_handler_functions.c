@@ -56,20 +56,28 @@ void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquari
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    struct view *view;
+    struct view *view = NULL;
     if (parser->size == 1) {
         view = get_view(aquarium, parser->arguments[0]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
+            fprintf(log, "view %s connected\n", view->name);
+            fflush(log);
+            return;
         }
-    } else {
+    }
+    if ((view != NULL && view->socket_fd != -1) || view == NULL) {
         view = get_first_free_view_socket(aquarium);
         if (view == NULL) {
             dprintf(socket_fd, "no greeting\n");
+            fprintf(log, "view not connected\n");
+            fflush(log);
         } else {
             view->socket_fd = socket_fd;
             dprintf(socket_fd, "greeting %s\n", view->name);
+            fprintf(log, "view %s connected\n", view->name);
+            fflush(log);
         }
     }
 }

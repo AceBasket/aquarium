@@ -40,7 +40,7 @@ public class ServerThread implements Runnable {
             logFile.println("Sent hello");
             logFile.flush();
             while (true) {
-                if (Thread.currentThread().isInterrupted()) {
+                if (Thread.currentThread().isInterrupted() || !view.serverConnected()) {
                     logFile.println("Server thread interrupted");
                     logFile.flush();
                     Thread.currentThread().interrupt();

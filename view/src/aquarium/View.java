@@ -70,6 +70,10 @@ public class View {
         return this.input.ready();
     }
 
+    public synchronized boolean serverConnected() throws IOException {
+        return this.socket.getInputStream().available() > 0;
+    }
+
     public int getDisplayTimeoutValue() {
         return this.displayTimeoutValue;
     }

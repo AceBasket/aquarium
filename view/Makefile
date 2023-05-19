@@ -21,6 +21,7 @@ FX_CLASSES = ${FX:src/%.java=build/%.class}
 default: source
 
 source: ${CLASSES}
+	# ${RM} *.log
 	${J} ${JFLAGS} Main
 
 visual: ${FX_CLASSES}

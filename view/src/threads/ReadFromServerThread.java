@@ -2,7 +2,6 @@ package threads;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.Instant;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,38 +15,42 @@ public class ReadFromServerThread implements Runnable {
     private PrintWriter logFile;
     private View view;
     private Timer timeoutTimer;
+    private long id;
 
     public ReadFromServerThread(View view, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         this.view = view;
+        this.id = id;
         try {
             logFile = new PrintWriter("log_io_thread" + id + ".log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }
         timeoutTimer = new Timer();
-        startTimeoutTimer(view.getDisplayTimeoutValue());
+        startTimeoutTimer(view.getDisplayTimeoutValue(), id);
     }
 
-    private void startTimeoutTimer(long delay) {
-        timeoutTimer.schedule(new TimeoutTask(view, logFile), delay * 1000);
+    private void startTimeoutTimer(long delay, long id) {
+        timeoutTimer.schedule(new TimeoutTask(view, logFile, id), delay * 1000);
     }
 
     private class TimeoutTask extends TimerTask {
         private View view;
         private PrintWriter logFile;
+        private long id;
 
-        public TimeoutTask(View view, PrintWriter logFile) {
+        public TimeoutTask(View view, PrintWriter logFile, long id) {
             this.view = view;
             this.logFile = logFile;
+            this.id = id;
         }
 
         public void run() {
-            logFile.println("Timeout reached at " + Instant.now().toString());
+            logFile.println("Timeout reached");
             logFile.flush();
-            view.talkToServer("ping " + Thread.currentThread().getId());
+            view.talkToServer("ping " + id);
         }
     }
 
@@ -76,14 +79,14 @@ public class ReadFromServerThread implements Runnable {
                     view.talkToServer(sendQueue.remove());
                 }
 
-                if (view.serverIsTalking()) {
+                if (view.serverConnected() && view.serverIsTalking()) {
                     response = view.listenToServer();
                     logFile.println("Server answered: " + response);
                     logFile.flush();
                     parsedResponse = Parser.parse(response);
                     if (parsedResponse.getFunction() == utils.Parser.PossibleResponses.PONG) {
-                        startTimeoutTimer(view.getDisplayTimeoutValue());
-                        break; // we don't want to add pong to the queue
+                        startTimeoutTimer(view.getDisplayTimeoutValue(), id);
+                        continue; // we don't want to add pong to the queue
                     }
                     receivedQueue.offer(parsedResponse);
                     // if (receivedQueue.peek().getFunction() != parsedResponse.getFunction()) {

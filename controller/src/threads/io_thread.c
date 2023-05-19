@@ -19,39 +19,64 @@ void *thread_timeout(void *parameters) {
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
     int *views_socket_fd = params->views_socket_fd;
     int timeout = params->display_timeout_value;
-    FILE *log = params->log;
+    FILE *log = fopen("log_timeout.log", "w");
 
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
+
+            pthread_mutex_lock(&views_sockets_mutex);
             if (views_socket_fd[num_view] != -1) {
+                pthread_mutex_unlock(&views_sockets_mutex);
                 time_t current_time = time(NULL);
 
                 struct view *view = NULL;
                 while (view == NULL) {
+                    fprintf(log, "View %d is not initialized yet\n", num_view);
+                    pthread_mutex_lock(&aquarium_mutex);
+                    pthread_mutex_lock(&views_sockets_mutex);
                     view = get_view_from_socket(aquarium, views_socket_fd[num_view]);
+                    pthread_mutex_unlock(&views_sockets_mutex);
+                    pthread_mutex_unlock(&aquarium_mutex);
                     usleep(300000);
                 }
 
                 // Disconnects the view when it has been inactive for too long
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
-                    dprintf(views_socket_fd[num_view], "bye\n");
                     fprintf(log, "View %d disconnected\n", num_view);
                     fflush(log);
                     pthread_mutex_lock(&views_sockets_mutex);
+                    dprintf(views_socket_fd[num_view], "bye\n");
                     close(views_socket_fd[num_view]);
                     views_socket_fd[num_view] = -1;
                     view->socket_fd = -1;
                     pthread_mutex_unlock(&views_sockets_mutex);
                     break;
                 }
+                pthread_mutex_lock(&views_sockets_mutex);
             }
+            pthread_mutex_unlock(&views_sockets_mutex);
+
         }
         sleep(1);
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
+
+    for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
+        pthread_mutex_lock(&views_sockets_mutex);
+        if (views_socket_fd[num_view] != -1) {
+            pthread_mutex_unlock(&views_sockets_mutex);
+            dprintf(views_socket_fd[num_view], "bye\n");
+            usleep(100000);
+            close(views_socket_fd[num_view]);
+            views_socket_fd[num_view] = -1;
+            pthread_mutex_lock(&views_sockets_mutex);
+        }
+        pthread_mutex_unlock(&views_sockets_mutex);
+    }
+    fclose(log);
     return NULL;
 }
 
