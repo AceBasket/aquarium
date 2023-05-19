@@ -34,6 +34,9 @@ public class Parser {
     }
 
     public static ParserResult parse(String command) throws ParserException {
+        if (command == null || command.length() == 0) {
+            throw new ParserException("Empty command");
+        }
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = command.split(" at | : |: |:|, |,| \\[|\\] \\[|\\]|x| ");
         if (responseSplit[0].equals("status")) {

@@ -70,6 +70,10 @@ public class View {
         return this.input.ready();
     }
 
+    public int getDisplayTimeoutValue() {
+        return this.displayTimeoutValue;
+    }
+
     public void close() throws IOException {
         this.input.close();
         this.output.close();

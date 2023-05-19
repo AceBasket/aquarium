@@ -13,13 +13,13 @@ public class ServerThread implements Runnable {
     private final ConcurrentLinkedQueue<String> sendQueue;
 
     public ServerThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
-            ConcurrentLinkedQueue<String> sendQueue) {
+            ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.view = view;
         this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         try {
-            logFile = new PrintWriter("log_server_thread.log");
+            logFile = new PrintWriter("log_server_thread" + id + ".log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }
@@ -84,19 +84,12 @@ public class ServerThread implements Runnable {
                         break;
                     case LISTFISHES:
                         ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
-                        listFishesDestinations = false;
+                        // listFishesDestinations = false;
                         break;
                     case BYE:
                         receivedQueue.remove();
-                        ServerThreadHandlers.logOutHandler(logFile, view);
-                        logFile.println("Logging out");
-                        logFile.flush();
-                        break;
-                    case PONG:
-                        logFile.println("Pong received");
-                        logFile.flush();
-                        // reset timeout timer somehow
-                        break;
+                        ServerThreadHandlers.byeHandler(logFile);
+                        return; // end thread
 
                     default:
                         logFile.println("Not a command handled by server thread");
@@ -125,6 +118,10 @@ public class ServerThread implements Runnable {
 
             }
 
+        } catch (InterruptedException e) {
+            logFile.println("Server thread interrupted while sleeping");
+            logFile.flush();
+            Thread.currentThread().interrupt();
         } catch (Exception e) {
             logFile.println("ERROR: " + e.getMessage());
             logFile.flush();

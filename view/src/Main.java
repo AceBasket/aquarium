@@ -6,33 +6,35 @@ import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import threads.*;
+import utils.ParserException;
 import utils.ParserResult;
 
 public class Main {
     PrintWriter logFile;
 
-    public Main() {
+    public Main(long id) {
         try {
-            logFile = new PrintWriter("log_main.log");
+            logFile = new PrintWriter("log_main" + id + ".log");
         } catch (IOException e) {
             System.out.println("Error creating log file for main thread");
         }
     }
 
     public static void main(String[] argv) {
-        Main main = new Main();
+        long id = Thread.currentThread().getId();
+        Main main = new Main(id);
         try {
             // main.logFile.println("Main");
             // main.logFile.flush();
             // View view = new View("192.168.191.78", 8888);
-            View view = new View("0.0.0.0", 8000);
-            // View view = new View(new File("src/affichage.cfg"));
+            // View view = new View("0.0.0.0", 8000);
+            View view = new View(new File("src/affichage.cfg"));
             Aquarium aquarium = new Aquarium();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
             ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
-            Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue);
-            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue);
-            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue);
+            Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue, id);
+            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue, id);
+            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue, id);
             Thread prompt = new Thread(promptThread);
             Thread server = new Thread(serverThread);
             Thread io = new Thread(readFromServerThread);
@@ -58,9 +60,15 @@ public class Main {
                     }
                 }
 
-                if (prompt.isInterrupted()) {
-                    server.interrupt();
+                if (server.isInterrupted()) {
+                    prompt.interrupt();
                     io.interrupt();
+                    server.join();
+                    prompt.join();
+                    io.join();
+                    view.close();
+                    main.logFile.println("Main thread interrupted");
+                    main.logFile.flush();
                     return;
                 }
                 Thread.sleep(500);
@@ -73,6 +81,8 @@ public class Main {
             // TODO: handle exception
             main.logFile.println(e);
             main.logFile.flush();
+        } catch (ParserException e) {
+            System.out.println("ERROR while trying to parse config file: " + e.getMessage());
         }
     }
 }

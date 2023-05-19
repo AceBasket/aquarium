@@ -27,12 +27,6 @@ void init_server(struct init_server_parameters *parameters) {
     struct thread_io_parameters *io_parameters = parameters->io_parameters;
     int *views_sockets_fd = parameters->views_sockets_fd;
 
-    struct thread_accept_parameters *accept_parameters = malloc(sizeof(struct thread_accept_parameters));
-    int *views_sockets_fd = malloc(MAX_VIEWS * sizeof(int));
-    // for (int i = 0; i < MAX_VIEWS; i++) {
-    //     views_sockets_fd[i] = -1;
-    // }
-
     FILE *fd = fopen("src/controller.cfg", "r");
     exit_if(fd == NULL, "ERROR on opening file\n");
     struct parse *parsed_file = parse_file(fd);
@@ -74,6 +68,6 @@ void init_server(struct init_server_parameters *parameters) {
     prompt_parameters->log = parameters->prompt_log;
 
     exit_if(pthread_create(tid_accept, NULL, thread_accept, accept_parameters) < 0, "ERROR on thread creation");
-    exit_if(pthread_create(tid_prompt, NULL, thread_prompt, NULL) < 0, "ERROR on thread creation");
+    exit_if(pthread_create(tid_prompt, NULL, thread_prompt, prompt_parameters) < 0, "ERROR on thread creation");
 
 }

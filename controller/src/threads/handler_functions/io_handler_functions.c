@@ -146,7 +146,7 @@ void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aqu
         return;
     }
     struct view *view = get_view_from_socket(aquarium, *socket_fd);
-    dprintf(*socket_fd, "Bye\n");
+    dprintf(*socket_fd, "bye\n");
     close(*socket_fd);
     view->socket_fd = -1;
     *socket_fd = -1;

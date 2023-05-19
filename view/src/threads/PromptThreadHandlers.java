@@ -95,4 +95,10 @@ public class PromptThreadHandlers {
             }
         }
     }
+
+    public static String doLogOut(PrintWriter logFile) {
+        logFile.println("Logging out");
+        logFile.flush();
+        return new String("log out");
+    }
 }

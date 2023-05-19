@@ -19,14 +19,14 @@ public class PromptThread implements Runnable {
     private PrintWriter logFile;
 
     public PromptThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
-            ConcurrentLinkedQueue<String> sendQueue) {
+            ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.view = view;
         this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         this.commandQueue = new LinkedList<String>();
         try {
-            logFile = new PrintWriter("log_prompt_thread.log");
+            logFile = new PrintWriter("log_prompt_thread" + id + ".log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }
@@ -43,11 +43,19 @@ public class PromptThread implements Runnable {
 
         ParserResult parsedCommand;
         while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                logFile.println("Prompt thread interrupted");
+                logFile.flush();
+                Thread.currentThread().interrupt();
+                return;
+            }
+
             if (responseReceived) {
                 command = System.console().readLine(); // get user prompt
                 if (command == null) {
-                    Thread.currentThread().interrupt();
-                    return;
+                    sendQueue.offer(PromptThreadHandlers.doLogOut(logFile));
+                    responseReceived = false;
+                    continue;
                 }
                 try {
                     parsedCommand = Parser.parse(command);
@@ -91,7 +99,12 @@ public class PromptThread implements Runnable {
                         break;
                 }
 
-            } catch (NoSuchElementException | InvalidParameterException | InterruptedException e) {
+            } catch (InterruptedException e) {
+                logFile.println("Prompt thread interrupted");
+                logFile.flush();
+                Thread.currentThread().interrupt();
+                return;
+            } catch (NoSuchElementException | InvalidParameterException e) {
                 // if (e.getMessage().equals("null")) {
                 // System.out.println(e);
                 // }
