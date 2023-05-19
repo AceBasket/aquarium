@@ -18,14 +18,14 @@ public class PromptThread implements Runnable {
     private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
 
-    public PromptThread(View view, ConcurrentLinkedQueue<ParserResult> receivedQueue,
-            ConcurrentLinkedQueue<String> sendQueue) {
+    public PromptThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+            ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.view = view;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         this.commandQueue = new LinkedList<String>();
         try {
-            logFile = new PrintWriter("log_prompt_thread.log");
+            logFile = new PrintWriter("log_prompt_thread" + id + ".log");
         } catch (IOException e) {
             System.out.println("Error creating log file");
         }
@@ -42,11 +42,23 @@ public class PromptThread implements Runnable {
 
         ParserResult parsedCommand;
         while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                logFile.println("Prompt thread interrupted");
+                logFile.flush();
+                Thread.currentThread().interrupt();
+                return;
+            }
+
             if (responseReceived) {
+                logFile.println("Waiting for user prompt");
+                logFile.flush();
                 command = System.console().readLine(); // get user prompt
                 if (command == null) {
+                    sendQueue.offer(PromptThreadHandlers.doLogOut(logFile));
                     Thread.currentThread().interrupt();
-                    return;
+                    logFile.println("Interrupting prompt thread after Ctrl+D");
+                    responseReceived = false;
+                    continue;
                 }
                 try {
                     parsedCommand = Parser.parse(command);
@@ -90,7 +102,12 @@ public class PromptThread implements Runnable {
                         break;
                 }
 
-            } catch (NoSuchElementException | InvalidParameterException | InterruptedException e) {
+            } catch (InterruptedException e) {
+                logFile.println("Prompt thread interrupted");
+                logFile.flush();
+                Thread.currentThread().interrupt();
+                return;
+            } catch (NoSuchElementException | InvalidParameterException e) {
                 // if (e.getMessage().equals("null")) {
                 // System.out.println(e);
                 // }

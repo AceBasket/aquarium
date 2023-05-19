@@ -14,6 +14,7 @@ void *get_fishes_continuously(void *parameters) {
 
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
     FILE *log = fopen("log_handle_fishes_continuously.log", "w");
+    exit_if(log == NULL, "fopen failed");
     fprintf(log, "===== get_fishes_continuously() =====\n");
     fflush(log);
 
