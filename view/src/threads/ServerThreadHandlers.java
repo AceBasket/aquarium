@@ -52,6 +52,9 @@ public class ServerThreadHandlers {
                 fishesList.addFish(fish_to_create);
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " created");
                 logFile.flush();
+                fish_to_create.start();
+                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " started");
+                logFile.flush();
             }
         }
     }

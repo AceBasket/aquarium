@@ -1,8 +1,10 @@
+package visuals;
 
 // Aquarium.java
 // A JavaFX application that displays an aquarium with fishes
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -12,7 +14,6 @@ import java.util.ArrayList;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
-import visuals.FishImage;
 
 public class AquariumFX extends Application {
     // The width and height of the aquarium window
@@ -22,10 +23,36 @@ public class AquariumFX extends Application {
     private ArrayList<FishImage> fishesNotInAquarium = new ArrayList<FishImage>();
     private Aquarium aquarium = Aquarium.getInstance();
 
+    private Stage primaryStage;
+    private AnimationTimer timer;
+    private Pane pane;
+
+    public void stopAquariumFX() {
+        // if (primaryStage != null) {
+        // System.out.println("Ending JavaFX");
+        // Platform.runLater(() -> primaryStage.close());
+        // }
+        if (timer != null) {
+            timer.stop();
+            Platform.runLater(() -> {
+                Stage stage = (Stage) pane.getScene().getWindow();
+                stage.close();
+            });
+        }
+        Platform.exit();
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+        // Set the primary stage reference
+        this.primaryStage = primaryStage;
+
         // Create a pane to hold the aquarium elements
-        Pane pane = new Pane();
+        pane = new Pane();
         System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
         // Set the background image using CSS
@@ -50,19 +77,9 @@ public class AquariumFX extends Application {
             fishesInAquarium.add(fishImage);
         }
 
-        while (aquarium.getFishes().isEmpty()) {
-            System.out.println("Waiting for fishes");
-            Thread.sleep(1000);
-        }
-        /* TODO change condition */
-        while (!aquarium.getFishes().get(0).isStarted()) {
-            System.out.println("Waiting for one fish to start");
-            Thread.sleep(1000);
-        }
-
         // Create an animation timer that updates the position and direction of each
         // fish every frame
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
