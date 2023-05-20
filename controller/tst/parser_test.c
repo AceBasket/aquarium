@@ -21,7 +21,7 @@ void test_status() {
 void test_addFish() {
     struct parse *result = parse_clients("addFish PoissonNain at 61x52, 4x3, RandomPathway");
     assert(result->size == 6);
-    assert(result->func_name == ADDFISH);
+    assert(result->func_name == ADD_FISH);
     int i = 0;
     assert(!strcmp(result->arguments[i], "PoissonNain"));
     i++;
@@ -67,7 +67,7 @@ void test_addFish() {
 void test_delFish() {
     struct parse *result1 = parse_clients("delFish fishName");
     assert(result1->size == 1);
-    assert(result1->func_name == DELFISH);
+    assert(result1->func_name == DEL_FISH);
     int i = 0;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
@@ -92,7 +92,7 @@ void test_delFish() {
 void test_startFish() {
     struct parse *result1 = parse_clients("startFish fishName");
     assert(result1->size == 1);
-    assert(result1->func_name == STARTFISH);
+    assert(result1->func_name == START_FISH);
     int i = 0;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
@@ -150,7 +150,7 @@ void test_hello() {
 void test_get_fishes() {
     struct parse *result1 = parse_clients("getFishes");
     assert(result1->size == 0);
-    assert(result1->func_name == GETFISHES);
+    assert(result1->func_name == GET_FISHES);
 
     struct parse *result2 = parse_clients("getFishes random");
     // assert(result2 == NULL);
@@ -183,7 +183,7 @@ void test_ls() {
 void test_getFishesContinuously() {
     struct parse *result1 = parse_clients("getFishesContinuously");
     assert(result1->size == 0);
-    assert(result1->func_name == GFCONTINUOUSLY);
+    assert(result1->func_name == GET_FISHES_CONTINUOUSLY);
 
     struct parse *result2 = parse_clients("getFishesContinuouslyy");
     // assert(result2 == NULL);

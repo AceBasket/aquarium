@@ -201,13 +201,13 @@ void *thread_io(void *parameters) {
                     hello_handler(log, parser, views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                case GETFISHES:
+                case GET_FISHES:
                     fprintf(log, "Get fishes from view %d\n", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
                     get_fishes_handler(log, parser, views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                case GFCONTINUOUSLY:
+                case GET_FISHES_CONTINUOUSLY:
                     fprintf(log, "Get fishes continuously from view %d\n", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
                     get_fishes_continuously_handler(log, parser, views_socket_fd[num_view], &handle_fishes_continuously_thread);
@@ -225,19 +225,19 @@ void *thread_io(void *parameters) {
                     ping_handler(log, parser, views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                case ADDFISH:
+                case ADD_FISH:
                     fprintf(log, "Add fish from view %d\n", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
                     add_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                case DELFISH:
+                case DEL_FISH:
                     fprintf(log, "Delete fish from view %d\n", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
                     del_fish_handler(log, parser, views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                case STARTFISH:
+                case START_FISH:
                     fprintf(log, "Start fish (%s) from view %d\n", parser->arguments[0], num_view);
                     pthread_mutex_lock(&aquarium_mutex);
                     start_fish_handler(log, parser, views_socket_fd[num_view], aquarium);

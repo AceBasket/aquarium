@@ -27,9 +27,9 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //addFish
-    else if (strcmp(command, "addFish") == 0) {
-        p->func_name = ADDFISH;
+    //ADD_FISH
+    else if (strcmp(command, "ADD_FISH") == 0) {
+        p->func_name = ADD_FISH;
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
             too_few_arguments(p, "addFish <nameFish> at <number>x<number>, <number>x<number>, <pathwayModel>>");
@@ -117,7 +117,7 @@ struct parse *parse_clients(char *str) {
     }
     //delFish
     else if (strcmp(command, "delFish") == 0) {
-        p->func_name = DELFISH;
+        p->func_name = DEL_FISH;
         char *arg = strtok(NULL, " ");
         if (arg == NULL) {
             too_few_arguments(p, "delFish <nameFish>");
@@ -135,7 +135,7 @@ struct parse *parse_clients(char *str) {
     }
     //startFish
     else if (strcmp(command, "startFish") == 0) {
-        p->func_name = STARTFISH;
+        p->func_name = START_FISH;
 
         char *arg = strtok(NULL, " ");
         if (arg == NULL) {
@@ -190,7 +190,7 @@ struct parse *parse_clients(char *str) {
     }
     //getFishes
     else if (strcmp(command, "getFishes") == 0) {
-        p->func_name = GETFISHES;
+        p->func_name = GET_FISHES;
         if (strtok(NULL, " ") != NULL) {
             too_much_arguments(p, "getFishes");
             return p;
@@ -208,7 +208,7 @@ struct parse *parse_clients(char *str) {
     }
     //getFishesContinuously
     else if (strcmp(command, "getFishesContinuously") == 0) {
-        p->func_name = GFCONTINUOUSLY;
+        p->func_name = GET_FISHES_CONTINUOUSLY;
         if (strtok(NULL, " ") != NULL) {
             too_much_arguments(p, "getFishesContinuously");
             return p;
