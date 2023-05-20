@@ -102,6 +102,12 @@ public class FishImage {
         double duration = fishData.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond();
 
         /*
+         * We are going to display movement to next destination, main thread can remove
+         * the destination
+         */
+        fishData.setDisplayed();
+
+        /*
          * Set visible if the fish's trajectory crosses the screen and doesn't follow
          * one side
          */

@@ -6,6 +6,7 @@ import java.util.LinkedList;
 class FishDestination {
     private final Coordinates destination;
     private final long deadline;
+    private boolean displayed = false;
 
     public FishDestination(int destinationX, int destinationY, int movementDuration) {
         this.destination = new Coordinates(destinationX, destinationY);
@@ -18,6 +19,14 @@ class FishDestination {
 
     public long getDeadline() {
         return deadline;
+    }
+
+    public boolean isDisplayed() {
+        return displayed;
+    }
+
+    public void setDisplayed() {
+        this.displayed = true;
     }
 
     @Override
@@ -97,7 +106,8 @@ public class Fish {
 
     public synchronized void removeExpiredDestinations() {
         while (!destinations.isEmpty()
-                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
+                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()
+                && destinations.getFirst().isDisplayed()) {
             destinations.removeFirst();
         }
     }
@@ -105,6 +115,10 @@ public class Fish {
     public synchronized int getSizeDestinations() {
         /* Only counts STARTED fishes */
         return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
+    }
+
+    public synchronized void setDisplayed() {
+        destinations.getFirst().setDisplayed();
     }
 
     public void start() {

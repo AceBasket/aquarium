@@ -264,6 +264,7 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
     new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
+    new_destination->is_sent = NOK;
     time_t time_at_destination_previous_destination = time(NULL);
     if (!STAILQ_EMPTY(&fish->destinations_queue)) {
         struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
@@ -336,6 +337,7 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
         new_destination->destination_coordinates.x = intersections[i].x;
         new_destination->destination_coordinates.y = intersections[i].y;
         new_destination->time_at_destination = origin->time_at_destination + (time_t)((distance(new_destination->destination_coordinates, origin->destination_coordinates)) / fish->speed);
+        new_destination->is_sent = NOK;
         STAILQ_INSERT_AFTER(&fish->destinations_queue, origin, new_destination, next);
         origin = new_destination; // update origin
     }
@@ -440,11 +442,25 @@ int update_fish_coordinates(struct fish *fish) {
     return OK;
 }
 
-int remove_finished_movements(struct fish *fish) {
+int coordinates_in_view_not_connected(struct aquarium *aquarium, struct coordinates coordinates) {
+    struct view **views = get_views_from_coordinates(aquarium, coordinates);
+    int len_views;
+    for (len_views = 0; views[len_views] != NULL; len_views++) {
+    }
+    if (len_views >= 1) {
+        return OK;
+    }
+    return NOK;
+}
+
+int remove_finished_movements(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
 
     while (current_destination != NULL) {
         if (current_destination->time_at_destination <= time(NULL)) {
+            printf("Should remove %dx%d at %ld: is sent ? %s\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination, current_destination->is_sent == OK ? "OK" : "NOK");
+        }
+        if (current_destination->time_at_destination <= time(NULL) && (current_destination->is_sent == OK || coordinates_in_view_not_connected(aquarium, current_destination->destination_coordinates) == OK)) {
             if (update_fish_coordinates(fish) == NOK) {
                 return NOK;
             };

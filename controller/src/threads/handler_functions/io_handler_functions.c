@@ -42,7 +42,7 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
             destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
         }
         if (destination == NULL) {
-            dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 0);
+            dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 2);
             iter++;
             continue;
         }

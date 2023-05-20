@@ -93,7 +93,7 @@ public class ServerThread implements Runnable {
                     default:
                         logFile.println(response.getFunction() + ": Not a command handled by server thread");
                         logFile.flush();
-                        Thread.sleep(500); // sleep 1 second and try again
+                        Thread.sleep(300); // sleep 0.3 second and try again
                         break;
                 }
 
@@ -113,7 +113,7 @@ public class ServerThread implements Runnable {
                 // }
                 // }
                 // }
-                Thread.sleep(200); // 200ms = 0.2s
+                // Thread.sleep(200); // 200ms = 0.2s
 
             }
 

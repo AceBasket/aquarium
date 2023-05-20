@@ -42,14 +42,19 @@ void *get_fishes_continuously(void *parameters) {
             fflush(log);
             pthread_mutex_lock(&aquarium_mutex);
         } else {
+            /* Checking that we can initialize our search for the minimum time at destination */
             if (STAILQ_EMPTY(&fishes_in_view[0]->destinations_queue)) {
                 pthread_mutex_unlock(&aquarium_mutex);
                 fprintf(log, "Error: no destinations in queue\n");
                 fflush(log);
                 pthread_mutex_lock(&aquarium_mutex);
             } else {
+                /* Finding the minimum time at destination */
                 minimum_time_to_destination = STAILQ_FIRST(&fishes_in_view[0]->destinations_queue)->time_at_destination;
-                int iter = 1;
+
+                int iter = 0;
+                fprintf(log, "Fishes in view:\n");
+                fflush(log);
                 while (fishes_in_view[iter] != NULL) {
                     struct fish_destination *destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
                     if (destination == NULL) {
@@ -59,12 +64,21 @@ void *get_fishes_continuously(void *parameters) {
                     if (destination->time_at_destination < minimum_time_to_destination) {
                         minimum_time_to_destination = destination->time_at_destination;
                     }
+                    fprintf(log, "Fish %s:\n", fishes_in_view[iter]->name);
+                    fflush(log);
+                    debug_destinations_queue(log, fishes_in_view[iter]);
+
+                    /* Mark destination as sent (we will send them in next instruction) */
+                    // get fish from name
+                    // get first destination
+                    // mark as sent
+                    STAILQ_FIRST(&get_fish_from_name(aquarium, fishes_in_view[iter]->name)->destinations_queue)->is_sent = OK;
+                    printf("Marked destination to %dx%d by %ld as sent\n", destination->destination_coordinates.x, destination->destination_coordinates.y, destination->time_at_destination);
                     iter++;
+
                 }
-                fprintf(log, "Fish %s:\n", fishes_in_view[0]->name);
-                debug_destinations_queue(log, fishes_in_view[0]);
                 print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0); // 0 = first desination
-                // print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1); // 1 = second destination
+
 
 
             }
@@ -76,7 +90,7 @@ void *get_fishes_continuously(void *parameters) {
         pthread_mutex_unlock(&aquarium_mutex);
         if (minimum_time_to_destination > time(NULL)) {
             sleep(minimum_time_to_destination - time(NULL));
-        } else {
+        } else { // in case there is no fish in the view
             sleep(1);
         }
         pthread_mutex_lock(&terminate_threads_mutex);

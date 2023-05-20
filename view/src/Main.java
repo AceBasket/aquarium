@@ -112,9 +112,6 @@ public class Main {
                 Thread.sleep(500);
             }
 
-            // io.join();
-            // server.join();
-            // prompt.join();
         } catch (IOException | InterruptedException e) {
             main.logFile.println(e);
             main.logFile.flush();

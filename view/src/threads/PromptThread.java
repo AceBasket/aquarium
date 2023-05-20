@@ -80,7 +80,7 @@ public class PromptThread implements Runnable {
                 while (response == null) {
                     logFile.println("Nothing to handle");
                     logFile.flush();
-                    Thread.sleep(500); // sleep 0.1 second and try again
+                    Thread.sleep(300); // sleep 0.3 second and try again
                     response = receivedQueue.peek();
                 }
                 switch (response.getFunction()) {

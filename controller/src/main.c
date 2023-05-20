@@ -102,7 +102,7 @@ int main(int argc, char const *argv[]) {
         fishes = aquarium->fishes;
         current_fish = fishes;
         while (current_fish != NULL && current_fish->status == STARTED) {
-            remove_finished_movements(current_fish);
+            remove_finished_movements(aquarium, current_fish);
             if (len_movements_queue(current_fish) < 10) {
                 int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
