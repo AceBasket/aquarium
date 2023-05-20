@@ -126,6 +126,7 @@ public class FishImage {
             return;
         }
 
+        logFile.println(Instant.now());
         logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
                 + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
         logFile.flush();

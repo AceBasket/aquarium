@@ -64,7 +64,7 @@ void *get_fishes_continuously(void *parameters) {
                 fprintf(log, "Fish %s:\n", fishes_in_view[0]->name);
                 debug_destinations_queue(log, fishes_in_view[0]);
                 print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0); // 0 = first desination
-                print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1); // 1 = second destination
+                // print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1); // 1 = second destination
 
 
             }
