@@ -28,7 +28,7 @@ public class CommandTest {
         String start = "startFish PoissonNain";
         ParserResult result = Parser.parse(start);
         ArrayList<String> arguments = result.getArgs();
-        assert Parser.PossibleResponses.STARTFISH == result.getFunction()
+        assert Parser.PossibleResponses.START_FISH == result.getFunction()
                 : "testStartFish PoissonNain : fonction a échoué";
         assert arguments.size() == 1 : "testStartFish PoissonNain : args size a échoué";
         assert arguments.contains("PoissonNain") && arguments.indexOf("PoissonNain") == 0
@@ -37,7 +37,7 @@ public class CommandTest {
         start = "startFish PoissonRouge PoissonNain";
         result = Parser.parse(start);
         arguments = result.getArgs();
-        assert Parser.PossibleResponses.STARTFISH == result.getFunction()
+        assert Parser.PossibleResponses.START_FISH == result.getFunction()
                 : "testStartFish PoissonRouge PoissonNain : fonction a échoué";
         assert arguments.size() == 2 : "testStartFish PoissonRouge PoissonNain : args size a échoué";
         assert arguments.contains("PoissonRouge") && arguments.indexOf("PoissonRouge") == 0
@@ -79,7 +79,7 @@ public class CommandTest {
         String del = "delFish PoissonNain";
         ParserResult result = Parser.parse(del);
         ArrayList<String> arguments = result.getArgs();
-        assert Parser.PossibleResponses.DELFISH == result.getFunction() : "testDelFish PoissonNain : fonction a échoué";
+        assert Parser.PossibleResponses.DEL_FISH == result.getFunction() : "testDelFish PoissonNain : fonction a échoué";
         assert arguments.size() == 1 : "testDelFish PoissonNain : args size a échoué";
         assert arguments.contains("PoissonNain") && arguments.indexOf("PoissonNain") == 0
                 : "testDelFish PoissonNain : argument a échoué";
@@ -87,7 +87,7 @@ public class CommandTest {
         del = "delFish PoissonRouge PoissonNain";
         result = Parser.parse(del);
         arguments = result.getArgs();
-        assert Parser.PossibleResponses.DELFISH == result.getFunction()
+        assert Parser.PossibleResponses.DEL_FISH == result.getFunction()
                 : "testDelFish PoissonRouge PoissonNain : fonction a échoué";
         assert arguments.size() == 2 : "testDelFish PoissonRouge PoissonNain : args size a échoué";
         assert arguments.contains("PoissonRouge") && arguments.indexOf("PoissonRouge") == 0
@@ -128,7 +128,7 @@ public class CommandTest {
         String add = "addFish PoissonNain at 61x52, 4x3, RandomWayPoint";
         ParserResult result = Parser.parse(add);
         ArrayList<String> arguments = result.getArgs();
-        assert Parser.PossibleResponses.ADDFISH == result.getFunction()
+        assert Parser.PossibleResponses.ADD_FISH == result.getFunction()
                 : "testAddFish PoissonNain at 61x52, 4x3, RandomWayPoint : fonction a échoué";
         assert arguments.size() == 6 : "testStartFish PoissonNain : args size a échoué";
         assert arguments.contains("PoissonNain") && arguments.indexOf("PoissonNain") == 0

@@ -76,12 +76,12 @@ public class ServerThread implements Runnable {
                         logFile.println("Sent getFishesContinuously");
                         logFile.flush();
                         break;
-                    case NOGREETING:
+                    case NO_GREETING:
                         logFile.println("Server is full");
                         logFile.flush();
                         // BREAK CONNECTION SOMEHOW
                         break;
-                    case LISTFISHES:
+                    case LIST_FISHES:
                         ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
                         // listFishesDestinations = false;
                         break;
