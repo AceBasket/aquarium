@@ -57,6 +57,7 @@ public class Main {
                 main.logFile.flush();
                 fxThread = new Thread(() -> {
                     AquariumFX.setAquarium(aquarium);
+                    AquariumFX.setId(id);
                     AquariumFX.launch(AquariumFX.class, argv);
                     // try {
                     // } catch (Exception e) {

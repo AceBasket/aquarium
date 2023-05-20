@@ -83,22 +83,24 @@ public class PromptThread implements Runnable {
                     Thread.sleep(500); // sleep 0.1 second and try again
                     response = receivedQueue.peek();
                 }
-                responseReceived = true;
                 switch (response.getFunction()) {
                     case OK:
                         PromptThreadHandlers.handleOK(logFile, commandQueue.removeFirst(), fishesList);
                         receivedQueue.remove();
                         System.out.println("OK");
+                        responseReceived = true;
                         break;
                     case NOK:
                         PromptThreadHandlers.handleNOK(logFile, commandQueue.removeFirst());
                         receivedQueue.remove();
                         System.out.println("NOK");
+                        responseReceived = true;
                         break;
 
                     default:
                         logFile.println(response.getFunction() + ": Not a command handled by prompt thread");
                         logFile.flush();
+                        Thread.sleep(300);
                         break;
                 }
 

@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
+import java.io.PrintWriter;
+
 import aquarium.Aquarium;
 import aquarium.Fish;
 
@@ -27,10 +29,20 @@ public class AquariumFX extends Application {
     // ArrayList<FishImage>();
     private static Object lock = new Object();
     private static Aquarium aquarium;
+    private PrintWriter logFile;
+    private static long id;
 
     private Stage primaryStage;
     private AnimationTimer timer;
     private static Pane pane;
+
+    public AquariumFX() {
+        try {
+            logFile = new PrintWriter("log_fx.log");
+        } catch (Exception e) {
+            System.out.println("Error creating log file for main thread");
+        }
+    }
 
     // Get the singleton instance
     public static synchronized ObservableList<FishImage> getListFishImages() {
@@ -64,6 +76,10 @@ public class AquariumFX extends Application {
         return aquarium;
     }
 
+    public static void setId(long id) {
+        AquariumFX.id = id;
+    }
+
     public static void setAquarium(Aquarium aquarium) {
         synchronized (lock) {
             AquariumFX.aquarium = aquarium;
@@ -77,7 +93,7 @@ public class AquariumFX extends Application {
     }
 
     public static void addFishImage(Fish fish) {
-        FishImage fishImage = new FishImage("img/fish1.png", fish, width, height);
+        FishImage fishImage = new FishImage("img/fish1.png", fish, width, height, id);
         fishImage.getImageView().getStyleClass().add("fish-image");
         getListFishImages().add(fishImage);
         Platform.runLater(() -> {
@@ -96,7 +112,6 @@ public class AquariumFX extends Application {
         // Create a pane to hold the aquarium elements
         pane = new Pane();
         pane.setPrefSize(width, height); // Set preferred size
-        System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
         // Set the background image using CSS
         String backgroundImageUrl = getClass().getResource("/img/ocean.jpeg").toExternalForm();

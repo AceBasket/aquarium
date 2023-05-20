@@ -57,8 +57,8 @@ public class Aquarium {
         return fishesList;
     }
 
-    public synchronized void setFishDestination(Fish fish, int destinationX, int destinationY, int movementDuration) {
-        fish.addNewDestination(destinationX, destinationY, movementDuration);
+    public synchronized void setFishDestination(Fish fish, int destinationX, int destinationY, int deadline) {
+        fish.addNewDestination(destinationX, destinationY, deadline);
     }
 
     public synchronized void setFishPosition(Fish fish, int positionX, int positionY) {

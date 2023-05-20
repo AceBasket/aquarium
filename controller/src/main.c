@@ -103,7 +103,7 @@ int main(int argc, char const *argv[]) {
         current_fish = fishes;
         while (current_fish != NULL && current_fish->status == STARTED) {
             remove_finished_movements(current_fish);
-            if (len_movements_queue(current_fish) < 5) {
+            if (len_movements_queue(current_fish) < 10) {
                 int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
                 fprintf(log, "fish %s is at %dx%d and it is %ld\n", current_fish->name, current_fish->top_left.x, current_fish->top_left.y, time(NULL));

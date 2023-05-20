@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,9 +29,11 @@ public class FishImage {
     private Fish fishData;
     private boolean isMoving = false;
 
+    private PrintWriter logFile;
+
     // A constructor that takes the image file name, the initial position, the
     // speed, the direction and the aquarium size
-    public FishImage(String fileName, Fish fishData, double aquariumWidth, double aquariumHeight) {
+    public FishImage(String fileName, Fish fishData, double aquariumWidth, double aquariumHeight, long id) {
         try {
 
             // Load the image from the file
@@ -40,6 +43,22 @@ public class FishImage {
             // Set the image view dimensions to match the image dimensions
             imageView.setFitWidth(percentagesToPixel(fishData.getWidth(), aquariumWidth));
             imageView.setFitHeight(percentagesToPixel(fishData.getHeight(), aquariumHeight));
+
+            // Set the image view to preserve the image ratio
+            imageView.setPreserveRatio(true);
+
+            // Set the image view to be visible
+            imageView.setVisible(true);
+
+            // Set the image view to be always on top of other nodes
+            imageView.toFront();
+
+            // Initialize the log file
+            try {
+                logFile = new PrintWriter("log_image_" + fishData.getName() + id + ".log");
+            } catch (Exception e) {
+                System.out.println("Error creating log file for fish image " + fishData.getName());
+            }
         } catch (Exception e) {
             System.out.println("Error loading image. Current working directory: " + System.getProperty("user.dir"));
             System.out.println("Trying to access: " + System.getProperty("user.dir") + "/" + fileName);
@@ -71,7 +90,6 @@ public class FishImage {
     public void move(double width, double height) {
 
         if (fishData.getSizeDestinations() <= 0) {
-            System.out.println("Fish " + fishData.getName() + " has no destinations");
             return;
         }
 
@@ -88,8 +106,16 @@ public class FishImage {
          * one side
          */
         if (startX <= 0 && endX > 0 || startX > 0 && endX <= 0) {
-            System.out.println("Fish " + fishData.getName() + " is visible");
+            logFile.println("Fish " + fishData.getName() + " is visible");
+            logFile.flush();
             imageView.setVisible(true);
+        }
+
+        /* If fish's trajectory follows along one side, hide the fish */
+        if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0) {
+            logFile.println("Fish " + fishData.getName() + " is hidden");
+            logFile.flush();
+            imageView.setVisible(false);
         }
 
         if (duration <= 0) {
@@ -100,9 +126,9 @@ public class FishImage {
             return;
         }
 
-        System.out.println(
-                fishData.getPosition().toString() + " --> " + fishData.getFirstDestination().toString() + " in "
-                        + duration + " seconds");
+        logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
+                + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
+        logFile.flush();
         // Create a timeline animation
         Timeline timeline = new Timeline();
 
@@ -121,16 +147,18 @@ public class FishImage {
             // pixelToPercentages(endY, height));
             fishData.setPosition((int) pixelToPercentages(imageView.getX(), width),
                     (int) pixelToPercentages(imageView.getY(), height));
-            System.out.println("Fish " + fishData.getName() + " is now at " + (int) imageView.getX() + "x"
+            logFile.println("Fish " + fishData.getName() + " is now at " + (int) imageView.getX() + "x"
                     + (int) imageView.getY());
-            // System.out.println("pane size = " + (int) width + "x" + (int) height);
+            logFile.flush();
+            // logFile.println("pane size = " + (int) width + "x" + (int) height);
             imageView.setX(endX);
             imageView.setY(endY);
 
             isMoving = false;
 
             if (endX <= 0 || endY <= 0) {
-                System.out.println("Fish " + fishData.getName() + " is now hidden");
+                logFile.println("Fish " + fishData.getName() + " is now hidden");
+                logFile.flush();
                 imageView.setVisible(false);
             }
         };
