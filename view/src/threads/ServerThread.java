@@ -91,7 +91,7 @@ public class ServerThread implements Runnable {
                         return; // end thread
 
                     default:
-                        logFile.println("Not a command handled by server thread");
+                        logFile.println(response.getFunction() + ": Not a command handled by server thread");
                         logFile.flush();
                         Thread.sleep(500); // sleep 1 second and try again
                         break;

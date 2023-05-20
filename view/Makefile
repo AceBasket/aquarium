@@ -21,10 +21,12 @@ FX_CLASSES = ${FX:src/%.java=build/%.class}
 default: dir source
 
 dir:
-	mkdir -p build build/aquarium build/threads build/utils build/img
+	mkdir -p build build/aquarium build/threads build/utils build/img build/visuals
 
 source: ${CLASSES} ${FX_CLASSES}
 	cp -r img/* build/img/
+	cp src/visuals/styles.css build/visuals/styles.css
+	# rm *.log
 	${J} ${FXFLAGS} ${JFLAGS} Main
 
 visual: ${FX_CLASSES}
@@ -47,4 +49,4 @@ ${FX_CLASSES}: build/%.class: src/%.java
 
 
 clean:
-	${RM} build/aquarium/* build/threads/* build/utils/* *.log build/*.*
+	${RM} build/aquarium/* build/threads/* build/utils/* *.log build/*.* build/visuals/* build/img/*

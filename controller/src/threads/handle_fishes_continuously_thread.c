@@ -13,13 +13,19 @@ void *get_fishes_continuously(void *parameters) {
     signal(SIGPIPE, sigpipe_handler);
 
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
-    FILE *log = fopen("log_handle_fishes_continuously.log", "w");
+    int file_name_len = strlen("log_handle_fishes_continuously.log") + 1 + 1;
+    char file_name[40] = {};
+    strcpy(file_name, "log_handle_fishes_continuously.log");
+    file_name[file_name_len - 2] = '0' + socket_fd;
+    file_name[file_name_len - 1] = '\0';
+    FILE *log = fopen(file_name, "w");
     exit_if(log == NULL, "fopen failed");
     fprintf(log, "===== get_fishes_continuously() =====\n");
     fflush(log);
 
     pthread_mutex_lock(&aquarium_mutex);
     struct view *view = get_view_from_socket(aquarium, socket_fd);
+    fprintf(log, "View: %s\n", view->name);
     pthread_mutex_unlock(&aquarium_mutex);
     struct fish **fishes_in_view;
     time_t minimum_time_to_destination = 0;
@@ -55,6 +61,7 @@ void *get_fishes_continuously(void *parameters) {
                     }
                     iter++;
                 }
+                fprintf(log, "Fish %s:\n", fishes_in_view[0]->name);
                 debug_destinations_queue(log, fishes_in_view[0]);
                 print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0); // 0 = false
 

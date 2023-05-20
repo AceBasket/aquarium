@@ -97,7 +97,7 @@ public class PromptThread implements Runnable {
                         break;
 
                     default:
-                        logFile.println("Not a command handled by prompt thread");
+                        logFile.println(response.getFunction() + ": Not a command handled by prompt thread");
                         logFile.flush();
                         break;
                 }

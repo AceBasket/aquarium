@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 import java.time.Instant;
+import java.util.List;
 
 import aquarium.Coordinates;
 import aquarium.Fish;
@@ -58,11 +59,11 @@ public class FishImage {
         return isMoving;
     }
 
-    private double pixelToPercentages(double pixel, double aquariumSize) {
+    double pixelToPercentages(double pixel, double aquariumSize) {
         return pixel / aquariumSize * 100;
     }
 
-    private double percentagesToPixel(double percentage, double aquariumSize) {
+    double percentagesToPixel(double percentage, double aquariumSize) {
         return percentage / 100 * aquariumSize;
     }
 
@@ -70,6 +71,7 @@ public class FishImage {
     public void move(double width, double height) {
 
         if (fishData.getSizeDestinations() <= 0) {
+            System.out.println("Fish " + fishData.getName() + " has no destinations");
             return;
         }
 
@@ -81,6 +83,15 @@ public class FishImage {
         double endY = percentagesToPixel(fishData.getFirstDestination().getY(), height);
         double duration = fishData.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond();
 
+        /*
+         * Set visible if the fish's trajectory crosses the screen and doesn't follow
+         * one side
+         */
+        if (startX <= 0 && endX > 0 || startX > 0 && endX <= 0) {
+            System.out.println("Fish " + fishData.getName() + " is visible");
+            imageView.setVisible(true);
+        }
+
         if (duration <= 0) {
             imageView.setX(endX);
             imageView.setY(endY);
@@ -89,10 +100,9 @@ public class FishImage {
             return;
         }
 
-        System.out.println("window size = " + width + ", " + height);
-        System.out.println("Going from " + startX + ", " + startY + " to " + endX +
-                ", " + endY + " in " + duration
-                + " seconds");
+        System.out.println(
+                fishData.getPosition().toString() + " --> " + fishData.getFirstDestination().toString() + " in "
+                        + duration + " seconds");
         // Create a timeline animation
         Timeline timeline = new Timeline();
 
@@ -107,11 +117,22 @@ public class FishImage {
         // Set an event handler to be called when the animation finishes
         EventHandler<ActionEvent> onAnimationFinished = e -> {
             // Update the fish coordinates to the destination coordinates
-            fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
-            System.out.println("Fish " + fishData.getName() + " is now at " + fishData.getPosition().toString());
+            // fishData.setPosition((int) pixelToPercentages(endX, width), (int)
+            // pixelToPercentages(endY, height));
+            fishData.setPosition((int) pixelToPercentages(imageView.getX(), width),
+                    (int) pixelToPercentages(imageView.getY(), height));
+            System.out.println("Fish " + fishData.getName() + " is now at " + (int) imageView.getX() + "x"
+                    + (int) imageView.getY());
+            // System.out.println("pane size = " + (int) width + "x" + (int) height);
             imageView.setX(endX);
             imageView.setY(endY);
+
             isMoving = false;
+
+            if (endX <= 0 || endY <= 0) {
+                System.out.println("Fish " + fishData.getName() + " is now hidden");
+                imageView.setVisible(false);
+            }
         };
 
         // Add the key frames to the timeline
@@ -122,6 +143,48 @@ public class FishImage {
 
         // Play the animation
         timeline.play();
+    }
+
+    void handleWindowResize(double width, double height) {
+        // Update the fish's coordinates based on the new window size
+        int currentX = fishData.getPosition().getX();
+        int currentY = fishData.getPosition().getY();
+        int newX = (int) pixelToPercentages(imageView.getX(), width);
+        int newY = (int) pixelToPercentages(imageView.getY(), height);
+        fishData.setPosition(newX, newY);
+
+        // Recalculate the start and end coordinates for the fish's movement animation
+        double startX = percentagesToPixel(fishData.getPosition().getX(), width);
+        double startY = percentagesToPixel(fishData.getPosition().getY(), height);
+        double endX = percentagesToPixel(fishData.getFirstDestination().getX(), width);
+        double endY = percentagesToPixel(fishData.getFirstDestination().getY(), height);
+
+        // Update the fish's position on the screen
+        imageView.setX(startX);
+        imageView.setY(startY);
+
+        // Adjust the fish's movement animation to the new coordinates
+        adjustMovementAnimation(startX, startY, endX, endY);
+    }
+
+    private void adjustMovementAnimation(double startX, double startY, double endX, double endY) {
+        // Retrieve the existing key frames from the animation
+        Timeline timeline = (Timeline) imageView.getScene().getWindow().getUserData();
+        List<KeyFrame> keyFrames = timeline.getKeyFrames();
+
+        // Modify the start and end key frames with the updated coordinates
+        KeyFrame startFrame = keyFrames.get(0);
+        KeyFrame endFrame = keyFrames.get(1);
+        startFrame = new KeyFrame(startFrame.getTime(),
+                new KeyValue(imageView.xProperty(), startX, Interpolator.LINEAR),
+                new KeyValue(imageView.yProperty(), startY, Interpolator.LINEAR));
+        endFrame = new KeyFrame(endFrame.getTime(),
+                new KeyValue(imageView.xProperty(), endX, Interpolator.LINEAR),
+                new KeyValue(imageView.yProperty(), endY, Interpolator.LINEAR));
+
+        // Update the key frames in the animation
+        keyFrames.set(0, startFrame);
+        keyFrames.set(1, endFrame);
     }
 
     public Fish getFishData() {

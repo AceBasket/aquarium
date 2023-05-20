@@ -56,12 +56,13 @@ public class Main {
                 main.logFile.println("Starting JavaFX");
                 main.logFile.flush();
                 fxThread = new Thread(() -> {
-                    try {
-                        AquariumFX.launch(AquariumFX.class, argv);
-                    } catch (Exception e) {
-                        main.logFile.println(e);
-                        main.logFile.flush();
-                    }
+                    AquariumFX.setAquarium(aquarium);
+                    AquariumFX.launch(AquariumFX.class, argv);
+                    // try {
+                    // } catch (Exception e) {
+                    // main.logFile.println(e);
+                    // main.logFile.flush();
+                    // }
                 });
             }
             fxThread.start();

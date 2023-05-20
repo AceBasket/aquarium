@@ -77,6 +77,7 @@ int main(int argc, char const *argv[]) {
         pthread_mutex_unlock(&terminate_threads_mutex);
 
         fprintf(log, "Aquarium initialized\n");
+        show_aquarium(aquarium, log);
         fflush(log);
         pthread_mutex_lock(&aquarium_mutex);
         fishes = aquarium->fishes;
