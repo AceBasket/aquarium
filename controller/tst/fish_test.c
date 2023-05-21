@@ -154,10 +154,13 @@ void test_get_fishes_with_destination_in_view() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct fish *fish2 = create_fish("fish2", (struct coordinates) { 3, 4 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0 });
-    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0 });
-    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
-    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
+    struct view_of_destination *view_of_destination = malloc(sizeof(struct view_of_destination));
+    view_of_destination->view_name = view->name;
+    view_of_destination->is_sent = NOK;
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0, .views = { view_of_destination, NULL }});
+    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0, .views = { view_of_destination, NULL }});
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0, .views = { NULL }});
+    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0, .views = { NULL }});
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish2) == OK);
     struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
@@ -167,6 +170,7 @@ void test_get_fishes_with_destination_in_view() {
     assert(add_view(aquarium, view) == OK);
     free_fishes_array(fishes, view); // free previous fishes to call get_fishes_in_view again
     fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
+    assert(fishes[0] != NULL);
     assert(fishes[0]->top_left.x == fish->top_left.x);
     assert(fishes[0]->top_left.y == fish->top_left.y);
     assert(fishes[1]->top_left.x == fish2->top_left.x);
@@ -285,7 +289,7 @@ void test_remove_finished_movements() {
     assert(add_movement(aquarium, fish) == OK);
     assert(update_fish_coordinates(fish) == OK);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
-    assert(remove_finished_movements(fish) == OK);
+    assert(remove_finished_movements(aquarium, fish) == OK);
     assert(free_aquarium(aquarium) == OK);
 }
 

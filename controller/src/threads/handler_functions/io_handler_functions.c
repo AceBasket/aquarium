@@ -30,6 +30,7 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
     int iter = 0;
     struct fish_destination *destination;
     dprintf(socket_fd, "list");
+    fprintf(log, "list");
     while (fishes_in_view[iter] != NULL) {
         if (bool_get_next_destination) {
             if (len_movements_queue(fishes_in_view[iter]) < 2) {
@@ -43,13 +44,69 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
         }
         if (destination == NULL) {
             dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 2);
+            fprintf(log, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 2);
+
             iter++;
             continue;
         }
         dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
+        fprintf(log, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
+
         iter++;
     }
     dprintf(socket_fd, "\n");
+    fprintf(log, "\n");
+    fflush(log);
+}
+
+/**
+ * @brief Prints one destination per fish on the socket. If the first destination was already sent, print the next unsent one
+ *
+ */
+void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd) {
+    if (fishes_in_view[0] == NULL) {
+        fprintf(log, "Error: no fish in view\n");
+        fflush(log);
+        return;
+    }
+    if (view == NULL) {
+        fprintf(log, "Error: view is NULL\n");
+        fflush(log);
+        return;
+    }
+
+    int iter = 0;
+    struct fish_destination *destination;
+    dprintf(socket_fd, "list");
+    fprintf(log, "list");
+    while (fishes_in_view[iter] != NULL) {
+        if (len_movements_queue(fishes_in_view[iter]) < 2) {
+            fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);
+            iter++;
+            continue;
+        }
+        destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
+
+        /* Searching for destination not sent */
+        while (destination_sent_to_view(view->name, destination) == OK) {
+            destination = STAILQ_NEXT(destination, next);
+        }
+
+        if (destination == NULL) {
+            // skip fish
+            iter++;
+            continue;
+        }
+        dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
+        fprintf(log, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
+
+        mark_destination_as_sent(view->name, destination);
+
+        iter++;
+    }
+    dprintf(socket_fd, "\n");
+    fprintf(log, "\n");
+    fflush(log);
 }
 
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {

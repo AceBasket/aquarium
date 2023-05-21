@@ -107,35 +107,40 @@ public class FishImage {
          */
         fishData.setDisplayed();
 
+        logFile.println(Instant.now());
+        logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
+                + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
+        logFile.flush();
+
         /*
          * Set visible if the fish's trajectory crosses the screen and doesn't follow
          * one side
          */
-        if (startX <= 0 && endX > 0 || startX > 0 && endX <= 0) {
-            logFile.println("Fish " + fishData.getName() + " is visible");
+        if (startX <= 0 && endX > 0 || startX > 0 && endX <= 0 || startY <= 0 && endY > 0 || startY > 0 && endY <= 0
+                || startX >= width && endX < width || startX < width && endX >= width
+                || startY >= height && endY < height || startY < height && endY >= height) {
+            logFile.println("Fish " + fishData.getName() + " becomes visible (crossing view)");
             logFile.flush();
             imageView.setVisible(true);
         }
 
         /* If fish's trajectory follows along one side, hide the fish */
-        if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0) {
-            logFile.println("Fish " + fishData.getName() + " is hidden");
+        if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0 || startX >= width && endX >= width
+                || startY >= height && endY >= height) {
+            logFile.println("Fish " + fishData.getName() + " stays hidden (follows side)");
             logFile.flush();
             imageView.setVisible(false);
         }
 
         if (duration <= 0) {
+            fishData.removeExpiredDestinations();
             imageView.setX(endX);
             imageView.setY(endY);
             fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
             isMoving = false;
+            logFile.println("Duration of movement was <= 0");
             return;
         }
-
-        logFile.println(Instant.now());
-        logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
-                + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
-        logFile.flush();
         // Create a timeline animation
         Timeline timeline = new Timeline();
 

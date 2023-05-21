@@ -69,15 +69,11 @@ void *get_fishes_continuously(void *parameters) {
                     debug_destinations_queue(log, fishes_in_view[iter]);
 
                     /* Mark destination as sent (we will send them in next instruction) */
-                    // get fish from name
-                    // get first destination
-                    // mark as sent
-                    STAILQ_FIRST(&get_fish_from_name(aquarium, fishes_in_view[iter]->name)->destinations_queue)->is_sent = OK;
-                    printf("Marked destination to %dx%d by %ld as sent\n", destination->destination_coordinates.x, destination->destination_coordinates.y, destination->time_at_destination);
+                    // mark_destination_as_sent(view->name, destination);
                     iter++;
 
                 }
-                print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0); // 0 = first desination
+                list_fishes_for_client(log, fishes_in_view, view, socket_fd);
 
 
 
@@ -88,11 +84,12 @@ void *get_fishes_continuously(void *parameters) {
         free_fishes_array(fishes_in_view, view);
 
         pthread_mutex_unlock(&aquarium_mutex);
-        if (minimum_time_to_destination > time(NULL)) {
-            sleep(minimum_time_to_destination - time(NULL));
-        } else { // in case there is no fish in the view
-            sleep(1);
-        }
+        // if (minimum_time_to_destination > time(NULL)) {
+        //     usleep((minimum_time_to_destination - time(NULL)) * 1000000 - 500000); // - 500000 to be sure to not miss the time
+        // } else { // in case there is no fish in the view
+        //     sleep(1);
+        // }
+        usleep(800000);
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);

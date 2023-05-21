@@ -3,6 +3,7 @@
 
 #include "aquarium.h"
 #include "view.h"
+#include "../utils.h"
 
 enum movement_pattern { RANDOMWAYPOINT };
 enum status { STARTED, NOT_STARTED };
@@ -12,8 +13,13 @@ typedef STAILQ_HEAD(tailq, fish_destination) tailq_t;
 struct fish_destination {
     struct coordinates destination_coordinates;
     time_t time_at_destination;
-    int is_sent;
+    struct view_of_destination *views[MAX_VIEWS + 1]; //Array of views where the fish has to go (NULL terminates the array)
     STAILQ_ENTRY(fish_destination) next;
+};
+
+struct view_of_destination {
+    char *view_name;
+    int is_sent;
 };
 
 struct fish {
@@ -50,4 +56,6 @@ struct coordinates *get_instersections_btw_trajectory_and_views(struct view **vi
 void debug_destinations_queue(FILE *log, struct fish *fish);
 // TODO: add test
 int coordinates_in_view_not_connected(struct aquarium *aquarium, struct coordinates coordinates);
+int mark_destination_as_sent(char *view_name, struct fish_destination *destination);
+int destination_sent_to_view(char *view_name, struct fish_destination *destination);
 #endif // _FISH_H_ 

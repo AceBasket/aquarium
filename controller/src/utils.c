@@ -12,10 +12,12 @@ void exit_if(int condition, const char *prefix) {
     }
 }
 
+#ifndef TESTS
 void sigpipe_handler(int signum) {
     (void)signum;
     fprintf(stdout, "SIGPIPE received\n");
     terminate_threads = OK;
     exit(EXIT_FAILURE);
 }
+#endif
 
