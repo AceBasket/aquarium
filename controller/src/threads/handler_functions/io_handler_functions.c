@@ -7,9 +7,10 @@
 
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     if (strcmp(parser->status, "OK\n") != 0) {
-        dprintf(socket_fd, "%s", parser->status);
-        fprintf(log, "%s", parser->status);
-        fflush(log);
+        if (dprintf(socket_fd, "%s", parser->status) < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
+        log_message(log, LOG_INFO, "%s", parser->status);
         return OK;
     }
     return NOK;
@@ -17,23 +18,23 @@ int handle_error(FILE *log, struct parse *parser, int socket_fd) {
 
 void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd, int bool_get_next_destination) {
     if (fishes_in_view[0] == NULL) {
-        fprintf(log, "Error: no fish in view\n");
-        fflush(log);
+        log_message(log, LOG_WARNING, "No fish in view");
         return;
     }
     if (view == NULL) {
-        fprintf(log, "Error: view is NULL\n");
-        fflush(log);
+        log_message(log, LOG_WARNING, "View is NULL");
         return;
     }
 
     int iter = 0;
     struct fish_destination *destination;
-    dprintf(socket_fd, "list");
+    if (dprintf(socket_fd, "list") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
     while (fishes_in_view[iter] != NULL) {
         if (bool_get_next_destination) {
             if (len_movements_queue(fishes_in_view[iter]) < 2) {
-                fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);
+                log_message(log, LOG_WARNING, "Fish %s has no next destination\n", fishes_in_view[iter]->name);
                 iter++;
                 continue;
             }
@@ -42,14 +43,20 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
             destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
         }
         if (destination == NULL) {
-            dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 0);
+            if (dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 0) < 0) {
+                log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+            }
             iter++;
             continue;
         }
-        dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
+        if (dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL)) < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         iter++;
     }
-    dprintf(socket_fd, "\n");
+    if (dprintf(socket_fd, "\n") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
 }
 
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -61,23 +68,26 @@ void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquari
         view = get_view(aquarium, parser->arguments[0]);
         if (view != NULL && view->socket_fd == -1) {
             view->socket_fd = socket_fd;
-            dprintf(socket_fd, "greeting %s\n", view->name);
-            fprintf(log, "view %s connected\n", view->name);
-            fflush(log);
+            if (dprintf(socket_fd, "greeting %s\n", view->name) < 0) {
+                log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+            }
+            log_message(log, LOG_INFO, "View %s connected", view->name);
             return;
         }
     }
     if ((view != NULL && view->socket_fd != -1) || view == NULL) {
         view = get_first_free_view_socket(aquarium);
         if (view == NULL) {
-            dprintf(socket_fd, "no greeting\n");
-            fprintf(log, "view not connected\n");
-            fflush(log);
+            if (dprintf(socket_fd, "no greeting\n") < 0) {
+                log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+            }
+            log_message(log, LOG_WARNING, "View not connected");
         } else {
             view->socket_fd = socket_fd;
-            dprintf(socket_fd, "greeting %s\n", view->name);
-            fprintf(log, "view %s connected\n", view->name);
-            fflush(log);
+            if (dprintf(socket_fd, "greeting %s\n", view->name) < 0) {
+                log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+            }
+            log_message(log, LOG_INFO, "View %s connected", view->name);
         }
     }
 }
@@ -96,7 +106,9 @@ void ping_handler(FILE *log, struct parse *parser, int socket_fd, __attribute__(
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    dprintf(socket_fd, "pong %s\n", parser->arguments[0]);
+    if (dprintf(socket_fd, "pong %s\n", parser->arguments[0]) < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
 }
 
 
@@ -105,18 +117,24 @@ void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
         return;
     }
     if (get_fish_from_name(aquarium, parser->arguments[0]) != NULL) {
-        dprintf(socket_fd, "NOK\n");
+        if (dprintf(socket_fd, "NOK\n") < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         return;
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     if (!add_fish(aquarium, create_fish(parser->arguments[0], (struct coordinates) { percentage_to_x_coordinate(view, atoi(parser->arguments[1])), percentage_to_y_coordinate(view, atoi(parser->arguments[2])) }, atoi(parser->arguments[3]), atoi(parser->arguments[4]), RANDOMWAYPOINT))) {
-        fprintf(log, "Error: fish %s at %dx%d in view not added\n", parser->arguments[0], atoi(parser->arguments[1]), atoi(parser->arguments[2]));
-        dprintf(socket_fd, "NOK\n");
+        log_message(log, LOG_WARNING, "Fish %s at %dx%d in view not added", parser->arguments[0], atoi(parser->arguments[1]), atoi(parser->arguments[2]));
+        if (dprintf(socket_fd, "NOK\n") < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         return;
     }
     struct fish *fish_just_created = get_fish_from_name(aquarium, parser->arguments[0]);
-    fprintf(log, "fish %s at %dx%d in aquarium added\n", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
-    dprintf(socket_fd, "OK\n");
+    log_message(log, LOG_INFO, "Fish %s at %dx%d in aquarium added", fish_just_created->name, fish_just_created->top_left.x, fish_just_created->top_left.y);
+    if (dprintf(socket_fd, "OK\n") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
 }
 
 void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
@@ -125,28 +143,37 @@ void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aqu
     }
     struct fish *fish_to_remove = get_fish_from_name(aquarium, parser->arguments[0]);
     if (fish_to_remove == NULL) {
-        fprintf(log, "Error: fish %s not found\n", parser->arguments[0]);
-        dprintf(socket_fd, "NOK\n");
+        log_message(log, LOG_WARNING, "Fish %s not found", parser->arguments[0]);
+        if (dprintf(socket_fd, "NOK\n") < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         return;
     }
     if (remove_fish(aquarium, fish_to_remove)) {
-        dprintf(socket_fd, "OK\n");
+        if (dprintf(socket_fd, "OK\n") < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         return;
     }
-    dprintf(socket_fd, "NOK\n");
+    if (dprintf(socket_fd, "NOK\n") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
 }
 
 void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
     if (handle_error(log, parser, socket_fd)) {
         return;
     }
-    fprintf(log, "start fish %s\n", parser->arguments[0]);
-    fflush(log);
+    log_message(log, LOG_INFO, "Start fish %s", parser->arguments[0]);
     if (start_fish(aquarium, parser->arguments[0])) {
-        dprintf(socket_fd, "OK\n");
+        if (dprintf(socket_fd, "OK\n") < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+        }
         return;
     }
-    dprintf(socket_fd, "NOK\n");
+    if (dprintf(socket_fd, "NOK\n") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
 }
 
 void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aquarium *aquarium) {
@@ -154,8 +181,12 @@ void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aqu
         return;
     }
     struct view *view = get_view_from_socket(aquarium, *socket_fd);
-    dprintf(*socket_fd, "bye\n");
-    close(*socket_fd);
+    if (dprintf(*socket_fd, "bye\n") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", *socket_fd);
+    }
+    if (close(*socket_fd) != 0) {
+        log_message(log, LOG_ERROR, "The socket %d could not be closed", *socket_fd);
+    }
     view->socket_fd = -1;
     *socket_fd = -1;
 }
@@ -198,8 +229,13 @@ void get_fishes_continuously_handler(FILE *log, struct parse *parser, int socket
         return;
     }
     struct handle_fishes_continuously_parameters *parameters = malloc(sizeof(struct handle_fishes_continuously_parameters));
+    if (parameters == NULL) {
+        log_message(log, LOG_ERROR, "The memory could not be allocated");
+    }
     parameters->socket_fd = socket_fd;
     pthread_mutex_unlock(&aquarium_mutex);
-    pthread_create(handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters);
+    if (pthread_create(handle_fishes_continuously_thread, NULL, (void *(*)(void *))get_fishes_continuously, parameters) != 0) {
+        log_message(log, LOG_FATAL_ERROR, "On handle fishes continuously thread creation");
+    }
     pthread_mutex_lock(&aquarium_mutex);
 }

@@ -10,10 +10,6 @@
 #define MAX_VIEWS 8 
 
 
-
-
-
-
 void init_server(struct init_server_parameters *parameters) {
     // Initialization of the parameters
     int nb_views = parameters->nb_views;
@@ -33,7 +29,6 @@ void init_server(struct init_server_parameters *parameters) {
     fclose(fd);
     int display_timeout_value = atoi(parsed_file->arguments[3]);
     free_parser(parsed_file);
-
 
     // Creation of the main socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
