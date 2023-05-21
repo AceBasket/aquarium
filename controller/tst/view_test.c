@@ -36,7 +36,14 @@ void test_add_view_already_in_aquarium() {
     assert(add_view(aquarium, view) == NOK);
     assert(free_aquarium(aquarium));
 }
-
+void test_add_view_outside_of_aquarium_boundaries(){
+    struct aquarium *aquarium = create_aquarium(100, 100);
+    struct view *view1 = create_view("view1", (struct coordinates) { 50, 50 }, 150, 150);
+    struct view *view2 = create_view("view2", (struct coordinates) { 90, 90 }, 50, 50);
+    assert(add_view(aquarium, view1) == NOK);
+    assert(add_view(aquarium, view2) == NOK);
+    assert(free_aquarium(aquarium));
+}
 void test_remove_view() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
@@ -100,6 +107,8 @@ int main() {
     test_add_view();
     printf(".");
     test_add_view_already_in_aquarium();
+    printf(".");
+    test_add_view_outside_of_aquarium_boundaries();
     printf(".");
     test_remove_view();
     printf(".");

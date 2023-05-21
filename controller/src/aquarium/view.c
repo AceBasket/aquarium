@@ -37,6 +37,11 @@ int add_view(struct aquarium *aquarium, struct view *view) {
             return NOK;
         }
     }
+    //if the view is not in the aquarium
+    if (view->top_left.x < 0 || view->top_left.y < 0 
+    || view->top_left.x+view->height > aquarium->height || view->top_left.y+view->width > aquarium->width){
+        return NOK;
+    }
     // if the view is not in the aquarium, add it to the end of the list
     current->next = view;
     return OK;
