@@ -1,4 +1,4 @@
-#include "cfg_file_parser.h"
+#include "file_parser.h"
 
 struct parse *parse_file(FILE *f) {
     size_t size = 100;

@@ -4,14 +4,10 @@
 #include "../threads/prompt_thread.h"
 #include "../utils.h"
 #include "controller.h"
-#include "../parser/cfg_file_parser.h"
+#include "../parser/file_parser.h"
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
-
-
-
-
 
 
 void init_server(struct init_server_parameters *parameters) {
@@ -33,7 +29,6 @@ void init_server(struct init_server_parameters *parameters) {
     fclose(fd);
     int display_timeout_value = atoi(parsed_file->arguments[3]);
     free_parser(parsed_file);
-
 
     // Creation of the main socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);

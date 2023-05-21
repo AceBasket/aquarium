@@ -7,7 +7,9 @@
 #include "../src/parser/prompt_parser.h"
 
 
-
+// ==============================
+//   client_inputs_parser tests 
+// ==============================
 void test_status() {
     struct parse *result1 = parse_clients("status");
     assert(!strcmp(result1->arguments[0], "status"));
@@ -61,7 +63,6 @@ void test_addFish() {
     free_parser(result4);
     free_parser(result5);
     free_parser(result6);
-
 }
 
 void test_delFish() {
@@ -144,7 +145,6 @@ void test_hello() {
     free_parser(result3);
     free_parser(result4);
     free_parser(result5);
-
 }
 
 void test_get_fishes() {
@@ -155,7 +155,6 @@ void test_get_fishes() {
     struct parse *result2 = parse_clients("getFishes random");
     // assert(result2 == NULL);
     assert(strcmp(result2->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -174,7 +173,6 @@ void test_ls() {
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
 
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -192,7 +190,6 @@ void test_getFishesContinuously() {
     struct parse *result3 = parse_clients("getFishesContinuously this");
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -213,7 +210,6 @@ void test_ping() {
     struct parse *result3 = parse_clients("ping plus");
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -244,7 +240,6 @@ void test_log_out() {
     // assert(result5 == NULL);
     assert(strcmp(result5->status, "OK") != 0);
 
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -253,8 +248,9 @@ void test_log_out() {
 }
 
 
-
-// Parse_prompt tests 
+// =======================
+//   prompt_parser tests 
+// =======================
 void test_load() {
     struct parse *result1 = parse_prompt("load aquarium56");
     assert(result1->size == 1);
@@ -330,8 +326,6 @@ void test_add_view() {
     // assert(result6 == NULL);
     assert(strcmp(result6->status, "OK") != 0);
 
-
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -399,6 +393,10 @@ void test_save() {
     free_parser(result3);
     free_parser(result4);
 }
+
+
+
+
 int main(void) {
    //parse clients tests
     // test_status();

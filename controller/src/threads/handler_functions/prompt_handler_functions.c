@@ -4,8 +4,7 @@
 
 int handle_prompt_error(FILE *log, struct parse *parser) {
     if (strcmp(parser->status, "OK\n") != 0) {
-        fprintf(log, "%s", parser->status);
-        fflush(log);
+        log_message(log, LOG_INFO, "%s", parser->status);
         return OK;
     }
     return NOK;
@@ -17,7 +16,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
     }
     FILE *fd = fopen(parser->arguments[0], "r");
     if (fd == NULL) {
-        fprintf(log, "ERROR: opening file\n");
+        log_message(log, LOG_ERROR, "Opening file");
         return;
     }
 
@@ -27,7 +26,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
 
     *aquarium = create_aquarium(atoi(parsed_file->arguments[0]), atoi(parsed_file->arguments[1]));
     if (*aquarium == NULL || (*aquarium)->width == 0 || (*aquarium)->height == 0) {
-        fprintf(log, "ERROR: creating aquarium\n");
+        log_message(log, LOG_WARNING, "Aquarium not created");
         return;
     }
 
@@ -36,11 +35,11 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
         coord.y = atoi(parsed_file->arguments[i + 2]);
         view = create_view(parsed_file->arguments[i], coord, atoi(parsed_file->arguments[i + 3]), atoi(parsed_file->arguments[i + 4]));
         if (view == NULL) {
-            fprintf(log, "ERROR: creating view\n");
+            log_message(log, LOG_WARNING, "View not created");
             return;
         }
         if (!add_view(*aquarium, view)) {
-            fprintf(log, "ERROR: adding view\n");
+            log_message(log, LOG_WARNING, "View not added");
             return;
         }
     }
@@ -50,7 +49,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
 
 void show_handler(FILE *log, struct aquarium *aquarium) {
     if (aquarium == NULL) {
-        fprintf(log, "ERROR: no aquarium\n");
+        log_message(log, LOG_WARNING, "No aquarium");
         return;
     }
     fprintf(stdout, "Showing aquarium\n");
@@ -86,7 +85,7 @@ void save_handler(FILE *log, struct parse *parser, struct aquarium *aquarium) {
         return;
     }
     if (aquarium == NULL) {
-        fprintf(log, "ERROR: no aquarium\n");
+        log_message(log, LOG_WARNING, "No aquarium");
         return;
     }
     save_aquarium(aquarium, parser->arguments[0]);
