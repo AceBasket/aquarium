@@ -17,6 +17,14 @@ public class Coordinates {
         return y;
     }
 
+    public void setX(int newX) {
+        x = newX;
+    }
+
+    public void setY(int newY) {
+        y = newY;
+    }
+
     public boolean equals(Coordinates other) {
         return this.x == other.x && this.y == other.y;
     }

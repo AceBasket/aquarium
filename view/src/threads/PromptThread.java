@@ -15,13 +15,12 @@ public class PromptThread implements Runnable {
     private final ConcurrentLinkedQueue<String> sendQueue;
     private final LinkedList<String> commandQueue;
     private View view;
-    private Aquarium fishesList;
+    private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
 
     public PromptThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.view = view;
-        this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         this.commandQueue = new LinkedList<String>();
@@ -81,25 +80,27 @@ public class PromptThread implements Runnable {
                 while (response == null) {
                     logFile.println("Nothing to handle");
                     logFile.flush();
-                    Thread.sleep(500); // sleep 0.1 second and try again
+                    Thread.sleep(300); // sleep 0.3 second and try again
                     response = receivedQueue.peek();
                 }
-                responseReceived = true;
                 switch (response.getFunction()) {
                     case OK:
                         PromptThreadHandlers.handleOK(logFile, commandQueue.removeFirst(), fishesList);
                         receivedQueue.remove();
                         System.out.println("OK");
+                        responseReceived = true;
                         break;
                     case NOK:
                         PromptThreadHandlers.handleNOK(logFile, commandQueue.removeFirst());
                         receivedQueue.remove();
                         System.out.println("NOK");
+                        responseReceived = true;
                         break;
 
                     default:
-                        logFile.println("Not a command handled by prompt thread");
+                        logFile.println(response.getFunction() + ": Not a command handled by prompt thread");
                         logFile.flush();
+                        Thread.sleep(300);
                         break;
                 }
 

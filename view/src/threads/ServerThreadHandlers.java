@@ -44,6 +44,14 @@ public class ServerThreadHandlers {
             } catch (IllegalArgumentException e) {
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " does not exist");
                 logFile.flush();
+                try {
+                    Thread.sleep(Integer.parseInt(parsedResponse.getArgs().get(i + 5)) * 1000 - 500); // wait for the
+                                                                                                      // fish to get to
+                                                                                                      // destination
+                                                                                                      // then add it
+                } catch (InterruptedException e1) {
+                    logFile.println("Server thread interrupted before it could add the fish");
+                }
                 Fish fish_to_create = new Fish(parsedResponse.getArgs().get(i),
                         Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // position.x
                         Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // position.y
@@ -51,6 +59,9 @@ public class ServerThreadHandlers {
                         Integer.parseInt(parsedResponse.getArgs().get(i + 4))); // height
                 fishesList.addFish(fish_to_create);
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " created");
+                logFile.flush();
+                fish_to_create.start();
+                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " started");
                 logFile.flush();
             }
         }

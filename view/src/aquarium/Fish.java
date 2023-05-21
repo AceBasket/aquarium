@@ -6,6 +6,7 @@ import java.util.LinkedList;
 class FishDestination {
     private final Coordinates destination;
     private final long deadline;
+    private boolean displayed = false;
 
     public FishDestination(int destinationX, int destinationY, int movementDuration) {
         this.destination = new Coordinates(destinationX, destinationY);
@@ -18,6 +19,14 @@ class FishDestination {
 
     public long getDeadline() {
         return deadline;
+    }
+
+    public boolean isDisplayed() {
+        return displayed;
+    }
+
+    public void setDisplayed() {
+        this.displayed = true;
     }
 
     @Override
@@ -37,7 +46,7 @@ public class Fish {
 
     private final String name;
     private Coordinates position;
-    private final int length;
+    private final int width;
     private final int height;
     private statusEnum status;
     private LinkedList<FishDestination> destinations;
@@ -46,60 +55,71 @@ public class Fish {
         this.name = name;
         this.position = new Coordinates(positionX, positionY);
         this.destinations = new LinkedList<FishDestination>();
-        this.length = length;
+        this.width = length;
         this.height = height;
         this.status = statusEnum.STOPPED;
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return name;
     }
 
-    public Coordinates getPosition() {
+    public synchronized Coordinates getPosition() {
         return position;
     }
 
-    public Coordinates getFirstDestination() {
+    public synchronized Coordinates getFirstDestination() {
         return destinations.getFirst().getDestination();
     }
 
-    public int getLength() {
-        return length;
+    public int getWidth() {// width
+        return width;
     }
 
     public int getHeight() {
         return height;
     }
 
-    public long getTimeToGetToFirstDestination() {
+    public synchronized long getTimeToGetToFirstDestination() {
         return destinations.getFirst().getDeadline();
     }
 
+    /* TODO: remove this method */
     public statusEnum getStatus() {
         return status;
     }
 
-    public void setPosition(int positionX, int positionY) {
+    public boolean isStarted() {
+        return status == statusEnum.STARTED;
+    }
+
+    public synchronized void setPosition(int positionX, int positionY) {
         this.position = new Coordinates(positionX, positionY);
     }
 
-    public void addNewDestination(int destinationX, int destinationY, int movementDuration) {
+    public synchronized void addNewDestination(int destinationX, int destinationY, int movementDuration) {
         FishDestination newDestination = new FishDestination(destinationX, destinationY, movementDuration);
         if (!destinations.contains(newDestination)) {
             destinations.addLast(newDestination);
         }
     }
 
-    public void removeExpiredDestinations() {
-        while (!destinations.isEmpty()
-                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()) {
+    public synchronized void removeExpiredDestinations() {
+        // while (!destinations.isEmpty()
+        // && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()
+        // && destinations.getFirst().isDisplayed()) {
+        while (!destinations.isEmpty() && destinations.getFirst().isDisplayed()) {
             destinations.removeFirst();
         }
     }
 
-    public int getSizeDestinations() {
+    public synchronized int getSizeDestinations() {
         /* Only counts STARTED fishes */
         return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
+    }
+
+    public synchronized void setDisplayed() {
+        destinations.getFirst().setDisplayed();
     }
 
     public void start() {
@@ -108,7 +128,16 @@ public class Fish {
 
     @Override
     public String toString() {
-        return "Fish " + name + " at " + position + ", " + length + "x" + height + ", "
+        return "Fish " + name + " at " + position + ", " + width + "x" + height + ", "
                 + (status == statusEnum.STARTED ? "started" : "notstarted");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Fish)) {
+            return false;
+        }
+        Fish fish = (Fish) o;
+        return this.name.equals(fish.getName());
     }
 }

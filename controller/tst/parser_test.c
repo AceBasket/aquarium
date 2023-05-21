@@ -248,7 +248,6 @@ void test_log_out() {
 }
 
 
-
 // =======================
 //   prompt_parser tests 
 // =======================
@@ -423,7 +422,7 @@ void test_aquariums_file() {
     if (fd == NULL) {
         printf("ERROR on opening file\n");
     }
-    struct parse *parsed_file = parse_file(fd);    
+    struct parse *parsed_file = parse_file(fd);
 
     assert(strcmp(parsed_file->arguments[0], "1000") == 0);
     assert(strcmp(parsed_file->arguments[1], "1000") == 0);
