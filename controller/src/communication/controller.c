@@ -4,7 +4,7 @@
 #include "../threads/prompt_thread.h"
 #include "../utils.h"
 #include "controller.h"
-#include "../parser/cfg_file_parser.h"
+#include "../parser/file_parser.h"
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
