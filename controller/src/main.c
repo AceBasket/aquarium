@@ -100,10 +100,8 @@ int main(int argc, char const *argv[]) {
     pthread_mutex_lock(&terminate_threads_mutex);
     if (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
-
-        fprintf(log, "Aquarium initialized\n");
+        log_message(log, LOG_INFO, "Aquarium initialized");
         show_aquarium(aquarium, log);
-        fflush(log);
         pthread_mutex_lock(&aquarium_mutex);
         fishes = aquarium->fishes;
         current_fish = fishes;

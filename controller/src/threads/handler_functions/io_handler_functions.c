@@ -38,11 +38,6 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
         log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
     }
     while (fishes_in_view[iter] != NULL) {
-        if (len_movements_queue(fishes_in_view[iter]) < 2) {
-            fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);
-            iter++;
-            continue;
-        }
         destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
 
         /* Searching for destination to send to view */
