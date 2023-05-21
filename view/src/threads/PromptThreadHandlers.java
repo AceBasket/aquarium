@@ -13,7 +13,7 @@ public class PromptThreadHandlers {
         try {
             ParserResult parsedCommand = Parser.parse(originalCommand);
             switch (parsedCommand.getFunction()) {
-                case ADDFISH:
+                case ADD_FISH:
                     logFile.println("Adding fish " + parsedCommand.getArgs().get(0) + " at "
                             + parsedCommand.getArgs().get(1) + "x" + parsedCommand.getArgs().get(2) + " of size "
                             + parsedCommand.getArgs().get(3) + "x" + parsedCommand.getArgs().get(4));
@@ -28,14 +28,14 @@ public class PromptThreadHandlers {
                     logFile.println("Fish added");
                     logFile.flush();
                     break;
-                case DELFISH:
+                case DEL_FISH:
                     logFile.println("Deleting fish " + parsedCommand.getArgs().get(0));
                     logFile.flush();
                     fishesList.removeFish(parsedCommand.getArgs().get(0));
                     logFile.println("Fish deleted");
                     logFile.flush();
                     break;
-                case STARTFISH:
+                case START_FISH:
                     logFile.println("Starting fish " + parsedCommand.getArgs().get(0));
                     logFile.flush();
                     fishesList.startFish(parsedCommand.getArgs().get(0));
@@ -61,15 +61,15 @@ public class PromptThreadHandlers {
         try {
             ParserResult parsedCommand = Parser.parse(originalCommand);
             switch (parsedCommand.getFunction()) {
-                case ADDFISH:
+                case ADD_FISH:
                     logFile.println("Error: " + parsedCommand.getArgs().get(0));
                     logFile.flush();
                     break;
-                case DELFISH:
+                case DEL_FISH:
                     logFile.println("Error: " + parsedCommand.getArgs().get(0));
                     logFile.flush();
                     break;
-                case STARTFISH:
+                case START_FISH:
                     logFile.println("Error: " + parsedCommand.getArgs().get(0));
                     logFile.flush();
                     break;

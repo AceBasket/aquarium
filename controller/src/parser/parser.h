@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <ctype.h>
 
-enum func { LOAD, SHOW, ADD_VIEW, DEL_VIEW, SAVE, STATUS, ADDFISH, DELFISH, STARTFISH, HELLO, GETFISHES, GFCONTINUOUSLY, LS, PING, LOG, UNKNOWN };
+enum func { LOAD, SHOW, ADD_VIEW, DEL_VIEW, SAVE, STATUS, ADD_FISH, DEL_FISH, START_FISH, HELLO, GET_FISHES, GET_FISHES_CONTINUOUSLY, LS, PING, LOG, UNKNOWN };
 
 struct parse {
     char **arguments; // a list of parsed elements
