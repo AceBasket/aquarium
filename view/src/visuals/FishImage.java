@@ -106,8 +106,8 @@ public class FishImage {
         double duration = fishData.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond();
 
         /*
-         * We are going to display movement to next destination, main thread can remove
-         * the destination
+         * We are going to display movement to next destination, so we set the fish as
+         * displayed
          */
         fishData.setDisplayed();
 
@@ -135,13 +135,6 @@ public class FishImage {
                 logFile.println("Fish " + fishData.getName() + " stays hidden (from border to border)");
                 logFile.flush();
                 imageView.setVisible(false);
-            }
-
-            /* If position is in the window, set visible */
-            else {
-                logFile.println("Fish " + fishData.getName() + " becomes visible (in view)");
-                logFile.flush();
-                imageView.setVisible(true);
             }
         }
 
