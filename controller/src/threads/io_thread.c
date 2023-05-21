@@ -53,9 +53,24 @@ void *thread_timeout(void *parameters) {
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
+                    
                     if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
                         log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
                     }
+                    // char message[100];
+                    // sprintf(message, "bye\n");
+                    // int nb = strlen(message);
+                    // int offset = 0;
+                    // do{
+                    //     const char* currentMessage = message + offset;
+                    //     int nb2 = write(views_socket_fd[num_view], currentMessage, nb - offset);//dprintf(views_socket_fd[num_view], currentMessage);
+                    //     if (nb2<0 ){
+                    //         log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
+                    //     }
+                    //     offset +=nb - offset ;
+
+                    // }while(offset < nb );
+                    
                     if (close(views_socket_fd[num_view]) != 0) {
                         log_message(log, LOG_ERROR, "The socket %d could not be closed", views_socket_fd[num_view]);
                     }
