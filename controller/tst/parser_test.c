@@ -7,7 +7,9 @@
 #include "../src/parser/prompt_parser.h"
 
 
-
+// ==============================
+//   client_inputs_parser tests 
+// ==============================
 void test_status() {
     struct parse *result1 = parse_clients("status");
     assert(!strcmp(result1->arguments[0], "status"));
@@ -21,7 +23,7 @@ void test_status() {
 void test_addFish() {
     struct parse *result = parse_clients("addFish PoissonNain at 61x52, 4x3, RandomPathway");
     assert(result->size == 6);
-    assert(result->func_name == ADDFISH);
+    assert(result->func_name == ADD_FISH);
     int i = 0;
     assert(!strcmp(result->arguments[i], "PoissonNain"));
     i++;
@@ -61,13 +63,12 @@ void test_addFish() {
     free_parser(result4);
     free_parser(result5);
     free_parser(result6);
-
 }
 
 void test_delFish() {
     struct parse *result1 = parse_clients("delFish fishName");
     assert(result1->size == 1);
-    assert(result1->func_name == DELFISH);
+    assert(result1->func_name == DEL_FISH);
     int i = 0;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
@@ -92,7 +93,7 @@ void test_delFish() {
 void test_startFish() {
     struct parse *result1 = parse_clients("startFish fishName");
     assert(result1->size == 1);
-    assert(result1->func_name == STARTFISH);
+    assert(result1->func_name == START_FISH);
     int i = 0;
     assert(!strcmp(result1->arguments[i], "fishName"));
 
@@ -144,18 +145,16 @@ void test_hello() {
     free_parser(result3);
     free_parser(result4);
     free_parser(result5);
-
 }
 
 void test_get_fishes() {
     struct parse *result1 = parse_clients("getFishes");
     assert(result1->size == 0);
-    assert(result1->func_name == GETFISHES);
+    assert(result1->func_name == GET_FISHES);
 
     struct parse *result2 = parse_clients("getFishes random");
     // assert(result2 == NULL);
     assert(strcmp(result2->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -174,7 +173,6 @@ void test_ls() {
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
 
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -183,7 +181,7 @@ void test_ls() {
 void test_getFishesContinuously() {
     struct parse *result1 = parse_clients("getFishesContinuously");
     assert(result1->size == 0);
-    assert(result1->func_name == GFCONTINUOUSLY);
+    assert(result1->func_name == GET_FISHES_CONTINUOUSLY);
 
     struct parse *result2 = parse_clients("getFishesContinuouslyy");
     // assert(result2 == NULL);
@@ -192,7 +190,6 @@ void test_getFishesContinuously() {
     struct parse *result3 = parse_clients("getFishesContinuously this");
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -213,7 +210,6 @@ void test_ping() {
     struct parse *result3 = parse_clients("ping plus");
     // assert(result3 == NULL);
     assert(strcmp(result3->status, "OK") != 0);
-
 
     free_parser(result1);
     free_parser(result2);
@@ -244,7 +240,6 @@ void test_log_out() {
     // assert(result5 == NULL);
     assert(strcmp(result5->status, "OK") != 0);
 
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -253,8 +248,9 @@ void test_log_out() {
 }
 
 
-
-// Parse_prompt tests 
+// =======================
+//   prompt_parser tests 
+// =======================
 void test_load() {
     struct parse *result1 = parse_prompt("load aquarium56");
     assert(result1->size == 1);
@@ -330,8 +326,6 @@ void test_add_view() {
     // assert(result6 == NULL);
     assert(strcmp(result6->status, "OK") != 0);
 
-
-
     free_parser(result1);
     free_parser(result2);
     free_parser(result3);
@@ -399,6 +393,10 @@ void test_save() {
     free_parser(result3);
     free_parser(result4);
 }
+
+
+
+
 int main(void) {
    //parse clients tests
     // test_status();

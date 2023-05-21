@@ -8,17 +8,17 @@
 #define BUFFER_SIZE 256
 
 
-
 void *thread_prompt(void *parameters) {
     FILE *log = ((struct thread_prompt_parameters *)parameters)->log;
+    log_message(log, LOG_INFO, "===== thread_prompt() =====");
 
-    signal(SIGPIPE, sigpipe_handler);
+    if (signal(SIGPIPE, sigpipe_handler) == SIG_ERR) {
+        log_message(log, LOG_ERROR, "The signal handler could not be changed");
+    }
 
     // struct thread_prompt_parameters *params = (struct thread_prompt_parameters *)parameters;
     (void)parameters;
 
-    fprintf(log, "===== thread_prompt() =====\n");
-    fflush(log);
 
     char buffer[BUFFER_SIZE] = {}; // No uninitialized memory
     char char_read;
@@ -33,6 +33,7 @@ void *thread_prompt(void *parameters) {
         do {
             char_read = fgetc(stdin);
             if (char_read == EOF) {
+                // log_message(log, LOG_WARNING, "End of line");
                 pthread_mutex_lock(&terminate_threads_mutex);
                 terminate_threads = OK;
                 pthread_mutex_unlock(&terminate_threads_mutex);
@@ -51,43 +52,39 @@ void *thread_prompt(void *parameters) {
 
         buffer[i_buffer - 1] = '\0';
 
-        fprintf(log, "Command: '%s' of size %ld\n", buffer, strlen(buffer));
-        fflush(log);
+        log_message(log, LOG_INFO, "Command: '%s' of size %ld", buffer, strlen(buffer));
 
         // we parse this line
         struct parse *parser = parse_prompt(buffer);
         enum func function = parser->func_name;
-        fprintf(log, "Function to execute: %d\n", function);
-        fflush(log);
+        log_message(log, LOG_INFO, "Function to execute: %d", function);
 
         switch (function) {
         case LOAD:
-            fprintf(log, "Loading aquarium from file %s\n", parser->arguments[0]);
-            fflush(log);
+            log_message(log, LOG_INFO, "Loading aquarium from file %s", parser->arguments[0]);
             pthread_mutex_lock(&aquarium_mutex);
             load_handler(log, parser, &aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
             break;
         case SHOW:
-            fprintf(log, "Showing aquarium\n");
-            pthread_mutex_lock(&aquarium_mutex);
+            log_message(log, LOG_INFO, "Showing aquarium");
             show_handler(log, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
             break;
         case ADD_VIEW:
-            fprintf(log, "Adding view %s to the aquarium\n", parser->arguments[1]);
+            log_message(log, LOG_INFO, "Adding view %s to the aquarium", parser->arguments[1]);
             pthread_mutex_lock(&aquarium_mutex);
             add_view_handler(log, parser, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
             break;
         case DEL_VIEW:
-            fprintf(log, "Deleting view %s from the aquarium\n", parser->arguments[1]);
+            log_message(log, LOG_INFO, "Deleting view %s from the aquarium", parser->arguments[1]);
             pthread_mutex_lock(&aquarium_mutex);
             del_view_handler(log, parser, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
             break;
         case SAVE:
-            fprintf(log, "Saving the aquarium at %s\n", parser->arguments[0]);
+            log_message(log, LOG_INFO, "Saving the aquarium at %s", parser->arguments[0]);
             pthread_mutex_lock(&aquarium_mutex);
             save_handler(log, parser, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
@@ -96,12 +93,12 @@ void *thread_prompt(void *parameters) {
             break;
         }
         free_parser(parser);
-        fflush(log);
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
+    
     free(parameters);
-    fprintf(log, "===== thread_prompt() terminated =====\n");
-    fflush(log);
+    log_message(log, LOG_INFO, "===== thread_prompt() terminated =====");
+    fclose(log);
     return EXIT_SUCCESS;
 }

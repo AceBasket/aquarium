@@ -7,7 +7,7 @@ import java.security.InvalidParameterException;
 public class Parser {
 
     public enum PossibleResponses {
-        GREETING, NOGREETING, OK, NOK, LISTFISHES, BYE, PONG, STATUS, ADDFISH, DELFISH, STARTFISH
+        GREETING, NO_GREETING, OK, NOK, LIST_FISHES, BYE, PONG, STATUS, ADD_FISH, DEL_FISH, START_FISH
     }
 
     public static void main(String[] argv) throws ParserException, IOException {
@@ -58,7 +58,7 @@ public class Parser {
                         args.add(responseSplit[i]);
                     }
                     args.add(responseSplit[responseSplit.length - 1]);
-                    return new ParserResult(PossibleResponses.ADDFISH, args);
+                    return new ParserResult(PossibleResponses.ADD_FISH, args);
                 } else {
                     throw new ParserException("The fish name is not Poisson*");
                 }
@@ -79,7 +79,7 @@ public class Parser {
                         throw new ParserException("The fish name is not Poisson*");
                     }
                 }
-                return new ParserResult(PossibleResponses.DELFISH, args);
+                return new ParserResult(PossibleResponses.DEL_FISH, args);
             } else {
                 throw new ParserException("There is no argument after delFish");
             }
@@ -96,7 +96,7 @@ public class Parser {
                         throw new ParserException("The fish name is not Poisson*");
                     }
                 }
-                return new ParserResult(PossibleResponses.STARTFISH, args);
+                return new ParserResult(PossibleResponses.START_FISH, args);
             } else {
                 throw new ParserException("There is no argument after startFish");
             }
@@ -169,7 +169,7 @@ public class Parser {
                 return new ParserResult(PossibleResponses.GREETING, args);
             }
         } else if (responseSplit[0].equals("no greeting")) {
-            return new ParserResult(PossibleResponses.NOGREETING, args);
+            return new ParserResult(PossibleResponses.NO_GREETING, args);
         } else if (responseSplit[0].equals("list")) {
             if (responseSplit.length % 6 == 1) {
                 for (int i = 1; i < responseSplit.length; i++) {
@@ -187,7 +187,7 @@ public class Parser {
                     }
                     args.add(responseSplit[i]);
                 }
-                return new ParserResult(PossibleResponses.LISTFISHES, args);
+                return new ParserResult(PossibleResponses.LIST_FISHES, args);
             } else {
                 throw new ParserException("There is not the right number of argument after list");
             }

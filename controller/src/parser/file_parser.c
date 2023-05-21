@@ -1,4 +1,4 @@
-#include "cfg_file_parser.h"
+#include "file_parser.h"
 
 struct parse *parse_file(FILE *f) {
     size_t size = 100;
@@ -52,6 +52,7 @@ struct parse *parse_file(FILE *f) {
         }
 
         else if (isalpha(line[0]) && isalpha(line[1])) {
+            // cfg
             char *arg1 = strtok(line, " ");
             if (arg1 == NULL) {
                 strcpy(p->status, "ERROR: Incorrect file formatting\n");
@@ -84,7 +85,7 @@ struct parse *parse_file(FILE *f) {
             }
         }
 
-        else if (isalpha(line[0])) {
+        else if (isalpha(line[0]) && isdigit(line[1])) {
             // view
             char *arg1 = strtok(line, " ");
             if (arg1 == NULL) {
