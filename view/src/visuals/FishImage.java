@@ -112,26 +112,35 @@ public class FishImage {
                 + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
         logFile.flush();
 
-        /*
-         * Set visible if the fish's trajectory crosses the screen and doesn't follow
-         * one side
-         */
-        if (startX <= 0 && endX > 0 || startX > 0 && endX <= 0 || startY <= 0 && endY > 0 || startY > 0 && endY <= 0
-                || startX >= width && endX < width || startX < width && endX >= width
-                || startY >= height && endY < height || startY < height && endY >= height) {
-            logFile.println("Fish " + fishData.getName() + " becomes visible (crossing view)");
-            logFile.flush();
-            imageView.setVisible(true);
+        if (!imageView.isVisible()) {
+            /*
+             * If position is on one of the borders and it crosses the window, set visible
+             */
+            if (startX <= 0 && endX > 0 || startY <= 0 && endY > 0 || startX >= width && endX < width
+                    || startY >= height && endY < height) {
+                logFile.println("Fish " + fishData.getName() + " becomes visible (crossing view)");
+                logFile.flush();
+                imageView.setVisible(true);
+            }
+            /*
+             * Else, if position is on one of the borders and it stays on that same border,
+             * stay hidden
+             */
+            else if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0 || startX >= width && endX >= width
+                    || startY >= height && endY >= height) {
+                logFile.println("Fish " + fishData.getName() + " stays hidden (follows side)");
+                logFile.flush();
+                imageView.setVisible(false);
+            }
+            /* If position is in the window, set visible */
+            else {
+                logFile.println("Fish " + fishData.getName() + " becomes visible (in view)");
+                logFile.flush();
+                imageView.setVisible(true);
+            }
         }
 
-        /* If fish's trajectory follows along one side, hide the fish */
-        if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0 || startX >= width && endX >= width
-                || startY >= height && endY >= height) {
-            logFile.println("Fish " + fishData.getName() + " stays hidden (follows side)");
-            logFile.flush();
-            imageView.setVisible(false);
-        }
-
+        /* If movement lasts 0 or less seconds, teleport */
         if (duration <= 0) {
             fishData.removeExpiredDestinations();
             imageView.setX(endX);

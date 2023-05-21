@@ -22,8 +22,8 @@ import aquarium.Fish;
 
 public class AquariumFX extends Application {
     // The width and height of the aquarium window
-    private static double width = 800;
-    private static double height = 600;
+    private static double width = 500;
+    private static double height = 500;
     private static ObservableList<FishImage> fishesInAquarium = FXCollections.observableArrayList();
     // private ArrayList<FishImage> fishesNotInAquarium = new
     // ArrayList<FishImage>();

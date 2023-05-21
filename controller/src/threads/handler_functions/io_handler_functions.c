@@ -78,7 +78,6 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
     int iter = 0;
     struct fish_destination *destination;
     dprintf(socket_fd, "list");
-    fprintf(log, "list");
     while (fishes_in_view[iter] != NULL) {
         if (len_movements_queue(fishes_in_view[iter]) < 2) {
             fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);
@@ -87,7 +86,7 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
         }
         destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
 
-        /* Searching for destination not sent */
+        /* Searching for destination to send to view */
         while (destination_sent_to_view(view->name, destination) == OK) {
             destination = STAILQ_NEXT(destination, next);
         }
@@ -98,15 +97,14 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
             continue;
         }
         dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
-        fprintf(log, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL));
 
         mark_destination_as_sent(view->name, destination);
+        fprintf(log, "Destination %dx%d marked as sent for view %s\n", destination->destination_coordinates.x, destination->destination_coordinates.y, view->name);
+        fflush(log);
 
         iter++;
     }
     dprintf(socket_fd, "\n");
-    fprintf(log, "\n");
-    fflush(log);
 }
 
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {

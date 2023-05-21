@@ -105,9 +105,10 @@ public class Fish {
     }
 
     public synchronized void removeExpiredDestinations() {
-        while (!destinations.isEmpty()
-                && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()
-                && destinations.getFirst().isDisplayed()) {
+        // while (!destinations.isEmpty()
+        // && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()
+        // && destinations.getFirst().isDisplayed()) {
+        while (!destinations.isEmpty() && destinations.getFirst().isDisplayed()) {
             destinations.removeFirst();
         }
     }

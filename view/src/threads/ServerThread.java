@@ -48,7 +48,7 @@ public class ServerThread implements Runnable {
                 // listFishesDestinations = false;
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations
-                    fish.removeExpiredDestinations();
+                    // fish.removeExpiredDestinations();
                     if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 1) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();

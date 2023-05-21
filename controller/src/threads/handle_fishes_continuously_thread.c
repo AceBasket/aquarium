@@ -89,7 +89,8 @@ void *get_fishes_continuously(void *parameters) {
         // } else { // in case there is no fish in the view
         //     sleep(1);
         // }
-        usleep(800000);
+        // usleep(800000);
+        sleep(1);
         pthread_mutex_lock(&terminate_threads_mutex);
     }
     pthread_mutex_unlock(&terminate_threads_mutex);

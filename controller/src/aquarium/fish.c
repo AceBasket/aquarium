@@ -180,25 +180,42 @@ struct fish **get_fishes_with_destination_in_view(struct aquarium *aquarium, str
     do {
         int fish_found_bool = NOK;
         if ((started && current_fish->status == STARTED) || !started) {
-            struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue);
-            struct fish *fish_with_destination_in_view = create_fish(current_fish->name, current_fish->top_left, current_fish->height, current_fish->width, current_fish->movement_pattern);
-            while (current_destination != NULL) {
+            for (struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue); current_destination != NULL; current_destination = STAILQ_NEXT(current_destination, next)) {
                 for (int j = 0; current_destination->views[j] != NULL; j++) {
                     // if the destination belongs to the view and has not been sent yet
                     if ((strcmp(current_destination->views[j]->view_name, view->name) == 0) && (current_destination->views[j]->is_sent == NOK)) {
-                        add_specific_destination(fish_with_destination_in_view, current_destination);
+                        fishes[i] = current_fish;
                         fish_found_bool = OK;
                         break;
                     }
                 }
-                current_destination = STAILQ_NEXT(current_destination, next);
+                if (fish_found_bool == OK) {
+                    break;
+                }
             }
             if (fish_found_bool == OK) {
-                fishes[i] = fish_with_destination_in_view;
                 i++;
-            } else {
-                free_fish(fish_with_destination_in_view);
             }
+            // TODO: remove if useless
+            // struct fish_destination *current_destination = STAILQ_FIRST(&current_fish->destinations_queue);
+            // struct fish *fish_with_destination_in_view = create_fish(current_fish->name, current_fish->top_left, current_fish->height, current_fish->width, current_fish->movement_pattern);
+            // while (current_destination != NULL) {
+            //     for (int j = 0; current_destination->views[j] != NULL; j++) {
+            //         // if the destination belongs to the view and has not been sent yet
+            //         if ((strcmp(current_destination->views[j]->view_name, view->name) == 0) && (current_destination->views[j]->is_sent == NOK)) {
+            //             add_specific_destination(fish_with_destination_in_view, current_destination);
+            //             fish_found_bool = OK;
+            //             break;
+            //         }
+            //     }
+            //     current_destination = STAILQ_NEXT(current_destination, next);
+            // }
+            // if (fish_found_bool == OK) {
+            //     fishes[i] = fish_with_destination_in_view;
+            //     i++;
+            // } else {
+            //     free_fish(fish_with_destination_in_view);
+            // }
         // }
         }
         current_fish = current_fish->next;
@@ -592,5 +609,6 @@ int destination_sent_to_view(char *view_name, struct fish_destination *destinati
             return destination->views[i]->is_sent;
         }
     }
-    return NOK;
+    // if the view is not in the destination --> no need to send it
+    return OK;
 }
