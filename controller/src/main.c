@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
         log_message(log, LOG_ERROR, "The io log file could not be opened");
     } if (parameters.accept_log == NULL) {
         log_message(log, LOG_ERROR, "The accept log file could not be opened");
-    } if (parameters.prompt_log == NULL ) {
+    } if (parameters.prompt_log == NULL) {
         log_message(log, LOG_ERROR, "The prompt log file could not be opened");
     } if (parameters.timeout_log == NULL) {
         log_message(log, LOG_ERROR, "The timeout log file could not be opened");
@@ -101,6 +101,7 @@ int main(int argc, char const *argv[]) {
     if (terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
         log_message(log, LOG_INFO, "Aquarium initialized");
+        show_aquarium(aquarium, log);
         pthread_mutex_lock(&aquarium_mutex);
         fishes = aquarium->fishes;
         current_fish = fishes;
@@ -120,8 +121,8 @@ int main(int argc, char const *argv[]) {
         fishes = aquarium->fishes;
         current_fish = fishes;
         while (current_fish != NULL && current_fish->status == STARTED) {
-            remove_finished_movements(current_fish);
-            if (len_movements_queue(current_fish) < 5) {
+            remove_finished_movements(aquarium, current_fish);
+            if (len_movements_queue(current_fish) < 10) {
                 int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
                 log_message(log, LOG_INFO, "Fish %s is at %dx%d and it is %ld", current_fish->name, current_fish->top_left.x, current_fish->top_left.y, time(NULL));
@@ -178,8 +179,8 @@ int main(int argc, char const *argv[]) {
 
     log_message(log, LOG_INFO, "Terminated accept thread");
     log_message(log, LOG_INFO, "===== thread_main() terminated =====");
-    
+
     fclose(log);
-    
+
     return EXIT_SUCCESS;
 }

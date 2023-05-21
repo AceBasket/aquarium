@@ -16,7 +16,13 @@ int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     return NOK;
 }
 
-void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd, int bool_get_next_destination) {
+
+
+/**
+ * @brief Prints one destination per fish on the socket. If the first destination was already sent, print the next unsent one
+ *
+ */
+void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd) {
     if (fishes_in_view[0] == NULL) {
         log_message(log, LOG_WARNING, "No fish in view");
         return;
@@ -32,26 +38,26 @@ void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct 
         log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
     }
     while (fishes_in_view[iter] != NULL) {
-        if (bool_get_next_destination) {
-            if (len_movements_queue(fishes_in_view[iter]) < 2) {
-                log_message(log, LOG_WARNING, "Fish %s has no next destination\n", fishes_in_view[iter]->name);
-                iter++;
-                continue;
-            }
-            destination = STAILQ_NEXT(STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue), next);
-        } else {
-            destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
+        destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
+
+        /* Searching for destination to send to view */
+        while (destination_sent_to_view(view->name, destination) == OK) {
+            destination = STAILQ_NEXT(destination, next);
         }
+
         if (destination == NULL) {
-            if (dprintf(socket_fd, " [%s at %dx%d,%dx%d,%d]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.x), y_coordinate_to_percentage(view, fishes_in_view[iter]->top_left.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, 0) < 0) {
-                log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
-            }
+            // skip fish
             iter++;
             continue;
         }
         if (dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, destination->time_at_destination - time(NULL)) < 0) {
             log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
         }
+
+        mark_destination_as_sent(view->name, destination);
+        fprintf(log, "Destination %dx%d marked as sent for view %s\n", destination->destination_coordinates.x, destination->destination_coordinates.y, view->name);
+        fflush(log);
+
         iter++;
     }
     if (dprintf(socket_fd, "\n") < 0) {
@@ -98,7 +104,7 @@ void get_fishes_handler(FILE *log, __attribute__((unused))struct parse *parser, 
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 1);
-    print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
+    list_fishes_for_client(log, fishes_in_view, view, socket_fd);
     free_fishes_array(fishes_in_view, view);
 }
 
@@ -218,8 +224,7 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
     }
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 1);
-    print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 0);
-    print_list_fish_for_client(log, fishes_in_view, view, socket_fd, 1);
+    list_fishes_for_client(log, fishes_in_view, view, socket_fd);
     // dprintf(socket_fd, "\n"); // to signal end of lists to client
     free_fishes_array(fishes_in_view, view);
 }

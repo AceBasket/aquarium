@@ -7,7 +7,7 @@
 #include "../../parser/parser.h"
 // #include "utils.h"
 
-void print_list_fish_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd, int bool_get_next_destination);
+void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd);
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 void get_fishes_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 void ping_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);

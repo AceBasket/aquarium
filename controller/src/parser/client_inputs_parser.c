@@ -28,7 +28,7 @@ struct parse *parse_clients(char *str) {
         return p;
     }
     //ADD_FISH
-    else if (strcmp(command, "ADD_FISH") == 0) {
+    else if (strcmp(command, "addFish") == 0) {
         p->func_name = ADD_FISH;
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {

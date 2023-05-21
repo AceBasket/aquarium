@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerThread implements Runnable {
     private View view;
-    private Aquarium fishesList;
+    private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
     private final ConcurrentLinkedQueue<ParserResult> receivedQueue;
     private final ConcurrentLinkedQueue<String> sendQueue;
@@ -15,7 +15,6 @@ public class ServerThread implements Runnable {
     public ServerThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue, long id) {
         this.view = view;
-        this.fishesList = aquarium;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         try {
@@ -49,7 +48,7 @@ public class ServerThread implements Runnable {
                 // listFishesDestinations = false;
                 for (Fish fish : fishesList.getFishes()) {
                     // if fish started but less than two destinations
-                    fish.removeExpiredDestinations();
+                    // fish.removeExpiredDestinations();
                     if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 1) {
                         logFile.println("Fish " + fish.getName() + " needs an update on his destinations");
                         logFile.flush();
@@ -92,9 +91,9 @@ public class ServerThread implements Runnable {
                         return; // end thread
 
                     default:
-                        logFile.println("Not a command handled by server thread");
+                        logFile.println(response.getFunction() + ": Not a command handled by server thread");
                         logFile.flush();
-                        Thread.sleep(500); // sleep 1 second and try again
+                        Thread.sleep(300); // sleep 0.3 second and try again
                         break;
                 }
 
@@ -114,7 +113,7 @@ public class ServerThread implements Runnable {
                 // }
                 // }
                 // }
-                Thread.sleep(200); // 200ms = 0.2s
+                // Thread.sleep(200); // 200ms = 0.2s
 
             }
 
