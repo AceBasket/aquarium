@@ -2,9 +2,9 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <stdint.h>
-#include "../src/utils.h"
 #include "../src/parser/client_inputs_parser.h"
 #include "../src/parser/prompt_parser.h"
+#include "../src/parser/file_parser.h"
 
 
 // ==============================
@@ -248,6 +248,7 @@ void test_log_out() {
 }
 
 
+
 // =======================
 //   prompt_parser tests 
 // =======================
@@ -396,11 +397,73 @@ void test_save() {
 
 
 
+// =====================
+//   file_parser tests 
+// =====================
+void test_cfg_file() {
+    FILE *fd = fopen("src/controller.cfg", "r");
+    if (fd == NULL) {
+        printf("ERROR on opening file\n");
+    }
+    struct parse *parsed_file = parse_file(fd);
 
+    assert(strcmp(parsed_file->arguments[0], "controller-port") == 0);
+    assert(strcmp(parsed_file->arguments[1], "12345") == 0);
+    assert(strcmp(parsed_file->arguments[2], "display-timeout-value") == 0);
+    assert(strcmp(parsed_file->arguments[3], "45") == 0);
+    assert(strcmp(parsed_file->arguments[4], "fish-update-interval") == 0);
+    assert(strcmp(parsed_file->arguments[5], "1") == 0);
+
+    fclose(fd);
+    free_parser(parsed_file);
+}
+
+void test_aquariums_file() {
+    FILE *fd = fopen("aquariums_files/aquarium0", "r");
+    if (fd == NULL) {
+        printf("ERROR on opening file\n");
+    }
+    struct parse *parsed_file = parse_file(fd);    
+
+    assert(strcmp(parsed_file->arguments[0], "1000") == 0);
+    assert(strcmp(parsed_file->arguments[1], "1000") == 0);
+
+    assert(strcmp(parsed_file->arguments[2], "N1") == 0);
+    assert(strcmp(parsed_file->arguments[3], "0") == 0);
+    assert(strcmp(parsed_file->arguments[4], "0") == 0);
+    assert(strcmp(parsed_file->arguments[5], "500") == 0);
+    assert(strcmp(parsed_file->arguments[6], "500") == 0);
+
+    assert(strcmp(parsed_file->arguments[7], "N2") == 0);
+    assert(strcmp(parsed_file->arguments[8], "500") == 0);
+    assert(strcmp(parsed_file->arguments[9], "0") == 0);
+    assert(strcmp(parsed_file->arguments[10], "500") == 0);
+    assert(strcmp(parsed_file->arguments[11], "500") == 0);
+
+    assert(strcmp(parsed_file->arguments[12], "N3") == 0);
+    assert(strcmp(parsed_file->arguments[13], "0") == 0);
+    assert(strcmp(parsed_file->arguments[14], "500") == 0);
+    assert(strcmp(parsed_file->arguments[15], "500") == 0);
+    assert(strcmp(parsed_file->arguments[16], "500") == 0);
+
+    assert(strcmp(parsed_file->arguments[17], "N4") == 0);
+    assert(strcmp(parsed_file->arguments[18], "500") == 0);
+    assert(strcmp(parsed_file->arguments[19], "500") == 0);
+    assert(strcmp(parsed_file->arguments[20], "500") == 0);
+    assert(strcmp(parsed_file->arguments[21], "500") == 0);
+
+    fclose(fd);
+    free_parser(parsed_file);
+}
+
+
+
+// ==============
+//   main tests 
+// ==============
 int main(void) {
-   //parse clients tests
+    // parse clients tests
     // test_status();
-    // printf("Parser tests: .");
     printf(".");
     test_addFish();
     printf(".");
@@ -418,8 +481,9 @@ int main(void) {
     printf(".");
     test_ping();
     // test_log_out(); // not what it should do
+    printf("\nParse clients tests OK\n");
 
-    //parse prompt tests
+    // parse prompt tests
     printf(".");
     test_load();
     printf(".");
@@ -430,6 +494,14 @@ int main(void) {
     test_del_view();
     printf(".");
     test_save();
-    printf(" OK\n");
+    printf("\nParse prompt tests OK\n");
+
+    // parse files tests
+    printf(".");
+    test_cfg_file();
+    printf(".");
+    test_aquariums_file();
+    printf("\nParse files tests OK\n");
+
     return 0;
 }
