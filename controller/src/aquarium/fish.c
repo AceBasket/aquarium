@@ -326,7 +326,12 @@ void debug_destinations_queue(FILE *log, struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
     fprintf(log, "destinations queue:\n");
     while (current_destination != NULL) {
-        fprintf(log, "%dx%d at %ld\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination);
+        if (current_destination->views[0] == NULL) {
+            fprintf(log, "%dx%d at %ld (no view)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination);
+            current_destination = STAILQ_NEXT(current_destination, next);
+            continue;
+        }
+        fprintf(log, "%dx%d at %ld in view %s (at least)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination, current_destination->views[0]->view_name);
         current_destination = STAILQ_NEXT(current_destination, next);
     }
     fprintf(log, "\n");

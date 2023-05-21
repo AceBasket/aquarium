@@ -86,6 +86,10 @@ public class FishImage {
         return percentage / 100 * aquariumSize;
     }
 
+    boolean coordinatesOnBorder(double windowWidth, double windowHeight, double x, double y) {
+        return x <= 0 || y <= 0 || x >= windowWidth || y >= windowHeight;
+    }
+
     // A method that updates the position and direction of the fish
     public void move(double width, double height) {
 
@@ -114,24 +118,25 @@ public class FishImage {
 
         if (!imageView.isVisible()) {
             /*
-             * If position is on one of the borders and it crosses the window, set visible
+             * If position is on one of the borders and it goes inside the window, set
+             * visible
              */
-            if (startX <= 0 && endX > 0 || startY <= 0 && endY > 0 || startX >= width && endX < width
-                    || startY >= height && endY < height) {
-                logFile.println("Fish " + fishData.getName() + " becomes visible (crossing view)");
+            if (coordinatesOnBorder(width, height, startX, startY) && !coordinatesOnBorder(width, height, endX, endY)) {
+                logFile.println("Fish " + fishData.getName() + " becomes visible (enters view)");
                 logFile.flush();
                 imageView.setVisible(true);
             }
             /*
-             * Else, if position is on one of the borders and it stays on that same border,
+             * Else, if position is on one of the borders and its destination is a border,
              * stay hidden
              */
-            else if (startX <= 0 && endX <= 0 || startY <= 0 && endY <= 0 || startX >= width && endX >= width
-                    || startY >= height && endY >= height) {
-                logFile.println("Fish " + fishData.getName() + " stays hidden (follows side)");
+            else if (coordinatesOnBorder(width, height, startX, startY)
+                    && coordinatesOnBorder(width, height, endX, endY)) {
+                logFile.println("Fish " + fishData.getName() + " stays hidden (from border to border)");
                 logFile.flush();
                 imageView.setVisible(false);
             }
+
             /* If position is in the window, set visible */
             else {
                 logFile.println("Fish " + fishData.getName() + " becomes visible (in view)");
@@ -177,11 +182,14 @@ public class FishImage {
 
             isMoving = false;
 
-            if (endX <= 0 || endY <= 0) {
+            if (coordinatesOnBorder(width, height, endX, endY)) {
                 logFile.println("Fish " + fishData.getName() + " is now hidden");
                 logFile.flush();
                 imageView.setVisible(false);
             }
+
+            // Remove the first destination from the list of destinations
+            fishData.removeExpiredDestinations();
         };
 
         // Add the key frames to the timeline
