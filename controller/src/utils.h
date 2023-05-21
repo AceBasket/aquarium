@@ -23,6 +23,7 @@ extern pthread_mutex_t aquarium_mutex;
 extern pthread_mutex_t views_sockets_mutex;
 extern pthread_mutex_t terminate_threads_mutex;
 extern pthread_mutex_t views_sockets_mutex;
+extern enum log_level verbosity_level;
 
 void sigpipe_handler(int signum);
 #endif

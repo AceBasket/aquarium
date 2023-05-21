@@ -97,6 +97,5 @@ void *thread_prompt(void *parameters) {
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
     log_message(log, LOG_INFO, "===== thread_prompt() terminated =====");
-    fflush(log);
     return EXIT_SUCCESS;
 }

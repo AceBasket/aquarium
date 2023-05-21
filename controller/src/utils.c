@@ -1,6 +1,8 @@
 #include "utils.h"
 
+#ifdef TESTS
 enum log_level verbosity_level = LOG_INFO;
+#endif
 
 void exit_if(int condition, const char *message) {
     if (condition) {

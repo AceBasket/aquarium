@@ -24,19 +24,19 @@ int handle_error(FILE *log, struct parse *parser, int socket_fd) {
  */
 void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd) {
     if (fishes_in_view[0] == NULL) {
-        fprintf(log, "Error: no fish in view\n");
-        fflush(log);
+        log_message(log, LOG_WARNING, "No fish in view");
         return;
     }
     if (view == NULL) {
-        fprintf(log, "Error: view is NULL\n");
-        fflush(log);
+        log_message(log, LOG_WARNING, "View is NULL");
         return;
     }
 
     int iter = 0;
     struct fish_destination *destination;
-    dprintf(socket_fd, "list");
+    if (dprintf(socket_fd, "list") < 0) {
+        log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
+    }
     while (fishes_in_view[iter] != NULL) {
         if (len_movements_queue(fishes_in_view[iter]) < 2) {
             fprintf(log, "Error: fish %s has no next destination\n", fishes_in_view[iter]->name);

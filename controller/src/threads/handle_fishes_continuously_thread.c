@@ -9,9 +9,6 @@
 #include <unistd.h>
 
 void *get_fishes_continuously(void *parameters) {
-
-    signal(SIGPIPE, sigpipe_handler);
-
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
     int file_name_len = strlen("log_handle_fishes_continuously.log") + 1 + 1;
     char file_name[40] = {};
@@ -20,8 +17,11 @@ void *get_fishes_continuously(void *parameters) {
     file_name[file_name_len - 1] = '\0';
     FILE *log = fopen(file_name, "w");
     exit_if(log == NULL, "fopen failed");
-    fprintf(log, "===== get_fishes_continuously() =====\n");
-    fflush(log);
+    log_message(log, LOG_INFO, "===== get_fishes_continuously() =====");
+
+    if (signal(SIGPIPE, sigpipe_handler) == SIG_ERR) {
+        log_message(log, LOG_ERROR, "The signal handler could not be changed");
+    }
 
     pthread_mutex_lock(&aquarium_mutex);
     struct view *view = get_view_from_socket(aquarium, socket_fd);
@@ -38,15 +38,13 @@ void *get_fishes_continuously(void *parameters) {
         fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 0); // 0 = false
         if (fishes_in_view[0] == NULL) {
             pthread_mutex_unlock(&aquarium_mutex);
-            fprintf(log, "Error: no fishes in view\n");
-            fflush(log);
+            log_message(log, LOG_WARNING, "No fish in the view");
             pthread_mutex_lock(&aquarium_mutex);
         } else {
             /* Checking that we can initialize our search for the minimum time at destination */
             if (STAILQ_EMPTY(&fishes_in_view[0]->destinations_queue)) {
                 pthread_mutex_unlock(&aquarium_mutex);
-                fprintf(log, "Error: no destinations in queue\n");
-                fflush(log);
+                log_message(log, LOG_WARNING, "No destination in the queue");
                 pthread_mutex_lock(&aquarium_mutex);
             } else {
                 /* Finding the minimum time at destination */
@@ -78,9 +76,7 @@ void *get_fishes_continuously(void *parameters) {
 
 
             }
-
         }
-
         free_fishes_array(fishes_in_view, view);
 
         pthread_mutex_unlock(&aquarium_mutex);
@@ -95,8 +91,7 @@ void *get_fishes_continuously(void *parameters) {
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
     free(parameters);
-    fprintf(log, "===== get_fishes_continuously() terminated =====\n");
-    fflush(log);
+    log_message(log, LOG_INFO, "===== get_fishes_continuously() terminated =====");
     fclose(log);
     return NULL;
 }

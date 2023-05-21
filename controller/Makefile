@@ -42,7 +42,6 @@ valgrind: dir ${BIN}
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=yes ${BIN} 5 8000
 
 test: dir ${TEST}
-	TESTS=-DTESTS
 	@for test in ${TEST}; do \
 		echo "Running $$test"; \
 		$$test; \
