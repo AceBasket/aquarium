@@ -37,13 +37,13 @@ public class Main {
             // View view = new View("0.0.0.0", 8000);
             LogLevel verbosityLevel = LogLevel.valueOf(System.getProperty("VERBOSITY_LEVEL", "INFO"));
             Log.setVerbosityLevel(verbosityLevel);
-            View view = new View(new File("src/affichage.cfg"));
+            Client client = new Client(new File("src/affichage.cfg"));
             Aquarium aquarium = Aquarium.getInstance();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
             ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
-            Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue, id);
-            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue, id);
-            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue, id);
+            Runnable readFromServerThread = new ReadFromServerThread(client, receivedQueue, sendQueue, id);
+            Runnable serverThread = new ServerThread(client, aquarium, receivedQueue, sendQueue, id);
+            Runnable promptThread = new PromptThread(client, aquarium, receivedQueue, sendQueue, id);
             Thread prompt = new Thread(promptThread);
             Thread server = new Thread(serverThread);
             Thread io = new Thread(readFromServerThread);
@@ -100,7 +100,7 @@ public class Main {
                     Log.logMessage(main.logFile, LogLevel.INFO, "Prompt thread finished");
                     io.join();
                     Log.logMessage(main.logFile, LogLevel.INFO, "IO thread finished");
-                    view.close();
+                    client.close();
                     Log.logMessage(main.logFile, LogLevel.INFO, "Main thread interrupted");
                     return;
                 }

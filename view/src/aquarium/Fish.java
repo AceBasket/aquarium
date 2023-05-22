@@ -60,6 +60,13 @@ public class Fish {
         this.status = statusEnum.STOPPED;
     }
 
+    public Fish() {
+        // Dummy fish
+        this.name = "";
+        this.width = -1;
+        this.height = -1;
+    }
+
     public synchronized String getName() {
         return name;
     }

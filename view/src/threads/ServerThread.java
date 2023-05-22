@@ -7,15 +7,15 @@ import java.io.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class ServerThread implements Runnable {
-    private View view;
+    private Client client;
     private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
     private final ConcurrentLinkedQueue<ParserResult> receivedQueue;
     private final ConcurrentLinkedQueue<String> sendQueue;
 
-    public ServerThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+    public ServerThread(Client client, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue, long id) {
-        this.view = view;
+        this.client = client;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
         try {
@@ -35,28 +35,13 @@ public class ServerThread implements Runnable {
         // First thing first is greeting the server
         try {
             // view.talkToServer("Testing connection");
-            sendQueue.offer(ServerThreadHandlers.doHello(logFile, view));
+            sendQueue.offer(ServerThreadHandlers.doHello(logFile, client));
             Log.logMessage(logFile, LogLevel.INFO, "Sent hello");
             while (true) {
                 if (Thread.currentThread().isInterrupted()) {
                     Log.logMessage(logFile, LogLevel.WARNING, "Server thread interrupted");
                     Thread.currentThread().interrupt();
                     return;
-                }
-                // listFishesDestinations = false;
-                for (Fish fish : fishesList.getFishes()) {
-                    // if fish started but less than two destinations
-                    // fish.removeExpiredDestinations();
-                    if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 1) {
-                        Log.logMessage(logFile, LogLevel.WARNING, "Fish " + fish.getName() + " needs an update on his destinations");
-                        // if (!listFishesDestinations) {
-                        // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
-                        // fishes
-                        // logFile.println("Sent ls");
-                        // logFile.flush();
-                        // listFishesDestinations = true;
-                        // }
-                    }
                 }
                 response = receivedQueue.peek();
                 if (response == null) {
@@ -67,7 +52,7 @@ public class ServerThread implements Runnable {
 
                 switch (response.getFunction()) {
                     case GREETING:
-                        ServerThreadHandlers.greetingHandler(logFile, view, receivedQueue.remove());
+                        ServerThreadHandlers.greetingHandler(logFile, client, receivedQueue.remove());
                         sendQueue.offer("getFishesContinuously");
                         Log.logMessage(logFile, LogLevel.INFO, "Sent getFishesContinuously");
                         break;
@@ -89,24 +74,6 @@ public class ServerThread implements Runnable {
                         Thread.sleep(300); // sleep 0.3 second and try again
                         break;
                 }
-
-                // for (Fish fish : fishesList.getFishes()) {
-                // // if fish started but less than two destinations
-                // if (fish.getSizeDestinations() != -1 && fish.getSizeDestinations() < 2) {
-                // logFile.println(
-                // "[second for loop] Fish " + fish.getName() + " needs an update on his
-                // destinations");
-                // logFile.flush();
-                // if (!listFishesDestinations) {
-                // sendQueue.offer(ServerThreadHandlers.doLs(logFile)); // ask for list of
-                // fishes
-                // logFile.println("Sent ls");
-                // logFile.flush();
-                // listFishesDestinations = true;
-                // }
-                // }
-                // }
-                // Thread.sleep(200); // 200ms = 0.2s
 
             }
 

@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import utils.*;
 
-public class View {
+public class Client {
     // for socket
     private int portNumber;
     private String controllerAddress;
@@ -19,7 +19,7 @@ public class View {
 
     // private Aquarium aquariumView;:
 
-    public View(File config) throws IOException, ParserException {
+    public Client(File config) throws IOException, ParserException {
         displayTimeoutValue = Parser.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);
         id = Parser.parserID(config);
@@ -30,7 +30,7 @@ public class View {
         output = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
     }
 
-    public View(String controllerAddress, int portNumber) throws IOException {
+    public Client(String controllerAddress, int portNumber) throws IOException {
         this.controllerAddress = controllerAddress;
         this.portNumber = portNumber;
         socket = new Socket(controllerAddress, portNumber);
@@ -46,7 +46,7 @@ public class View {
         return this.connected;
     }
 
-    public synchronized void connect() {
+    public synchronized void setConnected() {
         this.connected = true;
     }
 
