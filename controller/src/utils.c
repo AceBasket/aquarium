@@ -1,4 +1,6 @@
 #include "utils.h"
+#include <sys/time.h>
+#include <math.h>
 
 #ifdef TESTS
 enum log_level verbosity_level = LOG_INFO;
@@ -13,6 +15,24 @@ void exit_if(int condition, const char *message) {
         }
         exit(1);
     }
+}
+
+unsigned long long get_time_in_milliseconds() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (unsigned long long)tv.tv_sec * 1000 + (unsigned long long)tv.tv_usec / 1000;
+}
+
+unsigned long long add_seconds_to_time_in_milliseconds(unsigned long long time, int seconds) {
+    return time + (unsigned long long)seconds * 1000;
+}
+
+time_t get_seconds_to_get_to_time_in_milliseconds(unsigned long long time) {
+    unsigned long long current_time = get_time_in_milliseconds();
+    if (current_time > time) {
+        return 0;
+    }
+    return (time_t)round((time - current_time) / 1000);
 }
 
 

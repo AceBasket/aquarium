@@ -83,12 +83,10 @@ public class FishTest {
         f.addNewDestination(5, 6, 1);
         f.start();
         assert f.getSizeDestinations() == 2;
+        f.setDisplayedFirstDestination();
         f.removeExpiredDestinations();
         assert f.getFirstDestination().equals(new Coordinates(5, 6));
-        try {
-            Thread.sleep(1050);
-        } catch (Exception e) {
-        }
+        f.setDisplayedFirstDestination();
         f.removeExpiredDestinations();
         assert f.getSizeDestinations() == 0;
     }
@@ -119,7 +117,7 @@ public class FishTest {
     void testGetTimeToGetToFirstDestination() {
         Fish f = new Fish("Nemo", 1, 2, 3, 4);
         f.addNewDestination(3, 4, 5);
-        assert f.getTimeToGetToFirstDestination() == Instant.now().getEpochSecond() + 5;
+        assert f.getTimeToGetToFirstDestination() == System.currentTimeMillis() + 5000;
     }
 
 }

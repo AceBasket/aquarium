@@ -125,7 +125,7 @@ int main(int argc, char const *argv[]) {
             if (len_movements_queue(current_fish) < 10) {
                 int len = len_movements_queue(current_fish);
                 add_movement(aquarium, current_fish);
-                log_message(log, LOG_INFO, "Fish %s is at %dx%d and it is %ld", current_fish->name, current_fish->top_left.x, current_fish->top_left.y, time(NULL));
+                log_message(log, LOG_INFO, "Fish %s is at %dx%d and it is %ld", current_fish->name, current_fish->top_left.x, current_fish->top_left.y, get_time_in_milliseconds());
                 log_message(log, LOG_INFO, "%s had %d destinations. Movement added", current_fish->name, len);
                 debug_destinations_queue(log, current_fish);
             }

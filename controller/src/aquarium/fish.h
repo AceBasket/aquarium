@@ -12,7 +12,7 @@ typedef STAILQ_HEAD(tailq, fish_destination) tailq_t;
 
 struct fish_destination {
     struct coordinates destination_coordinates;
-    time_t time_at_destination;
+    unsigned long long time_at_destination;
     struct view_of_destination *views[MAX_VIEWS + 1]; //Array of views where the fish has to go (NULL terminates the array)
     STAILQ_ENTRY(fish_destination) next;
 };

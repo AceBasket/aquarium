@@ -22,14 +22,14 @@ public class AquariumTest {
     }
 
     void testAddFish() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         assert aquarium.getFishes().contains(fish);
     }
 
     void testRemoveFish() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         aquarium.removeFish("Nemo");
@@ -37,14 +37,14 @@ public class AquariumTest {
     }
 
     void testGetFish() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         assert aquarium.getFish("Nemo").equals(fish);
     }
 
     void testSetFishDestination() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         aquarium.setFishDestination(fish, 1, 1, 1);
@@ -52,7 +52,7 @@ public class AquariumTest {
     }
 
     void testSetFishPosition() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         aquarium.setFishPosition(fish, 1, 1);
@@ -60,7 +60,7 @@ public class AquariumTest {
     }
 
     void testStartFish() {
-        Aquarium aquarium = new Aquarium();
+        Aquarium aquarium = Aquarium.getInstance();
         Fish fish = new Fish("Nemo", 0, 0, 1, 1);
         aquarium.addFish(fish);
         aquarium.startFish("Nemo");

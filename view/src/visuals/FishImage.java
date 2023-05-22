@@ -106,15 +106,15 @@ public class FishImage {
         double startY = percentagesToPixel(fishData.getPosition().getY(), height);
         double endX = percentagesToPixel(fishData.getFirstDestination().getX(), width);
         double endY = percentagesToPixel(fishData.getFirstDestination().getY(), height);
-        double duration = fishData.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond();
+        double duration = (fishData.getTimeToGetToFirstDestination() - System.currentTimeMillis()) / 1000.0;
 
         /*
          * We are going to display movement to next destination, so we set the fish as
          * displayed
          */
-        fishData.setDisplayed();
+        fishData.setDisplayedFirstDestination();
 
-        logFile.println(Instant.now());
+        logFile.println(System.currentTimeMillis());
         logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
                 + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
         logFile.flush();

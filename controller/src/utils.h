@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <pthread.h>
 
 #define OK 1
 #define NOK 0
@@ -28,6 +29,9 @@ extern enum log_level verbosity_level;
 void sigpipe_handler(int signum);
 #endif
 void exit_if(int condition, const char *message);
+unsigned long long get_time_in_milliseconds();
+unsigned long long add_seconds_to_time_in_milliseconds(unsigned long long time, int seconds);
+time_t get_seconds_to_get_to_time_in_milliseconds(unsigned long long time);
 void log_message(FILE *log, enum log_level level, const char *message, ...);
 
 #endif // _UTILS_H_

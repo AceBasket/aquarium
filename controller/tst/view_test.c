@@ -36,7 +36,7 @@ void test_add_view_already_in_aquarium() {
     assert(add_view(aquarium, view) == NOK);
     assert(free_aquarium(aquarium));
 }
-void test_add_view_outside_of_aquarium_boundaries(){
+void test_add_view_outside_of_aquarium_boundaries() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct view *view1 = create_view("view1", (struct coordinates) { 40, 50 }, 140, 150);
     struct view *view2 = create_view("view2", (struct coordinates) { 90, 90 }, 50, 50);
@@ -91,32 +91,31 @@ void test_get_views_from_coordinates() {
     assert(add_view(aquarium, view2) == OK);
     assert(add_view(aquarium, view3) == OK);
     struct view **views = get_views_from_coordinates(aquarium, (struct coordinates) { 50, 50 });
-    assert(views[0] == view);
-    assert(views[1] == view2);
-    assert(views[2] == view3);
+    assert(strcmp(views[0]->name, view->name) == 0);
+    assert(strcmp(views[1]->name, view2->name) == 0);
+    assert(strcmp(views[2]->name, view3->name) == 0);
     assert(views[3] == NULL);
-    free(views);
+    free_views_array(views);
     assert(free_aquarium(aquarium));
 }
 
 int main() {
-    // printf("View tests: .");
-    //printf(".");
-    //test_create_view();
-    //printf(".");
-    //test_add_view();
-    //printf(".");
-    //test_add_view_already_in_aquarium();
-    //printf(".");
+    printf(".");
+    test_create_view();
+    printf(".");
+    test_add_view();
+    printf(".");
+    test_add_view_already_in_aquarium();
+    printf(".");
     test_add_view_outside_of_aquarium_boundaries();
-    //printf(".");
-    //test_remove_view();
-    //printf(".");
-    //test_remove_view_not_in_aquarium();
-    //printf(".");
-    //test_get_view();
-    //printf(".");
-    //test_get_views_from_coordinates();
-    //printf(" OK\n");
+    printf(".");
+    test_remove_view();
+    printf(".");
+    test_remove_view_not_in_aquarium();
+    printf(".");
+    test_get_view();
+    printf(".");
+    test_get_views_from_coordinates();
+    printf(" OK\n");
     return EXIT_SUCCESS;
 }

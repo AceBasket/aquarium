@@ -30,7 +30,7 @@ void *get_fishes_continuously(void *parameters) {
     fprintf(log, "View: %s\n", view->name);
     pthread_mutex_unlock(&aquarium_mutex);
     struct fish **fishes_in_view;
-    time_t minimum_time_to_destination = 0;
+    unsigned long long minimum_time_to_destination = 0;
 
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK && fd_is_valid(socket_fd)) {
@@ -82,8 +82,8 @@ void *get_fishes_continuously(void *parameters) {
         free_fishes_array(fishes_in_view, view);
 
         pthread_mutex_unlock(&aquarium_mutex);
-        // if (minimum_time_to_destination > time(NULL)) {
-        //     usleep((minimum_time_to_destination - time(NULL)) * 1000000 - 500000); // - 500000 to be sure to not miss the time
+        // if (minimum_time_to_destination > get_time_in_milliseconds()) {
+        //     usleep((minimum_time_to_destination - get_time_in_milliseconds()) * 1000000 - 500000); // - 500000 to be sure to not miss the time
         // } else { // in case there is no fish in the view
         //     sleep(1);
         // }

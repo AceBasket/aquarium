@@ -327,11 +327,11 @@ void debug_destinations_queue(FILE *log, struct fish *fish) {
     fprintf(log, "destinations queue:\n");
     while (current_destination != NULL) {
         if (current_destination->views[0] == NULL) {
-            fprintf(log, "%dx%d at %ld (no view)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination);
+            fprintf(log, "%dx%d at %lld (no view)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination);
             current_destination = STAILQ_NEXT(current_destination, next);
             continue;
         }
-        fprintf(log, "%dx%d at %ld in view %s (at least)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination, current_destination->views[0]->view_name);
+        fprintf(log, "%dx%d at %lld in view %s (at least)\n", current_destination->destination_coordinates.x, current_destination->destination_coordinates.y, current_destination->time_at_destination, current_destination->views[0]->view_name);
         current_destination = STAILQ_NEXT(current_destination, next);
     }
     fprintf(log, "\n");
@@ -358,7 +358,7 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = rand() % aquarium->width; // between 0 and width
     new_destination->destination_coordinates.y = rand() % aquarium->height; // between 0 and height
-    time_t time_at_destination_previous_destination = time(NULL);
+    unsigned long long time_at_destination_previous_destination = get_time_in_milliseconds();
     if (!STAILQ_EMPTY(&fish->destinations_queue)) {
         struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
         // Get the last element of the queue
@@ -382,10 +382,10 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
         float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, element->destination_coordinates)) / fish->speed;
 // printf("(add movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, element->destination_coordinates.x, element->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
         /* Forbid to have less than a second between two destinations */
-        new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? time_at_destination_previous_destination + 1 : time_at_destination_previous_destination + round(time_to_get_to_new_destination);
+        new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, 1) : add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, round(time_to_get_to_new_destination));
 // printf("=> %ld\n", new_destination->time_at_destination);
     } else {
-        new_destination->time_at_destination = time_at_destination_previous_destination + (time_t)((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed);
+        new_destination->time_at_destination = add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, (int)round((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed));
     }
 
     // adding all the views to which the destination belongs to
@@ -457,7 +457,7 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
         float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, origin->destination_coordinates)) / fish->speed;
 // printf("(add intermediate movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, origin->destination_coordinates.x, origin->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
         // forbid to have less than a second between two destinations
-        new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? origin->time_at_destination + 1 : origin->time_at_destination + round(time_to_get_to_new_destination);
+        new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(origin->time_at_destination, 1) : add_seconds_to_time_in_milliseconds(origin->time_at_destination, (int)round(time_to_get_to_new_destination));
 // printf("=> %ld\n", new_destination->time_at_destination);
         // Adding all the views to which the destination belongs to
         add_views_to_destination(aquarium, new_destination);
@@ -593,7 +593,7 @@ int remove_finished_movements(struct aquarium *aquarium, struct fish *fish) {
     while (current_destination != NULL) {
         // TODO: which one to choose ?
         // if (destination_sent_to_all_views(aquarium, current_destination) == OK) {
-        if (current_destination->time_at_destination <= time(NULL) && (destination_sent_to_all_views(aquarium, current_destination) == OK)) {
+        if (current_destination->time_at_destination <= get_time_in_milliseconds() && (destination_sent_to_all_views(aquarium, current_destination) == OK)) {
             if (update_fish_coordinates(fish) == NOK) {
                 return NOK;
             };

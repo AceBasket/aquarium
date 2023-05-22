@@ -10,7 +10,7 @@ class FishDestination {
 
     public FishDestination(int destinationX, int destinationY, int movementDuration) {
         this.destination = new Coordinates(destinationX, destinationY);
-        this.deadline = movementDuration + (int) Instant.now().getEpochSecond();
+        this.deadline = System.currentTimeMillis() + movementDuration * 1000;
     }
 
     public Coordinates getDestination() {
@@ -112,9 +112,6 @@ public class Fish {
     }
 
     public synchronized void removeExpiredDestinations() {
-        // while (!destinations.isEmpty()
-        // && destinations.getFirst().getDeadline() <= Instant.now().getEpochSecond()
-        // && destinations.getFirst().isDisplayed()) {
         while (!destinations.isEmpty() && destinations.getFirst().isDisplayed()) {
             destinations.removeFirst();
         }
@@ -125,7 +122,7 @@ public class Fish {
         return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
     }
 
-    public synchronized void setDisplayed() {
+    public synchronized void setDisplayedFirstDestination() {
         destinations.getFirst().setDisplayed();
     }
 

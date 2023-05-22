@@ -75,10 +75,10 @@ public class Main {
                 if (!aquarium.getFishes().isEmpty()) {
                     for (Fish fish : aquarium.getFishes()) {
                         if (fish.getSizeDestinations() > 0) {
-                            main.logFile.println("It is " + Instant.now().getEpochSecond() + " and Fish "
+                            main.logFile.println("It is " + System.currentTimeMillis() + " and Fish "
                                     + fish.getName() + " is at " + fish.getPosition().toString()
                                     + " and needs to go to " + fish.getFirstDestination().toString() + " in "
-                                    + (fish.getTimeToGetToFirstDestination() - Instant.now().getEpochSecond())
+                                    + ((fish.getTimeToGetToFirstDestination() - System.currentTimeMillis()) / 1000)
                                     + " seconds");
                             main.logFile.flush();
                         }
