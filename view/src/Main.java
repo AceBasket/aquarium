@@ -33,13 +33,13 @@ public class Main {
             // main.logFile.flush();
             // View view = new View("192.168.191.78", 8888);
             // View view = new View("0.0.0.0", 8000);
-            View view = new View(new File("src/affichage.cfg"));
+            Client client = new Client(new File("src/affichage.cfg"));
             Aquarium aquarium = Aquarium.getInstance();
             ConcurrentLinkedQueue<ParserResult> receivedQueue = new ConcurrentLinkedQueue<ParserResult>();
             ConcurrentLinkedQueue<String> sendQueue = new ConcurrentLinkedQueue<String>();
-            Runnable readFromServerThread = new ReadFromServerThread(view, receivedQueue, sendQueue, id);
-            Runnable serverThread = new ServerThread(view, aquarium, receivedQueue, sendQueue, id);
-            Runnable promptThread = new PromptThread(view, aquarium, receivedQueue, sendQueue, id);
+            Runnable readFromServerThread = new ReadFromServerThread(client, receivedQueue, sendQueue, id);
+            Runnable serverThread = new ServerThread(client, aquarium, receivedQueue, sendQueue, id);
+            Runnable promptThread = new PromptThread(client, aquarium, receivedQueue, sendQueue, id);
             Thread prompt = new Thread(promptThread);
             Thread server = new Thread(serverThread);
             Thread io = new Thread(readFromServerThread);
@@ -104,7 +104,7 @@ public class Main {
                     io.join();
                     main.logFile.println("IO thread finished");
                     main.logFile.flush();
-                    view.close();
+                    client.close();
                     main.logFile.println("Main thread interrupted");
                     main.logFile.flush();
                     return;

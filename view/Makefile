@@ -21,16 +21,13 @@ FX_CLASSES = ${FX:src/%.java=build/%.class}
 default: dir source
 
 dir:
-	mkdir -p build build/aquarium build/threads build/utils build/img build/visuals
+	@mkdir -p build build/aquarium build/threads build/utils build/img build/visuals
 
 source: ${CLASSES} ${FX_CLASSES}
-	cp -r img/* build/img/
-	cp src/visuals/styles.css build/visuals/styles.css
-	# rm *.log
-	${J} ${FXFLAGS} ${JFLAGS} Main
-
-visual: ${FX_CLASSES}
-	${J} ${JFLAGS} ${FXFLAGS} MainFX
+	@cp -r img/* build/img/
+	@cp src/visuals/styles.css build/visuals/styles.css
+	@# rm *.log
+	@${J} ${FXFLAGS} ${JFLAGS} Main
 
 test: ${TST_CLASSES} 
 	@for test in ${TSTS:tst/%.java=%}; do \
@@ -39,13 +36,13 @@ test: ${TST_CLASSES}
 	done
 
 build/%.class: src/%.java #build/utils/Parser.class build/threads/*.class
-	${JC} ${JCFLAGS} $<
+	@${JC} ${JCFLAGS} $<
 
 ${TST_CLASSES}: build/%.class: tst/%.java
-	${JC} ${JCFLAGS} $<
+	@${JC} ${JCFLAGS} $<
 
 ${FX_CLASSES}: build/%.class: src/%.java
-	${JC} ${JCFLAGS} $<
+	@${JC} ${JCFLAGS} $<
 
 
 clean:

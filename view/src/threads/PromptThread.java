@@ -13,17 +13,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class PromptThread implements Runnable {
     private final ConcurrentLinkedQueue<ParserResult> receivedQueue;
     private final ConcurrentLinkedQueue<String> sendQueue;
-    private final LinkedList<String> commandQueue;
-    private View view;
+    private final LinkedList<ParserResult> commandQueue;
+    private Client client;
     private Aquarium fishesList = Aquarium.getInstance();
     private PrintWriter logFile;
 
-    public PromptThread(View view, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
+    public PromptThread(Client client, Aquarium aquarium, ConcurrentLinkedQueue<ParserResult> receivedQueue,
             ConcurrentLinkedQueue<String> sendQueue, long id) {
-        this.view = view;
+        this.client = client;
         this.receivedQueue = receivedQueue;
         this.sendQueue = sendQueue;
-        this.commandQueue = new LinkedList<String>();
+        this.commandQueue = new LinkedList<ParserResult>();
         try {
             logFile = new PrintWriter("log_prompt_thread" + id + ".log");
         } catch (IOException e) {
@@ -63,14 +63,14 @@ public class PromptThread implements Runnable {
                 try {
                     parsedCommand = Parser.parse(command);
                     if (parsedCommand.getFunction() == PossibleResponses.STATUS) {
-                        PromptThreadHandlers.handleStatus(logFile, view.isConnected(), fishesList);
+                        PromptThreadHandlers.handleStatus(logFile, client.isConnected(), fishesList);
                         continue;
                     }
                 } catch (ParserException | InvalidParameterException e) {
                     System.out.println(e.getMessage());
                     continue;
                 }
-                commandQueue.add(command);
+                commandQueue.add(parsedCommand);
                 sendQueue.offer(command);
                 logFile.println("User asked for: " + command);
             }
@@ -118,18 +118,6 @@ public class PromptThread implements Runnable {
                 logFile.println("Cause: " + e.getCause());
                 logFile.flush();
             }
-        }
-    }
-
-    public String transferCommand(String command) {
-        logFile.println("Sending command: " + command);
-        logFile.flush();
-        view.talkToServer(command);
-        try {
-            return view.listenToServer();
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
         }
     }
 }

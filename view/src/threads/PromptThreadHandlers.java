@@ -9,81 +9,63 @@ import utils.ParserException;
 import utils.ParserResult;
 
 public class PromptThreadHandlers {
-    public static void handleOK(PrintWriter logFile, String originalCommand, Aquarium fishesList) {
-        try {
-            ParserResult parsedCommand = Parser.parse(originalCommand);
-            switch (parsedCommand.getFunction()) {
-                case ADD_FISH:
-                    logFile.println("Adding fish " + parsedCommand.getArgs().get(0) + " at "
-                            + parsedCommand.getArgs().get(1) + "x" + parsedCommand.getArgs().get(2) + " of size "
-                            + parsedCommand.getArgs().get(3) + "x" + parsedCommand.getArgs().get(4));
-                    logFile.flush();
-                    Fish fishToAdd = new Fish(parsedCommand.getArgs().get(0), // name
-                            Integer.parseInt(parsedCommand.getArgs().get(1)), // position.x
-                            Integer.parseInt(parsedCommand.getArgs().get(2)), // position.y
+    public static void handleOK(PrintWriter logFile, ParserResult command, Aquarium fishesList) {
 
-                            Integer.parseInt(parsedCommand.getArgs().get(3)), // length
-                            Integer.parseInt(parsedCommand.getArgs().get(4))); // height
-                    fishesList.addFish(fishToAdd);
-                    logFile.println("Fish added");
-                    logFile.flush();
-                    break;
-                case DEL_FISH:
-                    logFile.println("Deleting fish " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    fishesList.removeFish(parsedCommand.getArgs().get(0));
-                    logFile.println("Fish deleted");
-                    logFile.flush();
-                    break;
-                case START_FISH:
-                    logFile.println("Starting fish " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    fishesList.startFish(parsedCommand.getArgs().get(0));
-                    logFile.println("Fish started");
-                    logFile.flush();
-                    break;
-                case STATUS:
-                    logFile.println("Status received");
-                    logFile.flush();
-                    System.out.println("Status ...");
-                    break;
-                default:
-                    logFile.println("Not a command from user prompt");
-                    logFile.flush();
-                    break;
-            }
-        } catch (ParserException e) {
-            logFile.println("ERROR: " + e.getMessage());
+        switch (command.getFunction()) {
+            case ADD_FISH:
+                logFile.println("Adding fish " + command.getArgs().get(0) + " at "
+                        + command.getArgs().get(1) + "x" + command.getArgs().get(2) + " of size "
+                        + command.getArgs().get(3) + "x" + command.getArgs().get(4));
+                logFile.flush();
+                Fish fishToAdd = new Fish(command.getArgs().get(0), // name
+                        Integer.parseInt(command.getArgs().get(1)), // position.x
+                        Integer.parseInt(command.getArgs().get(2)), // position.y
+
+                        Integer.parseInt(command.getArgs().get(3)), // length
+                        Integer.parseInt(command.getArgs().get(4))); // height
+                fishesList.addFish(fishToAdd);
+                logFile.println("Fish added");
+                logFile.flush();
+                break;
+            case DEL_FISH:
+                logFile.println("Deleting fish " + command.getArgs().get(0));
+                logFile.flush();
+                fishesList.removeFish(command.getArgs().get(0));
+                logFile.println("Fish deleted");
+                logFile.flush();
+                break;
+            case START_FISH:
+                logFile.println("Starting fish " + command.getArgs().get(0));
+                logFile.flush();
+                fishesList.startFish(command.getArgs().get(0));
+                logFile.println("Fish started");
+                logFile.flush();
+                break;
+            default:
+                logFile.println("Not a command from user prompt");
+                logFile.flush();
+                break;
         }
     }
 
-    public static void handleNOK(PrintWriter logFile, String originalCommand) {
-        try {
-            ParserResult parsedCommand = Parser.parse(originalCommand);
-            switch (parsedCommand.getFunction()) {
-                case ADD_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    break;
-                case DEL_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    break;
-                case START_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    break;
-                case STATUS:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
-                    break;
-                default:
-                    logFile.println("Not a command from user prompt");
-                    logFile.flush();
-                    break;
-            }
-        } catch (ParserException e) {
-            logFile.println(e);
+    public static void handleNOK(PrintWriter logFile, ParserResult command) {
+        switch (command.getFunction()) {
+            case ADD_FISH:
+                logFile.println("Error: " + command.getArgs().get(0));
+                logFile.flush();
+                break;
+            case DEL_FISH:
+                logFile.println("Error: " + command.getArgs().get(0));
+                logFile.flush();
+                break;
+            case START_FISH:
+                logFile.println("Error: " + command.getArgs().get(0));
+                logFile.flush();
+                break;
+            default:
+                logFile.println("Not a command from user prompt");
+                logFile.flush();
+                break;
         }
     }
 

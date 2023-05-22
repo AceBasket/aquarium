@@ -93,7 +93,17 @@ public class AquariumFX extends Application {
     }
 
     public static void addFishImage(Fish fish) {
-        FishImage fishImage = new FishImage("img/fish1.png", fish, width, height, id);
+        String imageFileName = "";
+        if (fish.getName().contains("Rouge")) {
+            imageFileName = "img/red_fish.png";
+        } else if (fish.getName().contains("Jaune")) {
+            imageFileName = "img/yellow_fish.png";
+        } else if (fish.getName().contains("Bleu")) {
+            imageFileName = "img/blue_fish.png";
+        } else {
+            imageFileName = "img/rainbow_fish.png";
+        }
+        FishImage fishImage = new FishImage(imageFileName, fish, width, height, id);
         fishImage.getImageView().getStyleClass().add("fish-image");
         getListFishImages().add(fishImage);
         Platform.runLater(() -> {
