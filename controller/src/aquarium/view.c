@@ -19,6 +19,12 @@ struct view *create_view(char *name, struct coordinates top_left, int width, int
 }
 
 int add_view(struct aquarium *aquarium, struct view *view) {
+    //if the view boundries are outside the aquarium
+    if (view->top_left.x < 0 || view->top_left.y < 0 
+    || view->top_left.x + view->width > aquarium->width 
+    || view->top_left.y + view->height > aquarium->height){
+        return NOK;
+    }
     // if the aquarium is empty, add the view
     if (aquarium->views == NULL) {
         aquarium->views = view;
@@ -38,6 +44,7 @@ int add_view(struct aquarium *aquarium, struct view *view) {
             return NOK;
         }
     }
+    
     // if the view is not in the aquarium, add it to the end of the list
     current->next = view;
     return OK;
