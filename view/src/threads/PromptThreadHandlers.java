@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
+import utils.Log.LogLevel;
+import utils.Log;
 import utils.Parser;
 import utils.ParserException;
 import utils.ParserResult;
@@ -14,10 +16,9 @@ public class PromptThreadHandlers {
             ParserResult parsedCommand = Parser.parse(originalCommand);
             switch (parsedCommand.getFunction()) {
                 case ADD_FISH:
-                    logFile.println("Adding fish " + parsedCommand.getArgs().get(0) + " at "
+                    Log.logMessage(logFile, LogLevel.INFO, "Adding fish " + parsedCommand.getArgs().get(0) + " at "
                             + parsedCommand.getArgs().get(1) + "x" + parsedCommand.getArgs().get(2) + " of size "
                             + parsedCommand.getArgs().get(3) + "x" + parsedCommand.getArgs().get(4));
-                    logFile.flush();
                     Fish fishToAdd = new Fish(parsedCommand.getArgs().get(0), // name
                             Integer.parseInt(parsedCommand.getArgs().get(1)), // position.x
                             Integer.parseInt(parsedCommand.getArgs().get(2)), // position.y
@@ -25,35 +26,28 @@ public class PromptThreadHandlers {
                             Integer.parseInt(parsedCommand.getArgs().get(3)), // length
                             Integer.parseInt(parsedCommand.getArgs().get(4))); // height
                     fishesList.addFish(fishToAdd);
-                    logFile.println("Fish added");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Fish added");
                     break;
                 case DEL_FISH:
-                    logFile.println("Deleting fish " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Deleting fish " + parsedCommand.getArgs().get(0));
                     fishesList.removeFish(parsedCommand.getArgs().get(0));
-                    logFile.println("Fish deleted");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Fish deleted");
                     break;
                 case START_FISH:
-                    logFile.println("Starting fish " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Starting fish " + parsedCommand.getArgs().get(0));
                     fishesList.startFish(parsedCommand.getArgs().get(0));
-                    logFile.println("Fish started");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Fish started");
                     break;
                 case STATUS:
-                    logFile.println("Status received");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Status received");
                     System.out.println("Status ...");
                     break;
                 default:
-                    logFile.println("Not a command from user prompt");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Not a command from user prompt");
                     break;
             }
         } catch (ParserException e) {
-            logFile.println("ERROR: " + e.getMessage());
+            Log.logMessage(logFile, LogLevel.ERROR, e.getMessage());
         }
     }
 
@@ -62,28 +56,23 @@ public class PromptThreadHandlers {
             ParserResult parsedCommand = Parser.parse(originalCommand);
             switch (parsedCommand.getFunction()) {
                 case ADD_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.ERROR, "Starting " + parsedCommand.getArgs().get(0));
                     break;
                 case DEL_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.ERROR, "Starting " + parsedCommand.getArgs().get(0));
                     break;
                 case START_FISH:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.ERROR, "Starting " + parsedCommand.getArgs().get(0));
                     break;
                 case STATUS:
-                    logFile.println("Error: " + parsedCommand.getArgs().get(0));
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.ERROR, "Starting " + parsedCommand.getArgs().get(0));
                     break;
                 default:
-                    logFile.println("Not a command from user prompt");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.WARNING, "Not a command from user prompt");
                     break;
             }
         } catch (ParserException e) {
-            logFile.println(e);
+            Log.logMessage(logFile, LogLevel.ERROR, e.getMessage());
         }
     }
 
@@ -97,8 +86,7 @@ public class PromptThreadHandlers {
     }
 
     public static String doLogOut(PrintWriter logFile) {
-        logFile.println("Logging out");
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.INFO, "Logging out");
         return new String("log out");
     }
 }

@@ -2,6 +2,7 @@ package threads;
 
 import aquarium.*;
 import utils.*;
+import utils.Log.LogLevel;
 import utils.Parser.PossibleResponses;
 
 import java.io.*;
@@ -33,8 +34,7 @@ public class PromptThread implements Runnable {
 
     public void run() {
         // TODO
-        logFile.println("Starting prompt thread");
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.INFO, "Starting prompt thread");
 
         ParserResult response;
         String command;
@@ -43,20 +43,18 @@ public class PromptThread implements Runnable {
         ParserResult parsedCommand;
         while (true) {
             if (Thread.currentThread().isInterrupted()) {
-                logFile.println("Prompt thread interrupted");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.WARNING, "Prompt thread interrupted");
                 Thread.currentThread().interrupt();
                 return;
             }
 
             if (responseReceived) {
-                logFile.println("Waiting for user prompt");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Waiting for user prompt");
                 command = System.console().readLine(); // get user prompt
                 if (command == null) {
                     sendQueue.offer(PromptThreadHandlers.doLogOut(logFile));
                     Thread.currentThread().interrupt();
-                    logFile.println("Interrupting prompt thread after Ctrl+D");
+                    Log.logMessage(logFile, LogLevel.WARNING, "Interrupting prompt thread after Ctrl+D");
                     responseReceived = false;
                     continue;
                 }
@@ -72,14 +70,13 @@ public class PromptThread implements Runnable {
                 }
                 commandQueue.add(command);
                 sendQueue.offer(command);
-                logFile.println("User asked for: " + command);
+                Log.logMessage(logFile, LogLevel.INFO, "User asked for: " + command);
             }
             responseReceived = false;
             try {
                 response = receivedQueue.peek();
                 while (response == null) {
-                    logFile.println("Nothing to handle");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Nothing to handle");
                     Thread.sleep(300); // sleep 0.3 second and try again
                     response = receivedQueue.peek();
                 }
@@ -98,32 +95,27 @@ public class PromptThread implements Runnable {
                         break;
 
                     default:
-                        logFile.println(response.getFunction() + ": Not a command handled by prompt thread");
-                        logFile.flush();
+                        Log.logMessage(logFile, LogLevel.WARNING, response.getFunction() + ": Not a command handled by prompt thread");
                         Thread.sleep(300);
                         break;
                 }
 
             } catch (InterruptedException e) {
-                logFile.println("Prompt thread interrupted");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.FATAL_ERROR, "Prompt thread interrupted");
                 Thread.currentThread().interrupt();
                 return;
             } catch (NoSuchElementException | InvalidParameterException e) {
                 // if (e.getMessage().equals("null")) {
                 // System.out.println(e);
                 // }
-                logFile.println(e);
-                logFile.println("Error: " + e.getMessage());
-                logFile.println("Cause: " + e.getCause());
-                logFile.flush();
+                // Log.logMessage(logFile, LogLevel.ERROR, e);
+                Log.logMessage(logFile, LogLevel.ERROR, e.getMessage() + " -> " + e.getCause());
             }
         }
     }
 
     public String transferCommand(String command) {
-        logFile.println("Sending command: " + command);
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.INFO, "Sending command: " + command);
         view.talkToServer(command);
         try {
             return view.listenToServer();
