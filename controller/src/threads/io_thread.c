@@ -29,6 +29,7 @@ void *thread_timeout(void *parameters) {
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
 
             pthread_mutex_lock(&views_sockets_mutex);
+            // Verify that the socket is active
             if (views_socket_fd[num_view] != -1) {
                 pthread_mutex_unlock(&views_sockets_mutex);
                 time_t current_time = time(NULL);
@@ -37,6 +38,7 @@ void *thread_timeout(void *parameters) {
                 }
 
                 struct view *view = NULL;
+                // Verify that the view is initialized
                 while (view == NULL) {
                     log_message(log, LOG_INFO, "View %d is not initialized yet", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
@@ -50,6 +52,7 @@ void *thread_timeout(void *parameters) {
                 }
 
                 // Disconnects the view when it has been inactive for too long
+                log_message(log, LOG_INFO, "Time left before timeout for view %d: %d",num_view , timeout - (current_time - view->time_last_ping));
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
