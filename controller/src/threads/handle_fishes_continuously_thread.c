@@ -10,11 +10,8 @@
 
 void *get_fishes_continuously(void *parameters) {
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
-    int file_name_len = strlen("log_handle_fishes_continuously.log") + 1 + 1;
-    char file_name[40] = {};
-    strcpy(file_name, "log_handle_fishes_continuously.log");
-    file_name[file_name_len - 2] = '0' + socket_fd;
-    file_name[file_name_len - 1] = '\0';
+    char file_name[40];
+    sprintf(file_name, "log_handle_fishes_continuously_%d.log", socket_fd);
     FILE *log = fopen(file_name, "w");
     exit_if(log == NULL, "fopen failed");
     log_message(log, LOG_INFO, "===== get_fishes_continuously() =====");

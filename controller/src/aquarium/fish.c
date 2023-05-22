@@ -380,10 +380,10 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
         time_at_destination_previous_destination = element->time_at_destination;
         // compute time needed to get to destination from previous destination
         float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, element->destination_coordinates)) / fish->speed;
-        printf("(add movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, element->destination_coordinates.x, element->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
+// printf("(add movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, element->destination_coordinates.x, element->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
         /* Forbid to have less than a second between two destinations */
         new_destination->time_at_destination = (time_to_get_to_new_destination < 2) ? time_at_destination_previous_destination + 2 : time_at_destination_previous_destination + round(time_to_get_to_new_destination);
-        printf("=> %ld\n", new_destination->time_at_destination);
+// printf("=> %ld\n", new_destination->time_at_destination);
     } else {
         new_destination->time_at_destination = time_at_destination_previous_destination + (time_t)((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed);
     }
@@ -453,10 +453,10 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
 
         // compute time needed to get to destination from previous destination
         float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, origin->destination_coordinates)) / fish->speed;
-        printf("(add intermediate movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, origin->destination_coordinates.x, origin->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
+// printf("(add intermediate movements) %f to get from %dx%d to %dx%d\n", time_to_get_to_new_destination, origin->destination_coordinates.x, origin->destination_coordinates.y, new_destination->destination_coordinates.x, new_destination->destination_coordinates.y);
         // forbid to have less than a second between two destinations
         new_destination->time_at_destination = (time_to_get_to_new_destination < 2) ? origin->time_at_destination + 2 : origin->time_at_destination + round(time_to_get_to_new_destination);
-        printf("=> %ld\n", new_destination->time_at_destination);
+// printf("=> %ld\n", new_destination->time_at_destination);
         // Adding all the views to which the destination belongs to
         add_views_to_destination(aquarium, new_destination);
 

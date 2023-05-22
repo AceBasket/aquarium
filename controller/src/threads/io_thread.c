@@ -76,24 +76,6 @@ void *thread_timeout(void *parameters) {
     }
     pthread_mutex_unlock(&terminate_threads_mutex);
 
-    for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
-        pthread_mutex_lock(&views_sockets_mutex);
-        if (views_socket_fd[num_view] != -1) {
-            pthread_mutex_unlock(&views_sockets_mutex);
-            if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
-                log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-            }
-            if (usleep(100000) != 0) {
-                log_message(log, LOG_ERROR, "Usleep() interrupted");
-            }
-            if (close(views_socket_fd[num_view]) != 0) {
-                log_message(log, LOG_ERROR, "The socket %d could not be closed", views_socket_fd[num_view]);
-            }
-            views_socket_fd[num_view] = -1;
-            pthread_mutex_lock(&views_sockets_mutex);
-        }
-        pthread_mutex_unlock(&views_sockets_mutex);
-    }
     log_message(log, LOG_INFO, "===== thread_timeout() terminated =====");
     fclose(log);
     return NULL;
@@ -298,7 +280,7 @@ void *thread_io(void *parameters) {
     }
     free(parameters);
     log_message(log, LOG_INFO, "===== thread_io() terminated =====");
-    
+
     fclose(log);
 
     return EXIT_SUCCESS;
