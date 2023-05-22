@@ -29,6 +29,9 @@ public class FishImage {
     private Fish fishData;
     private boolean isMoving = false;
 
+    private boolean second_to_last_destination_on_border = false;
+    private boolean last_destination_on_border = false;
+
     private PrintWriter logFile;
 
     // A constructor that takes the image file name, the initial position, the
@@ -117,11 +120,29 @@ public class FishImage {
         logFile.flush();
 
         if (!imageView.isVisible()) {
+            /* If its actual position is -1x-1, stay hidden */
+            if (fishData.getPosition().getX() == -1 && fishData.getPosition().getY() == -1) {
+                logFile.println("Fish " + fishData.getName() + " stays hidden (actual position is -1x-1)");
+                logFile.flush();
+                imageView.setVisible(false);
+            }
+            /*
+             * If second to last destination was on a border and next destination is also on
+             * a border, set visible
+             */
+            else if (second_to_last_destination_on_border && coordinatesOnBorder(width, height, endX, endY)) {
+                logFile.println(
+                        "Fish " + fishData.getName() + " becomes visible (from border to border by crossing view)");
+                logFile.flush();
+                imageView.setVisible(true);
+                last_destination_on_border = false;
+            }
             /*
              * If position is on one of the borders and it goes inside the window, set
              * visible
              */
-            if (coordinatesOnBorder(width, height, startX, startY) && !coordinatesOnBorder(width, height, endX, endY)) {
+            else if (coordinatesOnBorder(width, height, startX, startY)
+                    && !coordinatesOnBorder(width, height, endX, endY)) {
                 logFile.println("Fish " + fishData.getName() + " becomes visible (enters view)");
                 logFile.flush();
                 imageView.setVisible(true);
@@ -175,10 +196,15 @@ public class FishImage {
 
             isMoving = false;
 
+            second_to_last_destination_on_border = last_destination_on_border;
+
             if (coordinatesOnBorder(width, height, endX, endY)) {
                 logFile.println("Fish " + fishData.getName() + " is now hidden");
                 logFile.flush();
                 imageView.setVisible(false);
+                last_destination_on_border = true;
+            } else {
+                last_destination_on_border = false;
             }
 
             // Remove the first destination from the list of destinations

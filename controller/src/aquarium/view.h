@@ -22,5 +22,6 @@ struct view *get_view(struct aquarium *aquarium, char *name);
 struct view **get_views_from_coordinates(struct aquarium *aquarium, struct coordinates coordinates);
 int len_views(struct aquarium *aquarium);
 void free_view(struct view *view);
+int free_views_array(struct view **views);
 
 #endif // _VIEW_H_

@@ -2,6 +2,9 @@ package threads;
 
 import java.io.PrintWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
@@ -33,36 +36,55 @@ public class ServerThreadHandlers {
                 fishesList.setFishDestination(fish_to_update, Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // destination.x
                         Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // destination.y
                         Integer.parseInt(parsedResponse.getArgs().get(i + 5))); // time to get to destination
-                // logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will
-                // go to "
-                // + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i
-                // + 2) + " in "
-                // + parsedResponse.getArgs().get(i + 5) + " seconds");
+
+                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
+                        + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i + 2) + " in "
+                        + parsedResponse.getArgs().get(i + 5) + " seconds");
                 logFile.println(parsedResponse.getArgs().get(i) + " updated. Has "
                         + fish_to_update.getSizeDestinations() + " destinations");
                 logFile.flush();
             } catch (IllegalArgumentException e) {
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " does not exist");
                 logFile.flush();
-                try {
-                    Thread.sleep(Integer.parseInt(parsedResponse.getArgs().get(i + 5)) * 1000 - 500); // wait for the
-                                                                                                      // fish to get to
-                                                                                                      // destination
-                                                                                                      // then add it
-                } catch (InterruptedException e1) {
-                    logFile.println("Server thread interrupted before it could add the fish");
-                }
-                Fish fish_to_create = new Fish(parsedResponse.getArgs().get(i),
-                        Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // position.x
-                        Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // position.y
+
+                Fish fish_to_create = new Fish(parsedResponse.getArgs().get(i), // name
+                        -1, -1, // position.x, position.y (until it reaches its destination)
+                        // Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // position.x
+                        // Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // position.y
                         Integer.parseInt(parsedResponse.getArgs().get(i + 3)), // width
                         Integer.parseInt(parsedResponse.getArgs().get(i + 4))); // height
+
                 fishesList.addFish(fish_to_create);
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " created");
                 logFile.flush();
+
+                // ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+
+                // int delay = Integer.parseInt(parsedResponse.getArgs().get(i + 5));
+
+                // Runnable action = new Runnable() {
+                // @Override
+                // public void run() {
+                // fishesList.addFish(fish_to_create);
+                // fish_to_create.start();
+                // }
+                // };
+
+                // scheduler.schedule(action, delay, TimeUnit.SECONDS);
                 fish_to_create.start();
                 logFile.println("Fish " + parsedResponse.getArgs().get(i) + " started");
                 logFile.flush();
+
+                fishesList.setFishDestination(fish_to_create, Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // destination.x
+                        Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // destination.y
+                        Integer.parseInt(parsedResponse.getArgs().get(i + 5))); // time to get to destination
+
+                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
+                        + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i + 2) + " in "
+                        + parsedResponse.getArgs().get(i + 5) + " seconds");
+                logFile.flush();
+                // scheduler.shutdown();
+
             }
         }
     }

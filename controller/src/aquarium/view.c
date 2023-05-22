@@ -10,6 +10,7 @@ struct view *create_view(char *name, struct coordinates top_left, int width, int
     view->height = height;
     view->width = width;
     view->name = malloc(sizeof(char) * (strlen(name) + 1));
+    exit_if(view->name == NULL, "malloc failed");
     strcpy(view->name, name);
     view->next = NULL;
     view->socket_fd = -1; //to store the socket file descriptor
@@ -109,7 +110,7 @@ struct view **get_views_from_coordinates(struct aquarium *aquarium, struct coord
     do {
         if (coordinates.x >= current->top_left.x && coordinates.x <= current->top_left.x + current->width && coordinates.y >= current->top_left.y && coordinates.y <= current->top_left.y + current->height) {
             // if the view is in the aquarium, return it
-            views[nb_views] = current;
+            views[nb_views] = create_view(current->name, current->top_left, current->width, current->height);
             nb_views++;
         }
         current = current->next;
@@ -117,6 +118,16 @@ struct view **get_views_from_coordinates(struct aquarium *aquarium, struct coord
     // if the view is not in the aquarium, return NULL
     views[nb_views] = NULL;
     return views;
+}
+
+int free_views_array(struct view **views) {
+    int i = 0;
+    while (views[i] != NULL) {
+        free_view(views[i]);
+        i++;
+    }
+    free(views);
+    return OK;
 }
 
 int len_views(struct aquarium *aquarium) {

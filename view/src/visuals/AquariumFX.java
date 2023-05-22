@@ -99,7 +99,9 @@ public class AquariumFX extends Application {
         Platform.runLater(() -> {
             fishImage.getImageView().setX(fish.getPosition().getX());
             fishImage.getImageView().setY(fish.getPosition().getY());
-            fishImage.getImageView().setVisible(false);
+            if (fishImage.getImageView().getX() < 0 || fishImage.getImageView().getY() < 0) {
+                fishImage.getImageView().setVisible(false);
+            }
             pane.getChildren().add(fishImage.getImageView());
         });
     }

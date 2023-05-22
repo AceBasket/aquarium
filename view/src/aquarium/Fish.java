@@ -51,11 +51,11 @@ public class Fish {
     private statusEnum status;
     private LinkedList<FishDestination> destinations;
 
-    public Fish(String name, int positionX, int positionY, int length, int height) {
+    public Fish(String name, int positionX, int positionY, int width, int height) {
         this.name = name;
         this.position = new Coordinates(positionX, positionY);
         this.destinations = new LinkedList<FishDestination>();
-        this.width = length;
+        this.width = width;
         this.height = height;
         this.status = statusEnum.STOPPED;
     }
