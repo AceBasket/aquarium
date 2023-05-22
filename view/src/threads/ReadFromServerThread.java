@@ -2,6 +2,7 @@ package threads;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import utils.Log.LogLevel;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,8 +49,7 @@ public class ReadFromServerThread implements Runnable {
         }
 
         public void run() {
-            logFile.println("Timeout reached");
-            logFile.flush();
+            Log.logMessage(logFile, LogLevel.INFO, "Timeout reached");
             client.talkToServer("ping " + id);
         }
     }
@@ -59,8 +59,7 @@ public class ReadFromServerThread implements Runnable {
         ParserResult parsedResponse;
         while (true) {
             if (Thread.currentThread().isInterrupted()) {
-                logFile.println("IO thread interrupted");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.WARNING, "IO thread interrupted");
                 timeoutTimer.cancel();
                 Thread.currentThread().interrupt();
                 return;
@@ -74,15 +73,13 @@ public class ReadFromServerThread implements Runnable {
                 // Thread.sleep(1000);
                 // }
                 if (!sendQueue.isEmpty()) {
-                    logFile.println("Sending: " + sendQueue.peek());
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Sending: " + sendQueue.peek());
                     client.talkToServer(sendQueue.remove());
                 }
 
                 if (client.serverIsTalking()) {
                     response = client.listenToServer();
-                    logFile.println("Server answered: " + response);
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Server answered: " + response);
                     parsedResponse = Parser.parse(response);
                     if (parsedResponse.getFunction() == utils.Parser.PossibleResponses.PONG) {
                         startTimeoutTimer(client.getDisplayTimeoutValue(), id);
@@ -104,8 +101,7 @@ public class ReadFromServerThread implements Runnable {
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             } catch (ParserException e) {
-                logFile.println("ERROR: " + e.getMessage());
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.ERROR, e.getMessage());
             }
         }
     }

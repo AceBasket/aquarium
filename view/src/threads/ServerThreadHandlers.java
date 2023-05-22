@@ -2,14 +2,16 @@ package threads;
 
 import java.io.PrintWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+// import java.util.concurrent.Executors;
+// import java.util.concurrent.ScheduledExecutorService;
+// import java.util.concurrent.TimeUnit;
 
 import aquarium.Aquarium;
 import aquarium.Fish;
 import aquarium.Client;
 import utils.ParserResult;
+import utils.Log;
+import utils.Log.LogLevel;;
 
 public class ServerThreadHandlers {
     public static String doHello(PrintWriter logFile, Client client) {
@@ -31,13 +33,11 @@ public class ServerThreadHandlers {
         for (int i = 0; i < parsedResponse.getArgs().size(); i += 6) {
             Fish fish_to_update = new Fish();
             try {
-                logFile.println("Updating fish " + parsedResponse.getArgs().get(i));
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Updating fish " + parsedResponse.getArgs().get(i));
                 fish_to_update = fishesList.getFish(parsedResponse.getArgs().get(i));
 
             } catch (IllegalArgumentException e) {
-                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " does not exist");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.WARNING, "Fish " + parsedResponse.getArgs().get(i) + " does not exist");
 
                 Fish fish_to_create = new Fish(parsedResponse.getArgs().get(i), // name
                         -1, -1, // position.x, position.y (until it reaches its destination)
@@ -47,12 +47,10 @@ public class ServerThreadHandlers {
                         Integer.parseInt(parsedResponse.getArgs().get(i + 4))); // height
 
                 fishesList.addFish(fish_to_create);
-                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " created");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Fish " + parsedResponse.getArgs().get(i) + " created");
 
                 fish_to_create.start();
-                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " started");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Fish " + parsedResponse.getArgs().get(i) + " started");
 
                 fish_to_update = fish_to_create;
 
@@ -61,12 +59,11 @@ public class ServerThreadHandlers {
                         Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // destination.y
                         Integer.parseInt(parsedResponse.getArgs().get(i + 5))); // time to get to destination
 
-                logFile.println("Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
+                Log.logMessage(logFile, LogLevel.INFO, "Fish " + parsedResponse.getArgs().get(i) + " updated : will go to "
                         + parsedResponse.getArgs().get(i + 1) + "x" + parsedResponse.getArgs().get(i + 2) + " in "
                         + parsedResponse.getArgs().get(i + 5) + " seconds");
-                logFile.println(parsedResponse.getArgs().get(i) + " updated. Has "
+                Log.logMessage(logFile, LogLevel.INFO, parsedResponse.getArgs().get(i) + " updated. Has "
                         + fish_to_update.getSizeDestinations() + " destinations");
-                logFile.flush();
 
             }
         }
@@ -84,8 +81,7 @@ public class ServerThreadHandlers {
     }
 
     public static void byeHandler(PrintWriter logFile) {
-        logFile.println("Server thread interrupted");
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.FATAL_ERROR, "Server thread interrupted");
         Thread.currentThread().interrupt();
     }
 }

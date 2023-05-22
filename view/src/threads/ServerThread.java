@@ -2,6 +2,7 @@ package threads;
 
 import aquarium.*;
 import utils.*;
+import utils.Log.LogLevel;
 import java.io.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -26,8 +27,7 @@ public class ServerThread implements Runnable {
 
     public void run() {
         // TODO
-        logFile.println("Starting server thread");
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.INFO, "Starting server thread");
 
         ParserResult response;
         // boolean responseReceived = false;
@@ -36,21 +36,17 @@ public class ServerThread implements Runnable {
         try {
             // view.talkToServer("Testing connection");
             sendQueue.offer(ServerThreadHandlers.doHello(logFile, client));
-            logFile.println("Sent hello");
-            logFile.flush();
+            Log.logMessage(logFile, LogLevel.INFO, "Sent hello");
             while (true) {
                 if (Thread.currentThread().isInterrupted()) {
-                    logFile.println("Server thread interrupted");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.WARNING, "Server thread interrupted");
                     Thread.currentThread().interrupt();
                     return;
                 }
-
                 response = receivedQueue.peek();
                 if (response == null) {
                     Thread.sleep(1000); // sleep 1 second and try again
-                    logFile.println("Nothing to handle");
-                    logFile.flush();
+                    Log.logMessage(logFile, LogLevel.INFO, "Nothing to handle");
                     continue;
                 }
 
@@ -58,12 +54,10 @@ public class ServerThread implements Runnable {
                     case GREETING:
                         ServerThreadHandlers.greetingHandler(logFile, client, receivedQueue.remove());
                         sendQueue.offer("getFishesContinuously");
-                        logFile.println("Sent getFishesContinuously");
-                        logFile.flush();
+                        Log.logMessage(logFile, LogLevel.INFO, "Sent getFishesContinuously");
                         break;
                     case NO_GREETING:
-                        logFile.println("Server is full");
-                        logFile.flush();
+                        Log.logMessage(logFile, LogLevel.WARNING, "Server is full");
                         // BREAK CONNECTION SOMEHOW
                         break;
                     case LIST_FISHES:
@@ -76,8 +70,7 @@ public class ServerThread implements Runnable {
                         return; // end thread
 
                     default:
-                        logFile.println(response.getFunction() + ": Not a command handled by server thread");
-                        logFile.flush();
+                        Log.logMessage(logFile, LogLevel.WARNING, response.getFunction() + ": Not a command handled by server thread");
                         Thread.sleep(300); // sleep 0.3 second and try again
                         break;
                 }
@@ -85,12 +78,10 @@ public class ServerThread implements Runnable {
             }
 
         } catch (InterruptedException e) {
-            logFile.println("Server thread interrupted while sleeping");
-            logFile.flush();
+            Log.logMessage(logFile, LogLevel.FATAL_ERROR, "Server thread interrupted while sleeping");
             Thread.currentThread().interrupt();
         } catch (Exception e) {
-            logFile.println("ERROR: " + e.getMessage());
-            logFile.flush();
+            Log.logMessage(logFile, LogLevel.ERROR, e.getMessage());
         }
     }
 }
