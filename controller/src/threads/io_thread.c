@@ -50,6 +50,7 @@ void *thread_timeout(void *parameters) {
                 }
 
                 // Disconnects the view when it has been inactive for too long
+                log_message(log, LOG_INFO, "Time left before timeout for view %d: %d",num_view , timeout - (current_time - view->time_last_ping));
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
