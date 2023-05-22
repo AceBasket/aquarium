@@ -7,6 +7,11 @@
 #include "../utils.h"
 #include <time.h>
 #include <unistd.h>
+#include <fcntl.h>
+
+int fd_is_valid(int fd) {
+    return fcntl(fd, F_GETFD) != -1 || errno != EBADF;
+}
 
 void *get_fishes_continuously(void *parameters) {
     int socket_fd = ((struct handle_fishes_continuously_parameters *)parameters)->socket_fd;
@@ -28,7 +33,7 @@ void *get_fishes_continuously(void *parameters) {
     time_t minimum_time_to_destination = 0;
 
     pthread_mutex_lock(&terminate_threads_mutex);
-    while (terminate_threads == NOK) {
+    while (terminate_threads == NOK && fd_is_valid(socket_fd)) {
         pthread_mutex_unlock(&terminate_threads_mutex);
 
         pthread_mutex_lock(&aquarium_mutex);
