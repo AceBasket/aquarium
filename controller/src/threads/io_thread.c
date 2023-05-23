@@ -14,6 +14,20 @@
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
 
+void dprintf_verif(char *m, int fd, FILE * log){
+    char message[100];
+    sprintf(message, "%s", m);
+    int nb = strlen(message);
+    int offset = 0;
+    do {
+        const char* currentMessage = message + offset;
+        int nb2 = dprintf(fd, "%s", currentMessage);
+        if (nb2 < 0) {
+            log_message(log, LOG_ERROR, "Could not write on the socket %d", fd);
+        }
+        offset += nb - offset;
+    } while (offset < nb);
+}
 
 void *thread_timeout(void *parameters) {
     struct thread_io_parameters *params = (struct thread_io_parameters *)parameters;
@@ -57,22 +71,10 @@ void *thread_timeout(void *parameters) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
                     
-                    if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
-                        log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    }
-                    // char message[100];
-                    // sprintf(message, "bye\n");
-                    // int nb = strlen(message);
-                    // int offset = 0;
-                    // do{
-                    //     const char* currentMessage = message + offset;
-                    //     int nb2 = write(views_socket_fd[num_view], currentMessage, nb - offset);//dprintf(views_socket_fd[num_view], currentMessage);
-                    //     if (nb2<0 ){
-                    //         log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    //     }
-                    //     offset +=nb - offset ;
-
-                    // }while(offset < nb );
+                    // if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
+                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
+                    // }
+                    dprintf_verif("bye\n", views_socket_fd[num_view], log);
                     
                     if (close(views_socket_fd[num_view]) != 0) {
                         log_message(log, LOG_ERROR, "The socket %d could not be closed", views_socket_fd[num_view]);
@@ -98,6 +100,7 @@ void *thread_timeout(void *parameters) {
     fclose(log);
     return NULL;
 }
+
 
 
 void *thread_io(void *parameters) {
@@ -268,14 +271,16 @@ void *thread_io(void *parameters) {
                 //     break;
                 case UNKNOWN:
                     log_message(log, LOG_INFO, "Unknown command from view %d", num_view);
-                    if (dprintf(views_socket_fd[num_view], "NOK: Unknown command\n") < 0) {
-                        log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    }
+                    // if (dprintf(views_socket_fd[num_view], "NOK: Unknown command\n") < 0) {
+                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
+                    // }
+                    dprintf_verif("NOK: Unknown command\n", views_socket_fd[num_view], log);
                     break;
                 default:
-                    if (dprintf(views_socket_fd[num_view], "%s", parser->status) < 0) {
-                        log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    }
+                    // if (dprintf(views_socket_fd[num_view], "%s", parser->status) < 0) {
+                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
+                    // }
+                    dprintf_verif(parser->status, views_socket_fd[num_view], log);
                     break;
                 }
                 if (view != NULL) {
