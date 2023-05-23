@@ -3,20 +3,10 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include "aquarium.h"
-#include "../utils.h"
-#include "coordinates.h"
+// #include "../utils.h"
+#include "structures.h"
 
 
-struct view {
-    char *name;
-    int socket_fd;
-    struct coordinates top_left;
-    int height;
-    int width;
-    struct view *next; // next view in the chained list of views
-    time_t time_last_ping; // last time the view was active
-};
 /* creates a view */
 struct view *create_view(char *name, struct coordinates top_left, int height, int width);
 /* adds a view to the list in aquarium */

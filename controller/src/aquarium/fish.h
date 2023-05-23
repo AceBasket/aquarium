@@ -1,36 +1,12 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
+// #include "view.h"
+// #include "structures.h"
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "view.h"
-
-enum movement_pattern { RANDOMWAYPOINT };
-enum status { STARTED, NOT_STARTED };
-
-typedef STAILQ_HEAD(tailq, fish_destination) tailq_t;
-
-struct fish_destination {
-    struct coordinates destination_coordinates;
-    unsigned long long time_at_destination;
-    struct view_of_destination *views[MAX_VIEWS + 1]; //Array of views where the fish has to go (NULL terminates the array)
-    STAILQ_ENTRY(fish_destination) next;
-};
-
-struct view_of_destination {
-    char *view_name;
-    int is_sent;
-};
-
-struct fish {
-    char *name;
-    struct coordinates top_left;
-    tailq_t destinations_queue; // list of destinations
-    int speed;
-    int height;
-    int width;
-    enum movement_pattern movement_pattern; // type of movement
-    enum status status; // started or not started
-    struct fish *next; // next fish in the chained list of fishes
-};
 
 /* creates a fish */
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt);

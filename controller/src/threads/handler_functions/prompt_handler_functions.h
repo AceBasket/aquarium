@@ -3,7 +3,7 @@
 
 #include "../../parser/prompt_parser.h"
 #include "../../parser/file_parser.h"
-#include "../../aquarium/view.h"
+#include "../../aquarium/aquarium.h"
 
 void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium);
 void show_handler(FILE *log, struct aquarium *aquarium);

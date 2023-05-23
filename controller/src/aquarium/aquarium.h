@@ -5,16 +5,9 @@
 #include <time.h>
 #include <math.h>
 #include <sys/queue.h>
-// #include "view.h"
+// #include "structures.h"
 #include "fish.h"
-
-struct aquarium {
-    struct fish *fishes; // chained list to fishes
-    struct view *views; // chained list to views
-    int height;
-    int width;
-    char **view_names; // list of view names ()
-};
+// #include "view.h"
 
 struct aquarium *create_aquarium(int height, int width);
 void deep_copy_aquarium(struct aquarium *dest, struct aquarium *src);
