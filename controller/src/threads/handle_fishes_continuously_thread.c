@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-
 int fd_is_valid(int fd) {
     return fcntl(fd, F_GETFD) != -1 || errno != EBADF;
 }
@@ -37,7 +36,7 @@ void *get_fishes_continuously(void *parameters) {
             log_message(log, LOG_WARNING, "No fish in the view");
             pthread_mutex_lock(&aquarium_mutex);
         } else {
-            /* Checking that there is a destination to send */
+            // checking that there is a destination to send
             if (STAILQ_EMPTY(&fishes_in_view[0]->destinations_queue)) {
                 pthread_mutex_unlock(&aquarium_mutex);
                 log_message(log, LOG_WARNING, "No destination in the queue");

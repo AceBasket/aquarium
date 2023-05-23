@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+
 void test_create_aquarium() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     assert(aquarium->width == 100);
@@ -12,10 +13,10 @@ void test_create_aquarium() {
 }
 
 int main() {
-    // printf("Aquarium tests: .");
     printf(".");
     test_create_aquarium();
     printf(" OK\n");
+
     return EXIT_SUCCESS;
 }
 

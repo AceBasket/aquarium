@@ -3,6 +3,7 @@
 
 #include "parser.h"
 
+/* returns the parsed elements from the file f */
 struct parse *parse_file(FILE *f);
 
 #endif // _CFG_FILE_PARSER_H_

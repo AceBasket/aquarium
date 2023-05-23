@@ -6,7 +6,6 @@
 #include "../threads/accept_thread.h"
 #include "../threads/prompt_thread.h"
 
-
 struct init_server_parameters {
     int nb_views;
     int port_number;
@@ -21,6 +20,7 @@ struct init_server_parameters {
     FILE *io_log, *accept_log, *prompt_log, *timeout_log;
 };
 
+/* initializes the server's parameters and prepares the server */
 void init_server(struct init_server_parameters *parameters);
 
 #endif // _CONTROLLER_H_

@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-
 void test_get_view_from_socket() {
     struct aquarium *aquarium = create_aquarium(100, 100);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
@@ -34,7 +33,6 @@ void test_get_view_from_socket_no_views() {
 }
 
 int main() {
-    // printf("Socket aquarium tests: .");
     printf(".");
     test_get_view_from_socket();
     printf(".");
@@ -42,5 +40,6 @@ int main() {
     printf(".");
     test_get_view_from_socket_no_views();
     printf(" OK\n");
+    
     return EXIT_SUCCESS;
 }

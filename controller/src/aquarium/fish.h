@@ -1,8 +1,6 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
-// #include "view.h"
-// #include "structures.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -54,4 +52,5 @@ int coordinates_in_view_not_connected(struct aquarium *aquarium, struct coordina
 int mark_destination_as_sent(char *view_name, struct fish_destination *destination);
 /* returns true if the specified destination has already been sent to the specified view */
 int destination_sent_to_view(char *view_name, struct fish_destination *destination);
+
 #endif // _FISH_H_ 

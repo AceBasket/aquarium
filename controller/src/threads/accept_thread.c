@@ -5,9 +5,8 @@
 #include <netinet/in.h>
 #include "accept_thread.h"
 
-
 void *thread_accept(void *parameters) {
-    // Initialization of the parameters
+    // initialization of the parameters
     struct thread_accept_parameters *params = parameters;
     int *views_sockets = params->views_sockets;
     struct sockaddr_in view_addr = params->view_addr;
@@ -26,7 +25,7 @@ void *thread_accept(void *parameters) {
         log_message(log, LOG_ERROR, "The signal handler could not be changed");
     }
 
-    // Initialization of all views_socket[] to -1 so not checked
+    // initialization of all views_socket[] to -1 so not checked
     memset(views_sockets, -1, MAX_VIEWS*sizeof(int));
 
     io_parameters->views_socket_fd = views_sockets;
@@ -51,9 +50,9 @@ void *thread_accept(void *parameters) {
         } 
         log_message(log, LOG_INFO, "Welcome");
 
-        // Adding the new socket to the array of sockets
+        // adding the new socket to the array of sockets
         for (int k = 0; k < nb_views; k++) {
-            // If the position is empty
+            // if the position is empty
             if (views_sockets[k] == -1) {
                 views_sockets[k] = new_socket_fd;
                 log_message(log, LOG_INFO, "Adding to list of sockets as %d", k);

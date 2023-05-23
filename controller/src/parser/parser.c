@@ -1,6 +1,5 @@
 #include "parser.h"
 
-
 void free_parser(struct parse *p) {
     for (int i = 0; i < p->size; i++) {
         free(p->arguments[i]);
@@ -21,10 +20,10 @@ int is_number(char *str, int start) {
     int len = strlen(str);
     for (int i = start; i < len; i++) {
         if (!isdigit(str[i])) {
-            return 0; //if any non-digit character is found
+            return 0; // if any non-digit character is found
         }
     }
-    return 1; // Return 1 if all characters are digits
+    return 1; // return 1 if all characters are digits
 }
 
 int is_alphanum(char *str) {
@@ -46,7 +45,6 @@ void too_few_arguments(struct parse *p, char *str) {
 }
 
 char *remove_spaces(char *str) {
-    //int c = n_spaces(str);
     char *string = malloc(sizeof(char) * strlen(str));
     strcpy(string, str);
     int i;

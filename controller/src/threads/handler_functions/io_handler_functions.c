@@ -1,7 +1,5 @@
 #include "io_handler_functions.h"
 
-
-
 int handle_error(FILE *log, struct parse *parser, int socket_fd) {
     if (strcmp(parser->status, "OK\n") != 0) {
         if (dprintf(socket_fd, "%s", parser->status) < 0) {
@@ -145,27 +143,6 @@ void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aqu
     *socket_fd = -1;
 }
 
-// void status_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium) {
-//     if (handle_error(log, parser, socket_fd)) {
-//         return;
-//     }
-//     dprintf(socket_fd, "OK: Connected to controller, %d fishes found", len_fishes(aquarium));
-//     struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, get_view_from_socket(aquarium, socket_fd), 0); // 0 = false
-//     if (fishes_in_view == NULL) {
-//         fprintf(log, "Error: no fishes in view\n");
-//         fflush(log);
-//         dprintf(socket_fd, "\n");
-//         return;
-//     }
-//     int iter = 0;
-//     while (fishes_in_view[iter] != NULL) {
-//         dprintf(socket_fd, "\tFish %s at %dx%d,%dx%d %s", fishes_in_view[iter]->name, fishes_in_view[iter]->top_left.x, fishes_in_view[iter]->top_left.y, fishes_in_view[iter]->width, fishes_in_view[iter]->height, fishes_in_view[iter]->status == STARTED ? "started" : "notStarted");
-//         iter++;
-//     }
-//     dprintf(socket_fd, "\n");
-//     free_fishes_array(fishes_in_view, view);
-// }
-
 void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int socket_fd, __attribute__((unused))struct aquarium *aquarium) {
     if (handle_error(log, parser, socket_fd)) {
         return;
@@ -173,7 +150,6 @@ void ls_handler(FILE *log, struct parse *parser, __attribute__((unused))int sock
     struct view *view = get_view_from_socket(aquarium, socket_fd);
     struct fish **fishes_in_view = get_fishes_with_destination_in_view(aquarium, view, 1);
     list_fishes_for_client(log, fishes_in_view, view, socket_fd);
-    // dprintf(socket_fd, "\n"); // to signal end of lists to client
     free_fishes_array(fishes_in_view, view);
 }
 

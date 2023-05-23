@@ -1,6 +1,5 @@
 #include "prompt_handler_functions.h"
 
-
 int handle_prompt_error(FILE *log, struct parse *parser) {
     if (strcmp(parser->status, "OK\n") != 0) {
         log_message(log, LOG_INFO, "%s", parser->status);

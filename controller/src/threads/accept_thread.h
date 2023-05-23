@@ -1,12 +1,11 @@
 #ifndef _ACCEPT_THREAD_H_
 #define _ACCEPT_THREAD_H_
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pthread.h>
 #include <sys/types.h>
 #include "io_thread.h"
-// #include "../utils.h"
-
 
 struct thread_accept_parameters {
     int nb_views;
@@ -21,6 +20,7 @@ struct thread_accept_parameters {
     FILE *log;
 };
 
+/* thread responsible for the connection of clients */
 void *thread_accept(void *parameters);
 
 #endif // _ACCEPT_THREAD_H_

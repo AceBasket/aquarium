@@ -1,4 +1,4 @@
-#include "../src/aquarium/fish.h"
+#include "../src/aquarium/aquarium.h"
 #include "../src/utils.h"
 #include <stdlib.h>
 #include <string.h>
@@ -427,10 +427,8 @@ void test_add_intermediate_movements() {
 }
 
 void test_get_intersections_btw_trajectory_and_views() {
-    /* Test the function get_intersections_btw_trajectory_and_views */
+    // test the function get_intersections_btw_trajectory_and_views
     struct view *view1 = create_view("view1", (struct coordinates) { 0, 0 }, 500, 500);
-    // struct view *view2 = create_view("view2", (struct coordinates) { 500, 0 }, 500, 500);
-    // struct view *view3 = create_view("view3", (struct coordinates) { 0, 500 }, 500, 500);
     struct view *view4 = create_view("view4", (struct coordinates) { 500, 500 }, 500, 500);
     struct view *views[5] = { view1, view4, NULL };
     struct coordinates trajectory[2] = { { 373, 421 }, { 919, 784 } };
@@ -459,7 +457,6 @@ void test_get_intersections_btw_trajectory_and_views() {
     struct coordinates trajectory4[2] = { { 13, 458 }, { 784, 383 } };
     struct coordinates *intersections4 = get_intersections_btw_trajectory_and_views(views, &trajectory4[0], &trajectory4[1]);
     assert(intersections4[0].x == 250);
-    // assert(intersections4[0].y == 441);
     assert(intersections4[1].x == 500);
 
 }
@@ -516,5 +513,6 @@ int main() {
     printf(".");
     test_add_intermediate_movements();
     printf(" OK\n");
+
     return EXIT_SUCCESS;
 }

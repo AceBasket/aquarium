@@ -36,7 +36,7 @@ struct parse *parse_prompt(char *str) {
         }
         return p;
     }
-    //show aquarium
+    // show aquarium
     else if (strcmp(command, "show") == 0) {
         p->func_name = SHOW;
         char *arg = strtok(NULL, " ");
@@ -54,7 +54,7 @@ struct parse *parse_prompt(char *str) {
         return p;
     }
 
-    //add view
+    // add view
     else if (strcmp(command, "add") == 0) {
         p->func_name = ADD_VIEW;
         char *command2 = strtok(NULL, " ");
@@ -66,7 +66,6 @@ struct parse *parse_prompt(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@the command should be like: add view N5 400x400+400+200\n");
             return p;
         }
-        // adding_arg_to_parse(p, command2);
 
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
@@ -135,7 +134,6 @@ struct parse *parse_prompt(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@the command should be like: del view <view name>\n");
             return p;
         }
-        // adding_arg_to_parse(p, command2);
 
         char *arg1 = strtok(NULL, " ");
         if (arg1 == NULL) {
@@ -153,17 +151,14 @@ struct parse *parse_prompt(char *str) {
         }
         return p;
     }
-    //save
+    // save
     else if (strcmp(command, "save") == 0) {
         p->func_name = SAVE;
         char *arg = strtok(NULL, " ");
         if (arg == NULL) {
             too_few_arguments(p, "save <aquarium name>");
             return p;
-        } // else if (!is_alphanum(arg)) {
-        //     strcpy(p->status, "ERROR: the name of the aquarium should be composed of numbers and/or alphabets\n");
-        //     return p;
-        // }
+        }
         adding_arg_to_parse(p, arg);
 
         if (strtok(NULL, "") != NULL) {

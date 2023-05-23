@@ -35,23 +35,22 @@ time_t get_seconds_to_get_to_time_in_milliseconds(unsigned long long time) {
     return (time_t)round((time - current_time) / 1000);
 }
 
-
 void log_message(FILE *log, enum log_level level, const char *message, ...) {
     va_list args;
     va_start(args, message);
-    // Format the message into a temporary buffer (with the interpretation of %...)
+    // format the message into a temporary buffer (with the interpretation of %...)
     char buffer[256];
     vsnprintf(buffer, sizeof(buffer), message, args);
 
-    // Log informational messages
+    // fog informational messages
     if (level == LOG_INFO && verbosity_level >= LOG_INFO) {
         fprintf(log, "%s\n", buffer);
 
-    // Log warning messages
+    // log warning messages
     } else if (level == LOG_WARNING && verbosity_level >= LOG_WARNING) {
         fprintf(log, "WARNING: %s\n", buffer);
 
-    // Log error messages
+    // log error messages
     } else if (level == LOG_ERROR && verbosity_level >= LOG_ERROR) {
         if (errno != 0) {
             fprintf(log, "ERROR: %s -> %s\n", buffer, strerror(errno));
@@ -59,7 +58,7 @@ void log_message(FILE *log, enum log_level level, const char *message, ...) {
             fprintf(log, "ERROR: %s\n", buffer);
         }
 
-    // Log fatal error messages and exit the program
+    // log fatal error messages and exit the program
     } else if (level == LOG_FATAL_ERROR) {
         if (verbosity_level >= LOG_FATAL_ERROR) {
             if (errno != 0) {
@@ -73,7 +72,6 @@ void log_message(FILE *log, enum log_level level, const char *message, ...) {
     fflush(log);
     va_end(args);
 }
-
 
 #ifndef TESTS
 void sigpipe_handler(int signum) {
