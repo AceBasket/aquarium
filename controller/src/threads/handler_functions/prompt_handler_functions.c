@@ -1,6 +1,5 @@
 #include "prompt_handler_functions.h"
-#include "../../aquarium/view.h"
-#include "../../utils.h"
+
 
 int handle_prompt_error(FILE *log, struct parse *parser) {
     if (strcmp(parser->status, "OK\n") != 0) {

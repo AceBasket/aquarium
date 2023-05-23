@@ -1,11 +1,8 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <time.h>
-#include "../threads/accept_thread.h"
-#include "../threads/prompt_thread.h"
-#include "../utils.h"
 #include "controller.h"
-#include "../parser/file_parser.h"
+
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 

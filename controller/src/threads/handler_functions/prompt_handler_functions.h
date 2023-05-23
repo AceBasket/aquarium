@@ -1,10 +1,9 @@
 #ifndef _PROMPT_HANDLER_FUNCTIONS_H_
 #define _PROMPT_HANDLER_FUNCTIONS_H_
 
-#include "../../aquarium/aquarium.h"
 #include "../../parser/prompt_parser.h"
 #include "../../parser/file_parser.h"
-// #include "utils.h"
+#include "../../aquarium/view.h"
 
 void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium);
 void show_handler(FILE *log, struct aquarium *aquarium);

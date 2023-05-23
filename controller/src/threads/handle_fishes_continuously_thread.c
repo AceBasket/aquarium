@@ -1,13 +1,8 @@
 #include "handle_fishes_continuously_thread.h"
-#include "../communication/socket_aquarium.h"
-#include "handler_functions/io_handler_functions.h"
-#include "../aquarium/fish.h"
-#include "../aquarium/view.h"
-#include "../aquarium/aquarium.h"
-#include "../utils.h"
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
+
 
 int fd_is_valid(int fd) {
     return fcntl(fd, F_GETFD) != -1 || errno != EBADF;

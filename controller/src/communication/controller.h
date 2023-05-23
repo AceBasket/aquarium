@@ -2,7 +2,10 @@
 #define _CONTROLLER_H_
 
 #include <pthread.h>
-#include "../aquarium/aquarium.h"
+#include "../parser/file_parser.h"
+#include "../threads/accept_thread.h"
+#include "../threads/prompt_thread.h"
+
 
 struct init_server_parameters {
     int nb_views;

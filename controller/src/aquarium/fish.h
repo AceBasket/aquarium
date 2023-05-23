@@ -1,9 +1,8 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
-#include "aquarium.h"
 #include "view.h"
-#include "../utils.h"
+// #include "coordinates.h"
 
 enum movement_pattern { RANDOMWAYPOINT };
 enum status { STARTED, NOT_STARTED };

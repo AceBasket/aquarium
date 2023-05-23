@@ -3,11 +3,11 @@
 
 #include <time.h>
 #include <unistd.h>
-#include "../../aquarium/aquarium.h"
 #include "../../parser/parser.h"
-// #include "utils.h"
+#include "list_fishes.h"
+#include "../handle_fishes_continuously_thread.h"
 
-void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd);
+
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 void get_fishes_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 void ping_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);

@@ -5,11 +5,6 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include "io_thread.h"
-#include "../aquarium/fish.h"
-#include "../communication/socket_aquarium.h"
-#include "handler_functions/io_handler_functions.h"
-#include "../utils.h"
-#include "../parser/client_inputs_parser.h"
 
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 

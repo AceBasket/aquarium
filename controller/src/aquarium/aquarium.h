@@ -5,15 +5,8 @@
 #include <time.h>
 #include <math.h>
 #include <sys/queue.h>
-
-// #include "utils.h"
 // #include "fish.h"
-// #include "view.h"
-
-struct coordinates {
-    int x;
-    int y;
-};
+#include "view.h"
 
 struct aquarium {
     struct fish *fishes; // chained list to fishes
