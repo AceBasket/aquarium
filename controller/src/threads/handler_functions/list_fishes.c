@@ -19,7 +19,7 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
     if (dprintf(socket_fd, "list") < 0) {
         log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
     }
-    fprintf(log, "list\n");
+    log_message(log, LOG_INFO, "list");
     while (fishes_in_view[iter] != NULL) {
         destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
 
@@ -36,17 +36,14 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
         if (dprintf(socket_fd, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, get_seconds_to_get_to_time_in_milliseconds(destination->time_at_destination)) < 0) {
             log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
         }
-        fprintf(log, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, get_seconds_to_get_to_time_in_milliseconds(destination->time_at_destination));
-
+        log_message(log, LOG_INFO, " [%s at %dx%d,%dx%d,%ld]", fishes_in_view[iter]->name, x_coordinate_to_percentage(view, destination->destination_coordinates.x), y_coordinate_to_percentage(view, destination->destination_coordinates.y), fishes_in_view[iter]->width, fishes_in_view[iter]->height, get_seconds_to_get_to_time_in_milliseconds(destination->time_at_destination));
         mark_destination_as_sent(view->name, destination);
-        fprintf(log, "Destination %dx%d marked as sent for view %s\n", destination->destination_coordinates.x, destination->destination_coordinates.y, view->name);
-        fflush(log);
+        log_message(log, LOG_INFO, "Destination %dx%d marked as sent for view %s", destination->destination_coordinates.x, destination->destination_coordinates.y, view->name);
 
         iter++;
     }
     if (dprintf(socket_fd, "\n") < 0) {
         log_message(log, LOG_ERROR, "Could not write on the socket %d", socket_fd);
     }
-    fprintf(log, "\n");
-    fflush(log);
+    log_message(log, LOG_INFO, "\n");
 }
