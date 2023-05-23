@@ -25,8 +25,6 @@ dir:
 
 source: ${CLASSES} ${FX_CLASSES}
 	@cp -r img/* build/img/
-	@cp src/visuals/styles.css build/visuals/styles.css
-	@# rm *.log
 	@${J} ${FXFLAGS} ${JFLAGS} Main
 
 test: ${TST_CLASSES} 
