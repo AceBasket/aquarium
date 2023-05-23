@@ -6,7 +6,6 @@
 #include <time.h>
 #include "utils.h"
 #include "aquarium/aquarium.h"
-// #include "aquarium/fish.h"
 #include "communication/controller.h"
 
 #ifndef VERBOSITY_LEVEL

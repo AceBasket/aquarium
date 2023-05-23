@@ -2,7 +2,6 @@
 #define _FISH_H_
 
 #include "view.h"
-// #include "coordinates.h"
 
 enum movement_pattern { RANDOMWAYPOINT };
 enum status { STARTED, NOT_STARTED };

@@ -5,8 +5,8 @@
 #include <time.h>
 #include <math.h>
 #include <sys/queue.h>
-// #include "fish.h"
-#include "view.h"
+// #include "view.h"
+#include "fish.h"
 
 struct aquarium {
     struct fish *fishes; // chained list to fishes
