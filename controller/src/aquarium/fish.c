@@ -376,17 +376,14 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
         // add all the positions on the borders of the views on the path from origin to destination
         add_intermediate_movements(aquarium, fish, element, new_destination, OK);
     }
-    // else {
-    //     new_destination->time_at_destination = add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, (int)round((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed));
-    // }
-
-
 
     /* Now that new destinations have been added to tail of element, we need to update element */
-    // Go through the queue again to get the new element last element
-    element = STAILQ_FIRST(&fish->destinations_queue);
-    while (STAILQ_NEXT(element, next) != NULL) {
-        element = STAILQ_NEXT(element, next);
+    if (!STAILQ_EMPTY(&fish->destinations_queue)) {
+        // Go through the queue again to get the new element last element
+        element = STAILQ_FIRST(&fish->destinations_queue);
+        while (STAILQ_NEXT(element, next) != NULL) {
+            element = STAILQ_NEXT(element, next);
+        }
     }
     // get time_at_destination_previous_destination
     unsigned long long time_at_destination_previous_destination = element->time_at_destination;
@@ -394,35 +391,6 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, element->destination_coordinates)) / fish->speed;
     /* Forbid to have less than a second between two destinations */
     new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, 1) : add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, round(time_to_get_to_new_destination));
-
-
-
-// if (!STAILQ_EMPTY(&fish->destinations_queue)) {
-//     struct fish_destination *element = STAILQ_FIRST(&fish->destinations_queue);
-//     // Get the last element of the queue
-//     while (STAILQ_NEXT(element, next) != NULL) {
-//         element = STAILQ_NEXT(element, next);
-//     }
-//     time_at_destination_previous_destination = element->time_at_destination;
-//     // add all the positions on the frontiers of the views on the path from origin to destination
-//     add_intermediate_movements(aquarium, fish, element, new_destination);
-
-
-//     /* Now that new destinations have been added to tail of element, we need to update element */
-//     // Go through the queue again to get the new element last element
-//     element = STAILQ_FIRST(&fish->destinations_queue);
-//     while (STAILQ_NEXT(element, next) != NULL) {
-//         element = STAILQ_NEXT(element, next);
-//     }
-//     // update time_at_destination_previous_destination
-//     time_at_destination_previous_destination = element->time_at_destination;
-//     // compute time needed to get to destination from previous destination
-//     float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, element->destination_coordinates)) / fish->speed;
-//     /* Forbid to have less than a second between two destinations */
-//     new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, 1) : add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, round(time_to_get_to_new_destination));
-// } else {
-//     new_destination->time_at_destination = add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, (int)round((distance(new_destination->destination_coordinates, fish->top_left)) / fish->speed));
-// }
 
 // adding all the views to which the destination belongs to
     add_views_to_destination(aquarium, new_destination);
@@ -513,6 +481,7 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
 struct coordinates *get_intersections_btw_trajectory_and_views(struct view **views, struct coordinates *p1, struct coordinates *p2) {
     int len_views;
     for (len_views = 0; views[len_views] != NULL; len_views++) {
+        printf("view %s\n", views[len_views]->name);
     }
     struct coordinates *intersections = malloc(sizeof(struct coordinates) * len_views * 2); // to make sure to have enough space
 
@@ -579,9 +548,25 @@ struct coordinates *get_intersections_btw_trajectory_and_views(struct view **vie
         intersections[i].y = -1;
     }
 
+    /* Placing all the (-1x-1) at the end of the array */
+    int index = 0;
+    for (int i = 0; i < len_views * 2; i++) {
+        if (intersections[i].x != -1 && intersections[i].y != -1) {
+            struct coordinates temp = intersections[index];
+            intersections[index] = intersections[i];
+            intersections[i] = temp;
+            index++;
+        }
+    }
+
+    printf("intersections:\n");
+    for (int i = 0; i < len_views * 2; i++) {
+        printf("%dx%d\n", intersections[i].x, intersections[i].y);
+    }
+
     /* Sorting the list of intersections by growing distance to origin (but leave the (-1x-1) at the end of the array)*/
-    int len_intersections;
-    for (len_intersections = 0; intersections[len_intersections].x != -1 && intersections[len_intersections].y != -1; len_intersections++) {
+    int len_intersections = 0;
+    for (len_intersections = 0; len_intersections < len_views * 2 && intersections[len_intersections].x != -1 && intersections[len_intersections].y != -1; len_intersections++) {
     }
     for (int i = 0; i < len_intersections - 1; i++) {
         for (int j = 0; j < len_intersections - i - 1; j++) {
@@ -593,6 +578,10 @@ struct coordinates *get_intersections_btw_trajectory_and_views(struct view **vie
         }
     }
 
+    printf("intersections:\n");
+    for (int i = 0; i < len_intersections; i++) {
+        printf("%dx%d\n", intersections[i].x, intersections[i].y);
+    }
 
     return intersections;
 }
