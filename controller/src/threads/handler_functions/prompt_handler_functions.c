@@ -14,6 +14,12 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
     if (handle_prompt_error(log, parser)) {
         return;
     }
+
+    if (*aquarium != NULL) {
+        log_message(log, LOG_WARNING, "Can't change aquarium when views are connected");
+        return;
+    }
+    
     FILE *fd = fopen(parser->arguments[0], "r");
     if (fd == NULL) {
         log_message(log, LOG_ERROR, "Opening file");

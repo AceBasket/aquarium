@@ -88,6 +88,8 @@ void *thread_prompt(void *parameters) {
             save_handler(log, parser, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
             break;
+        case UNKNOWN:
+            log_message(log, LOG_WARNING, "Unknown command");
         default:
             break;
         }

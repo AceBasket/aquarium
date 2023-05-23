@@ -25,13 +25,13 @@ struct view_of_destination {
 struct fish {
     char *name;
     struct coordinates top_left;
-    tailq_t destinations_queue;
+    tailq_t destinations_queue; // list of destinations
     int speed;
     int height;
     int width;
-    enum movement_pattern movement_pattern;
+    enum movement_pattern movement_pattern; // type of movement
     enum status status; // started or not started
-    struct fish *next;
+    struct fish *next; // next fish in the chained list of fishes
 };
 
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt);

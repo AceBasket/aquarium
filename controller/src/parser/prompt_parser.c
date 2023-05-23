@@ -10,6 +10,7 @@ struct parse *parse_prompt(char *str) {
     strcpy(p->status, "OK\n");
     p->size = 0;
     p->arguments = malloc(sizeof(char *));
+    p->func_name = UNKNOWN;
 
     char *command;
     command = strtok(string, " ");
