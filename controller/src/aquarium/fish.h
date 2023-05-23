@@ -54,4 +54,8 @@ int coordinates_in_view_not_connected(struct aquarium *aquarium, struct coordina
 int mark_destination_as_sent(char *view_name, struct fish_destination *destination);
 /* returns true if the specified destination has already been sent to the specified view */
 int destination_sent_to_view(char *view_name, struct fish_destination *destination);
+/* frees memory allocated to the specified fish */
+void free_fish(struct fish *fish);
+/* adds the name of the views that handle the area the destination specified is in */
+int add_views_to_destination(struct aquarium *aquarium, struct fish_destination *destination);
 #endif // _FISH_H_ 

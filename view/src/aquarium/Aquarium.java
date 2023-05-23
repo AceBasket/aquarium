@@ -32,6 +32,15 @@ public class Aquarium {
         throw new IllegalArgumentException("Fish already exists");
     }
 
+    public synchronized void addFishWithoutImage(Fish fish) {
+        if (!fishesList.contains(fish)) {
+            fishesList.add(fish);
+            return;
+        }
+
+        throw new IllegalArgumentException("Fish already exists");
+    }
+
     public synchronized void removeFish(String name) throws IllegalArgumentException {
         Fish fish = getFish(name);
         if (fish == null) {
@@ -42,6 +51,14 @@ public class Aquarium {
         // Access the existing AquariumFX instance and remove the corresponding
         // FishImage
         AquariumFX.getListFishImages().removeIf(fishImage -> fishImage.getFishData() == fish);
+    }
+
+    public synchronized void removeFishWithoutImage(String name) throws IllegalArgumentException {
+        Fish fish = getFish(name);
+        if (fish == null) {
+            throw new IllegalArgumentException("Fish not found");
+        }
+        fishesList.remove(fish);
     }
 
     public synchronized ArrayList<Fish> getFishes() {

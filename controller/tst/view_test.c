@@ -1,4 +1,5 @@
 #include "../src/aquarium/view.h"
+#include "../src/aquarium/aquarium.h"
 #include "../src/utils.h"
 #include <stdlib.h>
 #include <string.h>
