@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include "../../parser/parser.h"
 #include "list_fishes.h"
+#include "../handle_fishes_continuously_thread.h"
+
 
 void hello_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 void get_fishes_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
