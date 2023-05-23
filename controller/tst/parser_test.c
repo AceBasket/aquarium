@@ -433,7 +433,6 @@ int main(void) {
     test_getFishesContinuously();
     printf(".");
     test_ping();
-    printf("\nParse clients tests OK\n");
 
     // parse prompt tests
     printf(".");
@@ -446,14 +445,14 @@ int main(void) {
     test_del_view();
     printf(".");
     test_save();
-    printf("\nParse prompt tests OK\n");
 
     // parse files tests
     printf(".");
     test_cfg_file();
     printf(".");
     test_aquariums_file();
-    printf("\nParse files tests OK\n");
+
+    printf(" OK\n");
 
     return EXIT_SUCCESS;
 }

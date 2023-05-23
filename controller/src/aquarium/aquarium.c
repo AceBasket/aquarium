@@ -49,8 +49,7 @@ int free_aquarium(struct aquarium *aquarium) {
         struct fish *current_fish = aquarium->fishes;
         struct fish *next_fish = current_fish->next;
         for (int i = 0; i < fishes_len; i++) {
-            free(current_fish->name);
-            free(current_fish);
+            free_fish(current_fish);
             current_fish = next_fish;
             if (current_fish != NULL) {
                 next_fish = current_fish->next;
@@ -64,8 +63,7 @@ int free_aquarium(struct aquarium *aquarium) {
         struct view *next_view = current_view->next;
         int views_len = len_views(aquarium);
         for (int i = 0; i < views_len; i++) {
-            free(current_view->name);
-            free(current_view);
+            free_view(current_view);
             current_view = next_view;
 
             if (current_view != NULL) {

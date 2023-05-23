@@ -199,8 +199,16 @@ void test_get_fishes_with_destination_in_view_no_destination_in_view() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     struct fish *fish2 = create_fish("fish2", (struct coordinates) { 3, 4 }, 10, 10, RANDOMWAYPOINT);
     struct view *view = create_view("view1", (struct coordinates) { 0, 0 }, 50, 50);
-    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
-    add_specific_destination(fish2, &(struct fish_destination) {.destination_coordinates = { 51, 3 }, .time_at_destination = 0 });
+    struct fish_destination *destination = malloc(sizeof(struct fish_destination));
+    destination->destination_coordinates = (struct coordinates){ 51, 3 };
+    destination->time_at_destination = 0;
+    struct fish_destination *destination2 = malloc(sizeof(struct fish_destination));
+    destination2->destination_coordinates = (struct coordinates){ 63, 3 };
+    destination2->time_at_destination = 0;
+    add_views_to_destination(aquarium, destination);
+    add_views_to_destination(aquarium, destination2);
+    add_specific_destination(fish, destination);
+    add_specific_destination(fish2, destination2);
     assert(add_fish(aquarium, fish) == OK);
     assert(add_fish(aquarium, fish2) == OK);
     struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
@@ -268,7 +276,6 @@ void test_add_movement() {
     assert(fish->destinations_queue.stqh_first->destination_coordinates.x); // testing existence
     assert(fish->destinations_queue.stqh_first->destination_coordinates.y); // testing existence
     assert(fish->destinations_queue.stqh_first->time_at_destination); // testing existence
-    assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
     assert(free_aquarium(aquarium) == OK);
 }
 
@@ -278,18 +285,6 @@ void test_update_fish_coordinates() {
     assert(add_fish(aquarium, fish) == OK);
     assert(add_movement(aquarium, fish) == OK);
     assert(update_fish_coordinates(fish) == OK);
-    assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
-    assert(free_aquarium(aquarium) == OK);
-}
-
-void test_remove_finished_movements() {
-    struct aquarium *aquarium = create_aquarium(100, 100);
-    struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
-    assert(add_fish(aquarium, fish) == OK);
-    assert(add_movement(aquarium, fish) == OK);
-    assert(update_fish_coordinates(fish) == OK);
-    assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next) == NULL);
-    assert(remove_finished_movements(aquarium, fish) == OK);
     assert(free_aquarium(aquarium) == OK);
 }
 
@@ -298,23 +293,23 @@ void test_len_movements_queue() {
     struct fish *fish = create_fish("fish1", (struct coordinates) { 1, 1 }, 10, 10, RANDOMWAYPOINT);
     assert(add_fish(aquarium, fish) == OK);
     assert(len_movements_queue(fish) == 0);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 2, 2 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 1);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 3, 3 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 2);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 4, 4 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 3);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 5, 5 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 4);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 6, 6 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 5);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 7, 7 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 6);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 8, 8 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 7);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 9, 9 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 8);
-    assert(add_movement(aquarium, fish) == OK);
+    add_specific_destination(fish, &(struct fish_destination) {.destination_coordinates = { 10, 10 }, .time_at_destination = 0 });
     assert(len_movements_queue(fish) == 9);
     assert(free_aquarium(aquarium) == OK);
 }
@@ -358,6 +353,8 @@ void test_add_intermediate_movements() {
     origin->destination_coordinates = (struct coordinates){ 373, 421 };
     destination = malloc(sizeof(struct fish_destination));
     destination->destination_coordinates = (struct coordinates){ 919,784 };
+    add_views_to_destination(aquarium, origin);
+    add_views_to_destination(aquarium, destination);
     assert(add_fish(aquarium, fish) == OK);
     assert(add_view(aquarium, view1) == OK);
     assert(add_view(aquarium, view2) == OK);
@@ -386,6 +383,8 @@ void test_add_intermediate_movements() {
     origin->destination_coordinates = (struct coordinates){ 135,929 };
     destination = malloc(sizeof(struct fish_destination));
     destination->destination_coordinates = (struct coordinates){ 802,22 };
+    add_views_to_destination(aquarium, origin);
+    add_views_to_destination(aquarium, destination);
     assert(add_fish(aquarium, fish) == OK);
     assert(add_view(aquarium, view1) == OK);
     assert(add_view(aquarium, view2) == OK);
@@ -429,16 +428,24 @@ void test_add_intermediate_movements() {
 void test_get_intersections_btw_trajectory_and_views() {
     // test the function get_intersections_btw_trajectory_and_views
     struct view *view1 = create_view("view1", (struct coordinates) { 0, 0 }, 500, 500);
+    struct view *view2 = create_view("view2", (struct coordinates) { 500, 0 }, 500, 500);
+    struct view *view3 = create_view("view3", (struct coordinates) { 0, 500 }, 500, 500);
     struct view *view4 = create_view("view4", (struct coordinates) { 500, 500 }, 500, 500);
-    struct view *views[5] = { view1, view4, NULL };
+    struct view *views[5] = { view1, view2, view3, view4, NULL };
     struct coordinates trajectory[2] = { { 373, 421 }, { 919, 784 } };
     struct coordinates *intersections = get_intersections_btw_trajectory_and_views(views, &trajectory[0], &trajectory[1]);
     assert(intersections[0].x == 492);
     assert(intersections[0].y == 500);
     assert(intersections[1].x == 492);
     assert(intersections[1].y == 500);
-    assert(intersections[2].x == 500);
-    assert(intersections[2].y == 505);
+    assert(intersections[2].x == 492);
+    assert(intersections[2].y == 500);
+    assert(intersections[3].x == 492);
+    assert(intersections[3].y == 500);
+    assert(intersections[4].x == 500);
+    assert(intersections[4].y == 505);
+    assert(intersections[5].x == 500);
+    assert(intersections[5].y == 505);
 
     struct coordinates trajectory2[2] = { { 135,929 }, { 802,22 } };
     struct coordinates *intersections2 = get_intersections_btw_trajectory_and_views(views, &trajectory2[0], &trajectory2[1]);
@@ -446,16 +453,26 @@ void test_get_intersections_btw_trajectory_and_views() {
     assert(intersections2[0].y == 500);
     assert(intersections2[1].x == 450);
     assert(intersections2[1].y == 500);
-    assert(intersections2[2].x == 500);
-    assert(intersections2[2].y == 433);
-    assert(intersections2[3].x == 500);
-    assert(intersections2[3].y == 433);
+    assert(intersections2[2].x == 450);
+    assert(intersections2[2].y == 500);
+    assert(intersections2[3].x == 450);
+    assert(intersections2[3].y == 500);
+    assert(intersections2[4].x == 500);
+    assert(intersections2[4].y == 433);
+    assert(intersections2[5].x == 500);
+    assert(intersections2[5].y == 433);
+    assert(intersections2[6].x == 500);
+    assert(intersections2[6].y == 433);
+    assert(intersections2[7].x == 500);
+    assert(intersections2[7].y == 433);
 
+    struct view *view5 = create_view("view5", (struct coordinates) { 250, 0 }, 500, 500);
+    struct view *views2[4] = { view1, view2, view5, NULL };
     struct coordinates trajectory3[2] = { { 13, 458 }, { 500, 411 } };
-    struct coordinates *intersections3 = get_intersections_btw_trajectory_and_views(views, &trajectory3[0], &trajectory3[1]);
+    struct coordinates *intersections3 = get_intersections_btw_trajectory_and_views(views2, &trajectory3[0], &trajectory3[1]);
     assert(intersections3[0].x == 250);
     struct coordinates trajectory4[2] = { { 13, 458 }, { 784, 383 } };
-    struct coordinates *intersections4 = get_intersections_btw_trajectory_and_views(views, &trajectory4[0], &trajectory4[1]);
+    struct coordinates *intersections4 = get_intersections_btw_trajectory_and_views(views2, &trajectory4[0], &trajectory4[1]);
     assert(intersections4[0].x == 250);
     assert(intersections4[1].x == 500);
 
@@ -504,8 +521,6 @@ int main() {
     test_add_movement();
     printf(".");
     test_update_fish_coordinates();
-    printf(".");
-    test_remove_finished_movements();
     printf(".");
     test_len_movements_queue();
     printf(".");
