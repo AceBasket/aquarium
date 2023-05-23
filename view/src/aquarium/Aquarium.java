@@ -3,7 +3,6 @@ package aquarium;
 import java.util.ArrayList;
 
 import visuals.AquariumFX;
-import visuals.FishImage;
 
 public class Aquarium {
     private ArrayList<Fish> fishesList;

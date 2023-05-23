@@ -1,7 +1,5 @@
 package aquarium;
 
-import java.time.Instant;
-
 public class FishTest {
     public static void main(String[] args) {
         boolean missingAssertion = false;

@@ -4,7 +4,6 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 
@@ -15,10 +14,7 @@ import utils.Log;
 import utils.Log.LogLevel;
 
 import java.io.PrintWriter;
-import java.time.Instant;
-import java.util.List;
 
-import aquarium.Coordinates;
 import aquarium.Fish;
 
 // A class that represents a fish in the aquarium
