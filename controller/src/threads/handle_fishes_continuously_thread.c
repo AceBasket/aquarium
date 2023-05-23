@@ -25,7 +25,6 @@ void *get_fishes_continuously(void *parameters) {
     log_message(log, LOG_INFO, "View: %s", view->name);
     pthread_mutex_unlock(&aquarium_mutex);
     struct fish **fishes_in_view;
-    unsigned long long minimum_time_to_destination = 0;
 
     pthread_mutex_lock(&terminate_threads_mutex);
     while (terminate_threads == NOK && fd_is_valid(socket_fd)) {
