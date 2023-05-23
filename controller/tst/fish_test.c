@@ -340,7 +340,7 @@ void test_add_intermediate_movements() {
     assert(add_specific_destination(fish, origin) == OK);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.x == 1);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.y == 1);
-    assert(add_intermediate_movements(aquarium, fish, origin, destination) == OK);
+    assert(add_intermediate_movements(aquarium, fish, origin, destination, NOK) == OK);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next)->destination_coordinates.x == 20);
     assert(STAILQ_NEXT(STAILQ_FIRST(&fish->destinations_queue), next)->destination_coordinates.y == 3);
     assert(add_specific_destination(fish, destination) == OK);
@@ -364,7 +364,7 @@ void test_add_intermediate_movements() {
     assert(add_view(aquarium, view3) == OK);
     assert(add_view(aquarium, view4) == OK);
     assert(add_specific_destination(fish, origin) == OK);
-    assert(add_intermediate_movements(aquarium, fish, origin, destination) == OK);
+    assert(add_intermediate_movements(aquarium, fish, origin, destination, NOK) == OK);
     assert(add_specific_destination(fish, destination) == OK);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.x == 373);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.y == 421);
@@ -392,7 +392,7 @@ void test_add_intermediate_movements() {
     assert(add_view(aquarium, view3) == OK);
     assert(add_view(aquarium, view4) == OK);
     assert(add_specific_destination(fish, origin) == OK);
-    assert(add_intermediate_movements(aquarium, fish, origin, destination) == OK);
+    assert(add_intermediate_movements(aquarium, fish, origin, destination, NOK) == OK);
     assert(add_specific_destination(fish, destination) == OK);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.x == 135);
     assert(STAILQ_FIRST(&fish->destinations_queue)->destination_coordinates.y == 929);

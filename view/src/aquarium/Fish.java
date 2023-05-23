@@ -35,7 +35,8 @@ class FishDestination {
             return false;
         }
         FishDestination destination = (FishDestination) o;
-        return this.destination.equals(destination.getDestination()) && this.deadline == destination.getDeadline();
+        return this.destination.equals(destination.getDestination())
+                && Math.abs((this.deadline / 1000) - (destination.getDeadline() / 1000)) < 1;
     }
 }
 
@@ -91,7 +92,6 @@ public class Fish {
         return destinations.getFirst().getDeadline();
     }
 
-    /* TODO: remove this method */
     public statusEnum getStatus() {
         return status;
     }
