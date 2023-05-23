@@ -34,11 +34,11 @@ void sigpipe_handler(int signum);
 
 /* exits the program with the message if the condition is true */
 void exit_if(int condition, const char *message);
-/* converts time into milliseconds */
+/* gets current epoch time in milliseconds */
 unsigned long long get_time_in_milliseconds();
-/* adds one secpnd to milliseconds */
+/* adds a specified number of second to the specified time (which is in milliseconds) */
 unsigned long long add_seconds_to_time_in_milliseconds(unsigned long long time, int seconds);
-/* returns the time to get the time in milliseconds */
+/* returns the time (in seconds) to get the specified time in milliseconds */
 time_t get_seconds_to_get_to_time_in_milliseconds(unsigned long long time);
 /* prints the message in the log file according to a verbosity level */
 void log_message(FILE *log, enum log_level level, const char *message, ...);

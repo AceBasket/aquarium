@@ -17,7 +17,7 @@ void ping_handler(FILE *log, struct parse *parser, int socket_fd, struct aquariu
 void add_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 /* deletes a fish from the aquarium */
 void del_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
-/* strats the fish */
+/* starts the fish */
 void start_fish_handler(FILE *log, struct parse *parser, int socket_fd, struct aquarium *aquarium);
 /* logs out the view */
 void log_out_handler(FILE *log, struct parse *parser, int *socket_fd, struct aquarium *aquarium);
