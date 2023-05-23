@@ -267,7 +267,7 @@ void *thread_io(void *parameters) {
                 //     status_handler(log, parser, views_socket_fd[num_view], *aquarium);
                 //     break;
                 case UNKNOWN:
-                    log_message(log, LOG_INFO, "Unknown command from view %d", num_view);
+                    log_message(log, LOG_WARNING, "Unknown command from view %d", num_view);
                     if (dprintf(views_socket_fd[num_view], "NOK: Unknown command\n") < 0) {
                         log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
                     }
