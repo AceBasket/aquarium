@@ -124,6 +124,17 @@ public class FishImage {
                 + imageView.getFitWidth() + "x" + imageView.getFitHeight());
         logFile.flush();
 
+        /* If movement lasts 0 or less seconds, teleport */
+        if (duration <= 0) {
+            fishData.removeExpiredDestinations();
+            imageView.setX(endX);
+            imageView.setY(endY);
+            fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
+            isMoving = false;
+            logFile.println("Duration of movement was <= 0");
+            return;
+        }
+
         if (!imageView.isVisible()) {
             /* If its actual position is -1x-1, stay hidden */
             if (fishData.getPosition().getX() == -1 && fishData.getPosition().getY() == -1) {
@@ -162,17 +173,6 @@ public class FishImage {
                 logFile.flush();
                 imageView.setVisible(false);
             }
-        }
-
-        /* If movement lasts 0 or less seconds, teleport */
-        if (duration <= 0) {
-            fishData.removeExpiredDestinations();
-            imageView.setX(endX);
-            imageView.setY(endY);
-            fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
-            isMoving = false;
-            logFile.println("Duration of movement was <= 0");
-            return;
         }
 
         // Create a timeline for moving the fish
