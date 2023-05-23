@@ -29,8 +29,8 @@ public class FishImage {
     private Fish fishData;
     private boolean isMoving = false;
 
-    private boolean second_to_last_destination_on_border = false;
-    private boolean last_destination_on_border = false;
+    private boolean secondToLastDestinationOnBorder = false;
+    private boolean lastDestinationOnBorder = false;
 
     private PrintWriter logFile;
 
@@ -46,6 +46,10 @@ public class FishImage {
             // Set the image view dimensions to match the image dimensions
             imageView.setFitWidth(percentagesToPixel(fishData.getWidth(), aquariumWidth));
             imageView.setFitHeight(percentagesToPixel(fishData.getHeight(), aquariumHeight));
+
+            // Set position of the image view
+            imageView.setX(percentagesToPixel(fishData.getPosition().getX(), aquariumWidth));
+            imageView.setY(percentagesToPixel(fishData.getPosition().getY(), aquariumHeight));
 
             // Set the image view to preserve the image ratio
             imageView.setPreserveRatio(true);
@@ -116,8 +120,20 @@ public class FishImage {
 
         logFile.println(System.currentTimeMillis());
         logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
-                + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
+                + fishData.getFirstDestination().toString() + " in " + duration + " seconds. Size = "
+                + imageView.getFitWidth() + "x" + imageView.getFitHeight());
         logFile.flush();
+
+        /* If movement lasts 0 or less seconds, teleport */
+        if (duration <= 0) {
+            fishData.removeExpiredDestinations();
+            imageView.setX(endX);
+            imageView.setY(endY);
+            fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
+            isMoving = false;
+            logFile.println("Duration of movement was <= 0");
+            return;
+        }
 
         if (!imageView.isVisible()) {
             /* If its actual position is -1x-1, stay hidden */
@@ -130,12 +146,12 @@ public class FishImage {
              * If second to last destination was on a border and next destination is also on
              * a border, set visible
              */
-            else if (second_to_last_destination_on_border && coordinatesOnBorder(width, height, endX, endY)) {
+            else if (secondToLastDestinationOnBorder && coordinatesOnBorder(width, height, endX, endY)) {
                 logFile.println(
                         "Fish " + fishData.getName() + " becomes visible (from border to border by crossing view)");
                 logFile.flush();
                 imageView.setVisible(true);
-                last_destination_on_border = false;
+                lastDestinationOnBorder = false;
             }
             /*
              * If position is on one of the borders and it goes inside the window, set
@@ -159,17 +175,7 @@ public class FishImage {
             }
         }
 
-        /* If movement lasts 0 or less seconds, teleport */
-        if (duration <= 0) {
-            fishData.removeExpiredDestinations();
-            imageView.setX(endX);
-            imageView.setY(endY);
-            fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
-            isMoving = false;
-            logFile.println("Duration of movement was <= 0");
-            return;
-        }
-        // Create a timeline animation
+        // Create a timeline for moving the fish
         Timeline timeline = new Timeline();
 
         // Create key frames for the start and end positions
@@ -183,28 +189,25 @@ public class FishImage {
         // Set an event handler to be called when the animation finishes
         EventHandler<ActionEvent> onAnimationFinished = e -> {
             // Update the fish coordinates to the destination coordinates
-            // fishData.setPosition((int) pixelToPercentages(endX, width), (int)
-            // pixelToPercentages(endY, height));
             fishData.setPosition((int) pixelToPercentages(imageView.getX(), width),
                     (int) pixelToPercentages(imageView.getY(), height));
             logFile.println("Fish " + fishData.getName() + " is now at " + (int) imageView.getX() + "x"
                     + (int) imageView.getY());
             logFile.flush();
-            // logFile.println("pane size = " + (int) width + "x" + (int) height);
             imageView.setX(endX);
             imageView.setY(endY);
 
             isMoving = false;
 
-            second_to_last_destination_on_border = last_destination_on_border;
+            secondToLastDestinationOnBorder = lastDestinationOnBorder;
 
             if (coordinatesOnBorder(width, height, endX, endY)) {
                 logFile.println("Fish " + fishData.getName() + " is now hidden");
                 logFile.flush();
                 imageView.setVisible(false);
-                last_destination_on_border = true;
+                lastDestinationOnBorder = true;
             } else {
-                last_destination_on_border = false;
+                lastDestinationOnBorder = false;
             }
 
             // Remove the first destination from the list of destinations
@@ -219,48 +222,6 @@ public class FishImage {
 
         // Play the animation
         timeline.play();
-    }
-
-    void handleWindowResize(double width, double height) {
-        // Update the fish's coordinates based on the new window size
-        int currentX = fishData.getPosition().getX();
-        int currentY = fishData.getPosition().getY();
-        int newX = (int) pixelToPercentages(imageView.getX(), width);
-        int newY = (int) pixelToPercentages(imageView.getY(), height);
-        fishData.setPosition(newX, newY);
-
-        // Recalculate the start and end coordinates for the fish's movement animation
-        double startX = percentagesToPixel(fishData.getPosition().getX(), width);
-        double startY = percentagesToPixel(fishData.getPosition().getY(), height);
-        double endX = percentagesToPixel(fishData.getFirstDestination().getX(), width);
-        double endY = percentagesToPixel(fishData.getFirstDestination().getY(), height);
-
-        // Update the fish's position on the screen
-        imageView.setX(startX);
-        imageView.setY(startY);
-
-        // Adjust the fish's movement animation to the new coordinates
-        adjustMovementAnimation(startX, startY, endX, endY);
-    }
-
-    private void adjustMovementAnimation(double startX, double startY, double endX, double endY) {
-        // Retrieve the existing key frames from the animation
-        Timeline timeline = (Timeline) imageView.getScene().getWindow().getUserData();
-        List<KeyFrame> keyFrames = timeline.getKeyFrames();
-
-        // Modify the start and end key frames with the updated coordinates
-        KeyFrame startFrame = keyFrames.get(0);
-        KeyFrame endFrame = keyFrames.get(1);
-        startFrame = new KeyFrame(startFrame.getTime(),
-                new KeyValue(imageView.xProperty(), startX, Interpolator.LINEAR),
-                new KeyValue(imageView.yProperty(), startY, Interpolator.LINEAR));
-        endFrame = new KeyFrame(endFrame.getTime(),
-                new KeyValue(imageView.xProperty(), endX, Interpolator.LINEAR),
-                new KeyValue(imageView.yProperty(), endY, Interpolator.LINEAR));
-
-        // Update the key frames in the animation
-        keyFrames.set(0, startFrame);
-        keyFrames.set(1, endFrame);
     }
 
     public Fish getFishData() {

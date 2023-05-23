@@ -51,7 +51,7 @@ int update_fish_coordinates(struct fish *fish);
 int remove_finished_movements(struct aquarium *aquarium, struct fish *fish);
 int len_movements_queue(struct fish *fish);
 void free_fishes_array(struct fish **fishes, struct view *view);
-int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, struct fish_destination *origin, struct fish_destination *destination);
+int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, struct fish_destination *origin, struct fish_destination *destination, int is_first_call);
 struct coordinates *get_intersections_btw_trajectory_and_views(struct view **views, struct coordinates *p1, struct coordinates *p2);
 void debug_destinations_queue(FILE *log, struct fish *fish);
 // TODO: add test
