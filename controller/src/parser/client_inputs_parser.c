@@ -20,7 +20,7 @@ struct parse *parse_clients(char *str) {
         return p;
     }
 
-    //status
+    // status
     if (strcmp(command, "status") == 0) {
         p->func_name = STATUS;
         if (strtok(NULL, " ") != NULL) {
@@ -28,7 +28,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //ADD_FISH
+    // addFish
     else if (strcmp(command, "addFish") == 0) {
         p->func_name = ADD_FISH;
         char *arg1 = strtok(NULL, " ");
@@ -51,7 +51,6 @@ struct parse *parse_clients(char *str) {
             strcpy(p->status, "ERROR: Wrong command@@command should be like : addFish <nameFish> at <number>x<number>, <number>x<number>, <path>\n");
             return p;
         }
-        // adding_arg_to_parse(p, command2);
 
         char *arg2 = strtok(NULL, "x");
         if (arg2 == NULL) {
@@ -116,7 +115,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //delFish
+    // delFish
     else if (strcmp(command, "delFish") == 0) {
         p->func_name = DEL_FISH;
         char *arg = strtok(NULL, " ");
@@ -134,7 +133,7 @@ struct parse *parse_clients(char *str) {
         adding_arg_to_parse(p, arg);
         return p;
     }
-    //startFish
+    // startFish
     else if (strcmp(command, "startFish") == 0) {
         p->func_name = START_FISH;
 
@@ -153,7 +152,7 @@ struct parse *parse_clients(char *str) {
         adding_arg_to_parse(p, arg);
         return p;
     }
-    //hello
+    // hello
     else if (strcmp(command, "hello") == 0) {
         p->func_name = HELLO;
 
@@ -166,14 +165,12 @@ struct parse *parse_clients(char *str) {
             strcpy(p->status, "ERROR: Command should be like : hello in as <ID> Or a simple hello\n");
             return p;
         }
-        // adding_arg_to_parse(p, command);
 
         command = strtok(NULL, " ");
         if (command == NULL || strcmp(command, "as") != 0) {
             strcpy(p->status, "ERROR: Command should be like: hello in as <ID> or a simple hello\n");
             return p;
         }
-        // adding_arg_to_parse(p, command);
 
         char *ID = strtok(NULL, " ");
         if (ID == NULL) {
@@ -189,7 +186,7 @@ struct parse *parse_clients(char *str) {
         adding_arg_to_parse(p, ID);
         return p;
     }
-    //getFishes
+    // getFishes
     else if (strcmp(command, "getFishes") == 0) {
         p->func_name = GET_FISHES;
         if (strtok(NULL, " ") != NULL) {
@@ -198,7 +195,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //ls
+    // ls
     else if (strcmp(command, "ls") == 0) {
         p->func_name = LS;
         if (strtok(NULL, " ") != NULL) {
@@ -207,7 +204,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //getFishesContinuously
+    // getFishesContinuously
     else if (strcmp(command, "getFishesContinuously") == 0) {
         p->func_name = GET_FISHES_CONTINUOUSLY;
         if (strtok(NULL, " ") != NULL) {
@@ -216,7 +213,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //ping
+    // ping
     else if (strcmp(command, "ping") == 0) {
         p->func_name = PING;
         char *id = strtok(NULL, " ");
@@ -234,7 +231,7 @@ struct parse *parse_clients(char *str) {
         }
         return p;
     }
-    //log out
+    // log out
     else if (strcmp(command, "log") == 0) {
         p->func_name = LOG;
         command = strtok(NULL, " ");

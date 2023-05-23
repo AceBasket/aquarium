@@ -3,9 +3,7 @@
 
 #include <stdlib.h>
 #include <time.h>
-// #include "../utils.h"
 #include "structures.h"
-
 
 /* creates a view */
 struct view *create_view(char *name, struct coordinates top_left, int height, int width);

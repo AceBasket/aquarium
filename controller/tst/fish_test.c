@@ -1,4 +1,3 @@
-#include "../src/aquarium/fish.h"
 #include "../src/aquarium/aquarium.h"
 #include "../src/utils.h"
 #include <stdlib.h>
@@ -427,7 +426,7 @@ void test_add_intermediate_movements() {
 }
 
 void test_get_intersections_btw_trajectory_and_views() {
-    /* Test the function get_intersections_btw_trajectory_and_views */
+    // test the function get_intersections_btw_trajectory_and_views
     struct view *view1 = create_view("view1", (struct coordinates) { 0, 0 }, 500, 500);
     struct view *view2 = create_view("view2", (struct coordinates) { 500, 0 }, 500, 500);
     struct view *view3 = create_view("view3", (struct coordinates) { 0, 500 }, 500, 500);
@@ -529,5 +528,6 @@ int main() {
     printf(".");
     test_add_intermediate_movements();
     printf(" OK\n");
+
     return EXIT_SUCCESS;
 }

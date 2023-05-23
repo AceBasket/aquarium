@@ -1,4 +1,3 @@
-#include "../src/aquarium/view.h"
 #include "../src/aquarium/aquarium.h"
 #include "../src/utils.h"
 #include <stdlib.h>
@@ -118,5 +117,6 @@ int main() {
     printf(".");
     test_get_views_from_coordinates();
     printf(" OK\n");
+
     return EXIT_SUCCESS;
 }

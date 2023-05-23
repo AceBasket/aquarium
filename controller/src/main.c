@@ -4,8 +4,6 @@
 #include <pthread.h>
 #include <assert.h>
 #include <time.h>
-// #include "utils.h"
-// #include "aquarium/aquarium.h"
 #include "communication/controller.h"
 
 #ifndef VERBOSITY_LEVEL
@@ -23,20 +21,20 @@ int main(int argc, char const *argv[]) {
     FILE *log = fopen("log_main.log", "w");
     log_message(log, LOG_INFO, "===== thread_main() =====");
 
-    // Checking the number of arguments
+    // checking the number of arguments
     if (argc < 3) {
         log_message(log, LOG_FATAL_ERROR, "Too few arguments (need number of views and port number)");
     }
-    // Number of views
+    // number of views
     int nb_views = atoi(argv[1]);
-    // Port number
+    // port number
     int port_number = atoi(argv[2]);
 
     if (signal(SIGPIPE, sigpipe_handler) == SIG_ERR) {
         log_message(log, LOG_ERROR, "The signal handler could not be changed");
     }
 
-    // Initialization of the server
+    // initialization of the server
     pthread_t tid_accept;
     pthread_t tid_prompt;
     pthread_t tid_io;
@@ -57,7 +55,7 @@ int main(int argc, char const *argv[]) {
         .io_parameters = malloc(sizeof(struct thread_io_parameters)),
         .views_sockets_fd = malloc(sizeof(int) * MAX_VIEWS)
     };
-    // Checking the opening of log files
+    // checking the opening of log files
     if (parameters.io_log == NULL) {
         log_message(log, LOG_ERROR, "The io log file could not be opened");
     } if (parameters.accept_log == NULL) {
@@ -67,7 +65,7 @@ int main(int argc, char const *argv[]) {
     } if (parameters.timeout_log == NULL) {
         log_message(log, LOG_ERROR, "The timeout log file could not be opened");
     }
-    // Checking the memory allocation
+    // checking the memory allocation
     if (parameters.io_parameters == NULL) {
         log_message(log, LOG_ERROR, "The io memory could not be allocated");
     } if (parameters.accept_parameters == NULL) {
@@ -77,7 +75,7 @@ int main(int argc, char const *argv[]) {
     }
     init_server(&parameters);
 
-    // Handling fish destinations
+    // handling fish destinations
     pthread_mutex_lock(&aquarium_mutex);
     pthread_mutex_lock(&terminate_threads_mutex);
     while (aquarium == NULL && terminate_threads == NOK) {
@@ -139,7 +137,7 @@ int main(int argc, char const *argv[]) {
     if (pthread_join(tid_prompt, NULL) != 0) {
         log_message(log, LOG_ERROR, "The prompt thread could not be joined");
     }
-    // Checking threads cancellation
+    // checking threads cancellation
     if (pthread_cancel(tid_io) != 0) {
         log_message(log, LOG_ERROR, "The ios thread could not be canceled");
     } // if io thread is waiting in recv --> cancellation point
@@ -149,7 +147,7 @@ int main(int argc, char const *argv[]) {
     if (pthread_cancel(tid_timeout) != 0) {
         log_message(log, LOG_ERROR, "The timeout thread could not be canceled");
     } // if accept thread is waiting in accept --> cancellation point
-    // Checking threads join
+    // checking threads join
     if (pthread_join(tid_io, NULL) != 0) {
         log_message(log, LOG_ERROR, "The io thread could not be joined");
     } if (pthread_join(tid_accept, NULL) != 0) {
@@ -157,7 +155,7 @@ int main(int argc, char const *argv[]) {
     } if (pthread_join(tid_timeout, NULL) != 0) {
         log_message(log, LOG_ERROR, "The timeout thread could not be joined");
     }
-    // Checking the closing of log files
+    // checking the closing of log files
     if (fclose(parameters.io_log) != 0) {
         log_message(log, LOG_ERROR, "The io stream could not be closed");
     } if (fclose(parameters.accept_log) != 0) {

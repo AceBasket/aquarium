@@ -39,7 +39,7 @@ void *thread_timeout(void *parameters) {
         for (int num_view = 0; num_view < MAX_VIEWS; num_view++) {
 
             pthread_mutex_lock(&views_sockets_mutex);
-            // Verify that the socket is active
+            // verify that the socket is active
             if (views_socket_fd[num_view] != -1) {
                 pthread_mutex_unlock(&views_sockets_mutex);
                 time_t current_time = time(NULL);
@@ -48,7 +48,7 @@ void *thread_timeout(void *parameters) {
                 }
 
                 struct view *view = NULL;
-                // Verify that the view is initialized
+                // verify that the view is initialized
                 while (view == NULL) {
                     log_message(log, LOG_INFO, "View %d is not initialized yet", num_view);
                     pthread_mutex_lock(&aquarium_mutex);
@@ -61,15 +61,12 @@ void *thread_timeout(void *parameters) {
                     }
                 }
 
-                // Disconnects the view when it has been inactive for too long
+                // disconnects the view when it has been inactive for too long
                 log_message(log, LOG_INFO, "Time left before timeout for view %d: %d", num_view, timeout - (current_time - view->time_last_ping));
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
 
-                    // if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
-                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    // }
                     dprintf_verif("bye\n", views_socket_fd[num_view], log);
 
                     if (close(views_socket_fd[num_view]) != 0) {
@@ -123,16 +120,16 @@ void *thread_io(void *parameters) {
     pthread_mutex_unlock(&terminate_threads_mutex);
     pthread_mutex_unlock(&aquarium_mutex);
 
-    // For communication with views
+    // for communication with views
     fd_set read_fds;
     int *views_socket_fd = params->views_socket_fd;
     int recv_bytes;
-    char buffer[BUFFER_SIZE] = {}; // No uninitialized memory
+    char buffer[BUFFER_SIZE] = {}; // no uninitialized memory
 
-    // If get_fishes_continuously is called
-    pthread_t handle_fishes_continuously_thread = 0; // To not have a non-initialized value
+    // if get_fishes_continuously is called
+    pthread_t handle_fishes_continuously_thread = 0; // to not have a non-initialized value
 
-    // Wait for views to be initialized
+    // wait for views to be initialized
     pthread_mutex_lock(&terminate_threads_mutex);
     while (views_socket_fd[0] == -1 && terminate_threads == NOK) {
         pthread_mutex_unlock(&terminate_threads_mutex);
@@ -158,7 +155,7 @@ void *thread_io(void *parameters) {
             }
         }
 
-        // Wait indefinitely for an activity on one of the sockets
+        // wait indefinitely for an activity on one of the sockets
         log_message(log, LOG_INFO, "Waiting for activity on one of the sockets");
         if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
             log_message(log, LOG_FATAL_ERROR, "On select()");
@@ -174,7 +171,7 @@ void *thread_io(void *parameters) {
                 int total_recv_bytes = 0; // later on, if we want to keep listening until the client sends a \n
                 while (1) {
 
-                    // If received Ctrl+D on prompt 
+                    // if received Ctrl+D on prompt 
                     pthread_mutex_lock(&terminate_threads_mutex);
                     if (terminate_threads == OK) {
                         pthread_mutex_unlock(&terminate_threads_mutex);
@@ -261,21 +258,11 @@ void *thread_io(void *parameters) {
                     log_out_handler(log, parser, &views_socket_fd[num_view], aquarium);
                     pthread_mutex_unlock(&aquarium_mutex);
                     break;
-                // case STATUS:
-                //     fprintf(log, "Status from view %d\n", num_view);
-                //     status_handler(log, parser, views_socket_fd[num_view], *aquarium);
-                //     break;
                 case UNKNOWN:
                     log_message(log, LOG_INFO, "Unknown command from view %d", num_view);
-                    // if (dprintf(views_socket_fd[num_view], "NOK: Unknown command\n") < 0) {
-                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    // }
                     dprintf_verif("NOK: Unknown command\n", views_socket_fd[num_view], log);
                     break;
                 default:
-                    // if (dprintf(views_socket_fd[num_view], "%s", parser->status) < 0) {
-                    //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
-                    // }
                     dprintf_verif(parser->status, views_socket_fd[num_view], log);
                     break;
                 }

@@ -1,6 +1,5 @@
 #include "aquarium.h"
 
-
 struct aquarium *create_aquarium(int width, int height) {
     // create a new aquarium
     struct aquarium *aquarium = malloc(sizeof(struct aquarium));

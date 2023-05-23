@@ -3,9 +3,7 @@
 #include <string.h>
 #include "prompt_thread.h"
 
-
 #define BUFFER_SIZE 256
-
 
 void *thread_prompt(void *parameters) {
     FILE *log = ((struct thread_prompt_parameters *)parameters)->log;
@@ -15,11 +13,10 @@ void *thread_prompt(void *parameters) {
         log_message(log, LOG_ERROR, "The signal handler could not be changed");
     }
 
-    // struct thread_prompt_parameters *params = (struct thread_prompt_parameters *)parameters;
     (void)parameters;
 
 
-    char buffer[BUFFER_SIZE] = {}; // No uninitialized memory
+    char buffer[BUFFER_SIZE] = {}; // N=no uninitialized memory
     char char_read;
     int i_buffer;
 
@@ -32,7 +29,6 @@ void *thread_prompt(void *parameters) {
         do {
             char_read = fgetc(stdin);
             if (char_read == EOF) {
-                // log_message(log, LOG_WARNING, "End of line");
                 pthread_mutex_lock(&terminate_threads_mutex);
                 terminate_threads = OK;
                 pthread_mutex_unlock(&terminate_threads_mutex);
@@ -56,7 +52,7 @@ void *thread_prompt(void *parameters) {
         // we parse this line
         struct parse *parser = parse_prompt(buffer);
         enum func function = parser->func_name;
-        //log_message(log, LOG_INFO, "Function to execute: %d", function);
+        log_message(log, LOG_INFO, "Function to execute: %d", function);
         switch (function) {
         case LOAD:
             log_message(log, LOG_INFO, "Loading aquarium from file %s", parser->arguments[0]);

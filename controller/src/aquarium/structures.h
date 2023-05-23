@@ -5,14 +5,11 @@
 #include <sys/queue.h>
 #include <math.h>
 
-
 // AQUARIUM 
-
 struct coordinates {
     int x;
     int y;
 };
-
 struct aquarium {
     struct fish *fishes; // chained list to fishes
     struct view *views; // chained list to views
@@ -25,22 +22,17 @@ struct aquarium {
 
 enum movement_pattern { RANDOMWAYPOINT };
 enum status { STARTED, NOT_STARTED };
-
 typedef STAILQ_HEAD(tailq, fish_destination) tailq_t;
-
-
 struct fish_destination {
     struct coordinates destination_coordinates;
     unsigned long long time_at_destination;
-    struct view_of_destination *views[MAX_VIEWS + 1]; //Array of views where the fish has to go (NULL terminates the array)
+    struct view_of_destination *views[MAX_VIEWS + 1]; // array of views where the fish has to go (NULL terminates the array)
     STAILQ_ENTRY(fish_destination) next;
 };
-
 struct view_of_destination {
     char *view_name;
     int is_sent;
 };
-
 struct fish {
     char *name;
     struct coordinates top_left;
@@ -54,7 +46,6 @@ struct fish {
 };
 
 // VIEW
-
 struct view {
     char *name;
     int socket_fd;

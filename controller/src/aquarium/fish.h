@@ -1,8 +1,6 @@
 #ifndef _FISH_H_
 #define _FISH_H_
 
-// #include "view.h"
-// #include "structures.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -58,4 +56,5 @@ int destination_sent_to_view(char *view_name, struct fish_destination *destinati
 void free_fish(struct fish *fish);
 /* adds the name of the views that handle the area the destination specified is in */
 int add_views_to_destination(struct aquarium *aquarium, struct fish_destination *destination);
+
 #endif // _FISH_H_ 

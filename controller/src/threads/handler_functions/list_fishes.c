@@ -1,9 +1,5 @@
 #include "list_fishes.h"
 
-/**
- * @brief Prints one destination per fish on the socket. If the first destination was already sent, print the next unsent one
- *
- */
 void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view *view, int socket_fd) {
     if (fishes_in_view[0] == NULL) {
         log_message(log, LOG_WARNING, "No fish in view");
@@ -23,7 +19,7 @@ void list_fishes_for_client(FILE *log, struct fish **fishes_in_view, struct view
     while (fishes_in_view[iter] != NULL) {
         destination = STAILQ_FIRST(&fishes_in_view[iter]->destinations_queue);
 
-        /* Searching for destination to send to view */
+        // searching for destination to send to view
         while (destination_sent_to_view(view->name, destination) == OK) {
             destination = STAILQ_NEXT(destination, next);
         }

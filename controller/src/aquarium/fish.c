@@ -119,7 +119,7 @@ struct fish *get_fishes(struct aquarium *aquarium) {
 }
 
 int add_specific_destination(struct fish *fish, struct fish_destination *destination) {
-    /* Deep copy necessary */
+    // deep copy necessary
     struct fish_destination *new_destination = malloc(sizeof(struct fish_destination));
     new_destination->destination_coordinates.x = destination->destination_coordinates.x;
     new_destination->destination_coordinates.y = destination->destination_coordinates.y;
@@ -214,14 +214,6 @@ int coordinates_are_in_view(struct coordinates *c, struct view *view) {
 }
 
 void free_fishes_array(struct fish **fishes, __attribute__((unused))struct view *view) {
-    // TODO: think about what needs to be freed
-    // int i = 0;
-    // while (fishes[i] != NULL) {
-    //     if (coordinates_are_in_view(&fishes[i]->top_left, view) == NOK) {
-    //         free_fish(fishes[i]);
-    //     }
-    //     i++;
-    // }
     free(fishes);
 }
 
@@ -294,7 +286,7 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *element;
     if (!STAILQ_EMPTY(&fish->destinations_queue)) {
         element = STAILQ_FIRST(&fish->destinations_queue);
-        // Get the last element of the queue
+        // get the last element of the queue
         while (STAILQ_NEXT(element, next) != NULL) {
             element = STAILQ_NEXT(element, next);
         }
@@ -309,9 +301,9 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
         add_intermediate_movements(aquarium, fish, element, new_destination, OK);
     }
 
-    /* Now that new destinations have been added to tail of element, we need to update element */
+    // now that new destinations have been added to tail of element, we need to update element
     if (!STAILQ_EMPTY(&fish->destinations_queue)) {
-        // Go through the queue again to get the new element last element
+        // go through the queue again to get the new element last element
         element = STAILQ_FIRST(&fish->destinations_queue);
         while (STAILQ_NEXT(element, next) != NULL) {
             element = STAILQ_NEXT(element, next);
@@ -321,10 +313,10 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
     unsigned long long time_at_destination_previous_destination = element->time_at_destination;
     // compute time needed to get to destination from previous destination
     float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, element->destination_coordinates)) / fish->speed;
-    /* Forbid to have less than a second between two destinations */
+    // forbid to have less than a second between two destinations
     new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, 1) : add_seconds_to_time_in_milliseconds(time_at_destination_previous_destination, round(time_to_get_to_new_destination));
 
-// adding all the views to which the destination belongs to
+    // adding all the views to which the destination belongs to
     add_views_to_destination(aquarium, new_destination);
 
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
@@ -346,10 +338,10 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
     }
     views[i] = NULL;
 
-    /* get intersections for each view found above */
+    // get intersections for each view found above
     struct coordinates *intersections = get_intersections_btw_trajectory_and_views(views, &origin->destination_coordinates, &destination->destination_coordinates);
 
-    /* So that we can test the function */
+    // so that we can test the function
     struct fish_destination *origin_correct_pointer;
     STAILQ_FOREACH(origin_correct_pointer, &fish->destinations_queue, next) {
         if (origin_correct_pointer->destination_coordinates.x == origin->destination_coordinates.x && origin_correct_pointer->destination_coordinates.y == origin->destination_coordinates.y) {
@@ -373,7 +365,7 @@ int add_intermediate_movements(struct aquarium *aquarium, struct fish *fish, str
         float time_to_get_to_new_destination = (distance(new_destination->destination_coordinates, origin->destination_coordinates)) / fish->speed;
         // forbid to have less than a second between two destinations
         new_destination->time_at_destination = (time_to_get_to_new_destination < 1) ? add_seconds_to_time_in_milliseconds(origin->time_at_destination, 1) : add_seconds_to_time_in_milliseconds(origin->time_at_destination, (int)round(time_to_get_to_new_destination));
-        // Adding all the views to which the destination belongs to
+        // adding all the views to which the destination belongs to
         add_views_to_destination(aquarium, new_destination);
 
         if (is_first_call == OK && i < 1) { // if no destination in queue, insert at head
@@ -412,7 +404,7 @@ struct coordinates *get_intersections_btw_trajectory_and_views(struct view **vie
         float left_side_intersection = slope_trajectory * views[views_index]->top_left.x + y_intercept_trajectory;
         float right_side_intersection = slope_trajectory * (views[views_index]->top_left.x + views[views_index]->width) + y_intercept_trajectory;
 
-        /* Coordinates are rounded to avoid float imprecision */
+        // coordinates are rounded to avoid float imprecision
         float distance_origin_destination = distance(*p1, *p2);
         if (top_side_intersection <= views[views_index]->top_left.x + views[views_index]->width) {
             if (distance((struct coordinates) { round(top_side_intersection), views[views_index]->top_left.y }, *p1) < distance_origin_destination &&distance((struct coordinates) { round(top_side_intersection), views[views_index]->top_left.y }, *p2) < distance_origin_destination) {
@@ -457,7 +449,7 @@ struct coordinates *get_intersections_btw_trajectory_and_views(struct view **vie
         intersections[i].y = -1;
     }
 
-    /* Placing all the (-1x-1) at the end of the array */
+    // placing all the (-1x-1) at the end of the array
     int index = 0;
     for (int i = 0; i < len_views * 2; i++) {
         if (intersections[i].x != -1 && intersections[i].y != -1) {
@@ -468,7 +460,7 @@ struct coordinates *get_intersections_btw_trajectory_and_views(struct view **vie
         }
     }
 
-    /* Sorting the list of intersections by growing distance to origin (but leave the (-1x-1) at the end of the array)*/
+    // sorting the list of intersections by growing distance to origin (but leave the (-1x-1) at the end of the array)
     int len_intersections = 0;
     for (len_intersections = 0; len_intersections < len_views * 2 && intersections[len_intersections].x != -1 && intersections[len_intersections].y != -1; len_intersections++) {
     }
@@ -520,9 +512,7 @@ int remove_finished_movements(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
 
     while (current_destination != NULL) {
-        // TODO: which one to choose ?
         if (destination_sent_to_all_views(aquarium, current_destination) == OK) {
-        // if (current_destination->time_at_destination <= get_time_in_milliseconds() && (destination_sent_to_all_views(aquarium, current_destination) == OK)) {
             if (update_fish_coordinates(fish) == NOK) {
                 return NOK;
             };
