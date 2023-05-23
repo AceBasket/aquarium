@@ -11,7 +11,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-
+import utils.Log;
+import utils.Log.LogLevel;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
@@ -64,6 +65,7 @@ public class AquariumFX extends Application {
                 stage.close();
             });
         }
+        Log.logMessage(logFile, LogLevel.INFO, "Stopping JavaFX");
         Platform.exit();
     }
 

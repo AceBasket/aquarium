@@ -11,6 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import utils.Log;
+import utils.Log.LogLevel;
 
 import java.io.PrintWriter;
 import java.time.Instant;
@@ -67,8 +69,7 @@ public class FishImage {
                 System.out.println("Error creating log file for fish image " + fishData.getName());
             }
         } catch (Exception e) {
-            System.out.println("Error loading image. Current working directory: " + System.getProperty("user.dir"));
-            System.out.println("Trying to access: " + System.getProperty("user.dir") + "/" + fileName);
+            Log.logMessage(logFile, LogLevel.ERROR, "Error loading image " + fileName);
         }
         this.fishData = fishData;
         // Set the initial position of the image view
@@ -118,11 +119,8 @@ public class FishImage {
          */
         fishData.setDisplayedFirstDestination();
 
-        logFile.println(System.currentTimeMillis());
-        logFile.println(fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
-                + fishData.getFirstDestination().toString() + " in " + duration + " seconds. Size = "
-                + imageView.getFitWidth() + "x" + imageView.getFitHeight());
-        logFile.flush();
+        Log.logMessage(logFile, LogLevel.INFO, fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
+                + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
 
         /* If movement lasts 0 or less seconds, teleport */
         if (duration <= 0) {
@@ -131,15 +129,15 @@ public class FishImage {
             imageView.setY(endY);
             fishData.setPosition((int) pixelToPercentages(endX, width), (int) pixelToPercentages(endY, height));
             isMoving = false;
-            logFile.println("Duration of movement was <= 0");
+            Log.logMessage(logFile, LogLevel.WARNING, "Duration of movement was <= 0");
             return;
         }
 
         if (!imageView.isVisible()) {
             /* If its actual position is -1x-1, stay hidden */
             if (fishData.getPosition().getX() == -1 && fishData.getPosition().getY() == -1) {
-                logFile.println("Fish " + fishData.getName() + " stays hidden (actual position is -1x-1)");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO,
+                        "Fish " + fishData.getName() + " stays hidden (actual position is -1x-1)");
                 imageView.setVisible(false);
             }
             /*
@@ -147,10 +145,8 @@ public class FishImage {
              * a border, set visible
              */
             else if (secondToLastDestinationOnBorder && coordinatesOnBorder(width, height, endX, endY)) {
-                logFile.println(
+                Log.logMessage(logFile, LogLevel.INFO,
                         "Fish " + fishData.getName() + " becomes visible (from border to border by crossing view)");
-                logFile.flush();
-                imageView.setVisible(true);
                 lastDestinationOnBorder = false;
             }
             /*
@@ -159,8 +155,7 @@ public class FishImage {
              */
             else if (coordinatesOnBorder(width, height, startX, startY)
                     && !coordinatesOnBorder(width, height, endX, endY)) {
-                logFile.println("Fish " + fishData.getName() + " becomes visible (enters view)");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Fish " + fishData.getName() + " becomes visible (enters view)");
                 imageView.setVisible(true);
             }
             /*
@@ -169,8 +164,8 @@ public class FishImage {
              */
             else if (coordinatesOnBorder(width, height, startX, startY)
                     && coordinatesOnBorder(width, height, endX, endY)) {
-                logFile.println("Fish " + fishData.getName() + " stays hidden (from border to border)");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO,
+                        "Fish " + fishData.getName() + " stays hidden (from border to border)");
                 imageView.setVisible(false);
             }
         }
@@ -191,9 +186,8 @@ public class FishImage {
             // Update the fish coordinates to the destination coordinates
             fishData.setPosition((int) pixelToPercentages(imageView.getX(), width),
                     (int) pixelToPercentages(imageView.getY(), height));
-            logFile.println("Fish " + fishData.getName() + " is now at " + (int) imageView.getX() + "x"
+            Log.logMessage(logFile, LogLevel.INFO, fishData.getName() + " is now at " + (int) imageView.getX() + "x"
                     + (int) imageView.getY());
-            logFile.flush();
             imageView.setX(endX);
             imageView.setY(endY);
 
@@ -202,8 +196,7 @@ public class FishImage {
             secondToLastDestinationOnBorder = lastDestinationOnBorder;
 
             if (coordinatesOnBorder(width, height, endX, endY)) {
-                logFile.println("Fish " + fishData.getName() + " is now hidden");
-                logFile.flush();
+                Log.logMessage(logFile, LogLevel.INFO, "Fish " + fishData.getName() + " is now hidden");
                 imageView.setVisible(false);
                 lastDestinationOnBorder = true;
             } else {

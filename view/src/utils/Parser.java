@@ -11,8 +11,6 @@ public class Parser {
     }
 
     public static void main(String[] argv) throws ParserException, IOException {
-        // BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        // String cmd = reader.readLine();
         File file = new File("./affichage.cfg");
         try {
             parserIP(file);
@@ -20,11 +18,6 @@ public class Parser {
             parserPort(file);
             parserTimeout(file);
             parserResources(file);
-            // parserServerResponse("list [PoissonRouge at 90x4,10x4,5] [PoissonClown at
-            // 90x4,10x4,5]");
-            // parserCommand("addFish PoissonNain at 61x52, 4x3, RandomWAyPoint");
-            // System.out.println(parserCommand("addFish PoissonNain at 61x52, 4x3,
-            // RandomWAyPoint"));
         } catch (IOException e) {
             throw new ParserException("The config file does not exist");
         } catch (InvalidParameterException e) {

@@ -30,10 +30,6 @@ public class Main {
         System.out.println("Process id: " + id);
         Main main = new Main(id);
         try {
-            // main.logFile.println("Main");
-            // main.logFile.flush();
-            // View view = new View("192.168.191.78", 8888);
-            // View view = new View("0.0.0.0", 8000);
             LogLevel verbosityLevel = LogLevel.valueOf(System.getProperty("VERBOSITY_LEVEL", "INFO"));
             Log.setVerbosityLevel(verbosityLevel);
             Client client = new Client(new File("src/affichage.cfg"));
@@ -61,18 +57,12 @@ public class Main {
                     AquariumFX.setAquarium(aquarium);
                     AquariumFX.setId(id);
                     AquariumFX.launch(AquariumFX.class, argv);
-                    // try {
-                    // } catch (Exception e) {
-                    // main.logFile.println(e);
-                    // main.logFile.flush();
-                    // }
                 });
             }
             fxThread.start();
 
             Log.logMessage(main.logFile, LogLevel.INFO, "All threads running");
             while (true) {
-                // System.out.println("Main thread running");
                 if (!aquarium.getFishes().isEmpty()) {
                     for (Fish fish : aquarium.getFishes()) {
                         if (fish.getSizeDestinations() > 0) {
@@ -111,7 +101,7 @@ public class Main {
         } catch (IOException | InterruptedException e) {
             Log.logMessage(main.logFile, LogLevel.ERROR, e.getMessage());
         } catch (ParserException e) {
-            System.out.println("ERROR while trying to parse config file: " + e.getMessage());
+            Log.logMessage(main.logFile, LogLevel.FATAL_ERROR, "while trying to parse config file: " + e.getMessage());
         } catch (Exception e) { // for aquariumFX.stop()
             Log.logMessage(main.logFile, LogLevel.ERROR, e.getMessage());
         }

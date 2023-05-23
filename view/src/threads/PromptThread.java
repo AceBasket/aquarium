@@ -65,7 +65,7 @@ public class PromptThread implements Runnable {
                         continue;
                     }
                 } catch (ParserException | InvalidParameterException e) {
-                    System.out.println(e.getMessage());
+                    Log.logMessage(logFile, LogLevel.ERROR, e.getMessage() + " -> " + e.getCause());
                     continue;
                 }
                 commandQueue.add(parsedCommand);
@@ -95,20 +95,17 @@ public class PromptThread implements Runnable {
                         break;
 
                     default:
-                        Log.logMessage(logFile, LogLevel.WARNING, response.getFunction() + ": Not a command handled by prompt thread");
+                        Log.logMessage(logFile, LogLevel.WARNING,
+                                response.getFunction() + ": Not a command handled by prompt thread");
                         Thread.sleep(300);
                         break;
                 }
 
             } catch (InterruptedException e) {
-                Log.logMessage(logFile, LogLevel.FATAL_ERROR, "Prompt thread interrupted");
+                Log.logMessage(logFile, LogLevel.WARNING, "Prompt thread interrupted while waiting for response");
                 Thread.currentThread().interrupt();
                 return;
             } catch (NoSuchElementException | InvalidParameterException e) {
-                // if (e.getMessage().equals("null")) {
-                // System.out.println(e);
-                // }
-                // Log.logMessage(logFile, LogLevel.ERROR, e);
                 Log.logMessage(logFile, LogLevel.ERROR, e.getMessage() + " -> " + e.getCause());
             }
         }
