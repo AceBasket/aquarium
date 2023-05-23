@@ -11,8 +11,8 @@ struct view {
     struct coordinates top_left;
     int height;
     int width;
-    struct view *next;
-    time_t time_last_ping;
+    struct view *next; // next view in the chained list of views
+    time_t time_last_ping; // last time the view was active
 };
 
 struct view *create_view(char *name, struct coordinates top_left, int height, int width);
