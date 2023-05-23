@@ -30,11 +30,9 @@ public class ServerThread implements Runnable {
         Log.logMessage(logFile, LogLevel.INFO, "Starting server thread");
 
         ParserResult response;
-        // boolean responseReceived = false;
 
         // First thing first is greeting the server
         try {
-            // view.talkToServer("Testing connection");
             sendQueue.offer(ServerThreadHandlers.doHello(logFile, client));
             Log.logMessage(logFile, LogLevel.INFO, "Sent hello");
             while (true) {
@@ -57,12 +55,11 @@ public class ServerThread implements Runnable {
                         Log.logMessage(logFile, LogLevel.INFO, "Sent getFishesContinuously");
                         break;
                     case NO_GREETING:
-                        Log.logMessage(logFile, LogLevel.WARNING, "Server is full");
-                        // BREAK CONNECTION SOMEHOW
+                        Log.logMessage(logFile, LogLevel.WARNING, "Server is full, exiting now");
+                        Thread.currentThread().interrupt();
                         break;
                     case LIST_FISHES:
                         ServerThreadHandlers.listHandler(logFile, fishesList, receivedQueue.remove());
-                        // listFishesDestinations = false;
                         break;
                     case BYE:
                         receivedQueue.remove();
@@ -70,7 +67,8 @@ public class ServerThread implements Runnable {
                         return; // end thread
 
                     default:
-                        Log.logMessage(logFile, LogLevel.WARNING, response.getFunction() + ": Not a command handled by server thread");
+                        Log.logMessage(logFile, LogLevel.WARNING,
+                                response.getFunction() + ": Not a command handled by server thread");
                         Thread.sleep(300); // sleep 0.3 second and try again
                         break;
                 }
