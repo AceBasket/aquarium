@@ -2,7 +2,9 @@
 #define _IO_THREAD_H_
 #include <pthread.h>
 #include <sys/types.h>
-#include "../aquarium/aquarium.h"
+#include "handler_functions/io_handler_functions.h"
+#include "../parser/client_inputs_parser.h"
+
 
 struct thread_io_parameters {
     int *views_socket_fd;

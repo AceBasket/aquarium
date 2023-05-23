@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include "aquarium.h"
+#include "../utils.h"
+#include "coordinates.h"
+
 
 struct view {
     char *name;

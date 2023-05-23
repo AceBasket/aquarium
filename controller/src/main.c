@@ -4,13 +4,10 @@
 #include <pthread.h>
 #include <assert.h>
 #include <time.h>
-#include "aquarium/aquarium.h"
-#include "aquarium/fish.h"
 #include "utils.h"
+#include "aquarium/aquarium.h"
+// #include "aquarium/fish.h"
 #include "communication/controller.h"
-#include "threads/accept_thread.h"
-#include "threads/prompt_thread.h"
-#include "threads/io_thread.h"
 
 #ifndef VERBOSITY_LEVEL
 #define VERBOSITY_LEVEL LOG_INFO

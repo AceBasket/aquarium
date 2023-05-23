@@ -1,5 +1,4 @@
 #include "view.h"
-#include "../utils.h"
 #include <string.h>
 
 struct view *create_view(char *name, struct coordinates top_left, int width, int height) {

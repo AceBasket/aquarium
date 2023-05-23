@@ -4,8 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include "accept_thread.h"
-#include "../utils.h"
-#include "io_thread.h"
+
 
 void *thread_accept(void *parameters) {
     // Initialization of the parameters

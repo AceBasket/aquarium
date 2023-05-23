@@ -1,7 +1,5 @@
 #include "aquarium.h"
-#include "view.h"
-#include "fish.h"
-#include "../utils.h"
+
 
 struct aquarium *create_aquarium(int width, int height) {
     // create a new aquarium

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fish.h"
-#include "../utils.h"
+
 
 struct fish *create_fish(char *name, struct coordinates top_left, int height, int width, enum movement_pattern mvt) {
     // create a new fish
@@ -670,9 +670,6 @@ int mark_destination_as_sent(char *view_name, struct fish_destination *destinati
 
 int destination_sent_to_view(char *view_name, struct fish_destination *destination) {
     if (destination == NULL) {
-        return NOK;
-    }
-    if (destination->views == NULL) {
         return NOK;
     }
     for (int i = 0; destination->views[i] != NULL; i++) {

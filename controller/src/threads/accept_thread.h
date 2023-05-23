@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include "io_thread.h"
+#include "../utils.h"
+
 
 struct thread_accept_parameters {
     int nb_views;

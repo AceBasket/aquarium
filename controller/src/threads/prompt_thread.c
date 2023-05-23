@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../utils.h"
 #include "prompt_thread.h"
-#include "handler_functions/prompt_handler_functions.h"
+
 
 #define BUFFER_SIZE 256
 
