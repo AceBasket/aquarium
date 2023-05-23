@@ -9,13 +9,14 @@
 #define BUFFER_SIZE 256
 #define MAX_VIEWS 8 
 
-void dprintf_verif(char *m, int fd, FILE * log){
-    char message[100];
+void dprintf_verif(char *m, int fd, FILE *log) {
+    int len_message = strlen(m);
+    char message[len_message + 1];
     sprintf(message, "%s", m);
-    int nb = strlen(message);
+    int nb = len_message;
     int offset = 0;
     do {
-        const char* currentMessage = message + offset;
+        const char *currentMessage = message + offset;
         int nb2 = dprintf(fd, "%s", currentMessage);
         if (nb2 < 0) {
             log_message(log, LOG_ERROR, "Could not write on the socket %d", fd);
@@ -61,16 +62,16 @@ void *thread_timeout(void *parameters) {
                 }
 
                 // Disconnects the view when it has been inactive for too long
-                log_message(log, LOG_INFO, "Time left before timeout for view %d: %d",num_view , timeout - (current_time - view->time_last_ping));
+                log_message(log, LOG_INFO, "Time left before timeout for view %d: %d", num_view, timeout - (current_time - view->time_last_ping));
                 if (view != NULL && current_time - view->time_last_ping >= timeout) {
                     log_message(log, LOG_INFO, "View %d disconnected", num_view);
                     pthread_mutex_lock(&views_sockets_mutex);
-                    
+
                     // if (dprintf(views_socket_fd[num_view], "bye\n") < 0) {
                     //     log_message(log, LOG_ERROR, "Could not write on the socket %d", views_socket_fd[num_view]);
                     // }
                     dprintf_verif("bye\n", views_socket_fd[num_view], log);
-                    
+
                     if (close(views_socket_fd[num_view]) != 0) {
                         log_message(log, LOG_ERROR, "The socket %d could not be closed", views_socket_fd[num_view]);
                     }
