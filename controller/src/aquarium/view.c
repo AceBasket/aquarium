@@ -58,7 +58,7 @@ void free_view(struct view *view) {
 
 int remove_view(struct aquarium *aquarium, struct view *view) {
     // if the aquarium is empty, return failure
-    if (aquarium->views == NULL) {
+    if (aquarium->views == NULL || view == NULL) {
         return NOK;
     }
 

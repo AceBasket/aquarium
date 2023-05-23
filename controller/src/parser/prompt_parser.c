@@ -27,8 +27,8 @@ struct parse *parse_prompt(char *str) {
             too_few_arguments(p, "load <aquarium name>");
             return p;
         }
-
         adding_arg_to_parse(p, arg);
+
         if (strtok(NULL, " ") != NULL) {
             too_much_arguments(p, "load <aquaruim name>");
             return p;

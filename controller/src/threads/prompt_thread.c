@@ -57,8 +57,7 @@ void *thread_prompt(void *parameters) {
         // we parse this line
         struct parse *parser = parse_prompt(buffer);
         enum func function = parser->func_name;
-        log_message(log, LOG_INFO, "Function to execute: %d", function);
-
+        //log_message(log, LOG_INFO, "Function to execute: %d", function);
         switch (function) {
         case LOAD:
             log_message(log, LOG_INFO, "Loading aquarium from file %s", parser->arguments[0]);
@@ -78,7 +77,7 @@ void *thread_prompt(void *parameters) {
             pthread_mutex_unlock(&aquarium_mutex);
             break;
         case DEL_VIEW:
-            log_message(log, LOG_INFO, "Deleting view %s from the aquarium", parser->arguments[1]);
+            log_message(log, LOG_INFO, "Deleting view %s from the aquarium", parser->arguments[0]);
             pthread_mutex_lock(&aquarium_mutex);
             del_view_handler(log, parser, aquarium);
             pthread_mutex_unlock(&aquarium_mutex);
