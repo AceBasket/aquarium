@@ -33,7 +33,6 @@ public class PromptThread implements Runnable {
     }
 
     public void run() {
-        // TODO
         Log.logMessage(logFile, LogLevel.INFO, "Starting prompt thread");
 
         ParserResult response;

@@ -109,16 +109,13 @@ public class FishImage {
         double endY = percentagesToPixel(fishData.getFirstDestination().getY(), height);
         double duration = (fishData.getTimeToGetToFirstDestination() - System.currentTimeMillis()) / 1000.0;
 
-        /*
-         * We are going to display movement to next destination, so we set the fish as
-         * displayed
-         */
+        // We are going to display movement to next destination, so we set the fish as displayed
         fishData.setDisplayedFirstDestination();
 
         Log.logMessage(logFile, LogLevel.INFO, fishData.getName() + ": " + fishData.getPosition().toString() + " --> "
                 + fishData.getFirstDestination().toString() + " in " + duration + " seconds");
 
-        /* If movement lasts 0 or less seconds, teleport */
+        // If movement lasts 0 or less seconds, teleport
         if (duration <= 0) {
             fishData.removeExpiredDestinations();
             imageView.setX(endX);
@@ -130,34 +127,25 @@ public class FishImage {
         }
 
         if (!imageView.isVisible()) {
-            /* If its actual position is -1x-1, stay hidden */
+            // If its actual position is -1x-1, stay hidden
             if (fishData.getPosition().getX() == -1 && fishData.getPosition().getY() == -1) {
                 Log.logMessage(logFile, LogLevel.INFO,
                         "Fish " + fishData.getName() + " stays hidden (actual position is -1x-1)");
                 imageView.setVisible(false);
             }
-            /*
-             * If second to last destination was on a border and next destination is also on
-             * a border, set visible
-             */
+            // If second to last destination was on a border and next destination is also on a border, set visible
             else if (secondToLastDestinationOnBorder && coordinatesOnBorder(width, height, endX, endY)) {
                 Log.logMessage(logFile, LogLevel.INFO,
                         "Fish " + fishData.getName() + " becomes visible (from border to border by crossing view)");
                 lastDestinationOnBorder = false;
             }
-            /*
-             * If position is on one of the borders and it goes inside the window, set
-             * visible
-             */
+            // If position is on one of the borders and it goes inside the window, set visible
             else if (coordinatesOnBorder(width, height, startX, startY)
                     && !coordinatesOnBorder(width, height, endX, endY)) {
                 Log.logMessage(logFile, LogLevel.INFO, "Fish " + fishData.getName() + " becomes visible (enters view)");
                 imageView.setVisible(true);
             }
-            /*
-             * Else, if position is on one of the borders and its destination is a border,
-             * stay hidden
-             */
+            // Else, if position is on one of the borders and its destination is a border, stay hidden
             else if (coordinatesOnBorder(width, height, startX, startY)
                     && coordinatesOnBorder(width, height, endX, endY)) {
                 Log.logMessage(logFile, LogLevel.INFO,

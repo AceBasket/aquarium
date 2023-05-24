@@ -26,7 +26,6 @@ public class ServerThread implements Runnable {
     }
 
     public void run() {
-        // TODO
         Log.logMessage(logFile, LogLevel.INFO, "Starting server thread");
 
         ParserResult response;

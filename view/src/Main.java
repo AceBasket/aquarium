@@ -12,7 +12,6 @@ import visuals.AquariumFX;
 
 public class Main {
     PrintWriter logFile;
-    // private static AquariumFX aquariumFX;
 
     public Main(long id) {
         try {

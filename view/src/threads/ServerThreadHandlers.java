@@ -2,10 +2,6 @@ package threads;
 
 import java.io.PrintWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
-// import java.util.concurrent.Executors;
-// import java.util.concurrent.ScheduledExecutorService;
-// import java.util.concurrent.TimeUnit;
-
 import aquarium.Aquarium;
 import aquarium.Fish;
 import aquarium.Client;
@@ -41,8 +37,6 @@ public class ServerThreadHandlers {
 
                 Fish fish_to_create = new Fish(parsedResponse.getArgs().get(i), // name
                         -1, -1, // position.x, position.y (until it reaches its destination)
-                        // Integer.parseInt(parsedResponse.getArgs().get(i + 1)), // position.x
-                        // Integer.parseInt(parsedResponse.getArgs().get(i + 2)), // position.y
                         Integer.parseInt(parsedResponse.getArgs().get(i + 3)), // width
                         Integer.parseInt(parsedResponse.getArgs().get(i + 4))); // height
 
