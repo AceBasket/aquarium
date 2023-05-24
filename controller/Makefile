@@ -55,11 +55,11 @@ clean:
 
 # $(BIN) is dependent on objects
 ${BIN}: ${OBJ}
-	${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
+	@${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
 
 # each object file is dependent on its source file, and whenever make needs to create an object file, it will follow this rule:
 build/%.o: %.c
-	${CC} ${CFLAGS} $ -c $< -o $@
+	@${CC} ${CFLAGS} $ -c $< -o $@
 
 
 #################### TEST FILES ####################
@@ -70,4 +70,4 @@ build/tst/%.o: tst/%.c
 
 # each test executable file is dependent on its corresponding object file, and whenever make needs to create an executable file, it will follow this rule:
 build/tst/%_test.tst: build/tst/%_test.o ${OBJ_FOR_TST} #build/src/aquarium/aquarium.o build/src/aquarium/view.o build/src/aquarium/fish.o build/src/communication/socket_aquarium.o build/src/parser/client_inputs_parser.o build/src/parser/prompt_parser.o build/src/parser/parser.o build/src/utils.o
-	${CC} ${CFLAGS} $^ -o $@ -lm
+	@${CC} ${CFLAGS} $^ -o $@ -lm
