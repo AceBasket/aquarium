@@ -519,7 +519,7 @@ int remove_finished_movements(struct aquarium *aquarium, struct fish *fish) {
     struct fish_destination *current_destination = STAILQ_FIRST(&fish->destinations_queue);
 
     while (current_destination != NULL) {
-        if (destination_sent_to_all_views(aquarium, current_destination) == OK) {
+        if (destination_sent_to_all_views(aquarium, current_destination) == OK && get_time_in_milliseconds() >= current_destination->time_at_destination) {
             if (update_fish_coordinates(fish) == NOK) {
                 return NOK;
             };
