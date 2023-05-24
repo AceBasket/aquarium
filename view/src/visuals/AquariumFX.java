@@ -7,10 +7,12 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import utils.Log;
 import utils.Log.LogLevel;
 import javafx.collections.ObservableList;
+import javafx.geometry.Rectangle2D;
 import javafx.collections.FXCollections;
 
 import java.io.PrintWriter;
@@ -112,6 +114,18 @@ public class AquariumFX extends Application {
         });
     }
 
+    private void setPaneSizeToFullScreen() {
+        // Get the dimensions of the primary screen
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+        width = screenBounds.getWidth();
+        height = screenBounds.getHeight();
+
+        // Set the pane size to match the screen dimensions
+        pane.setPrefWidth(width);
+        pane.setPrefHeight(height);
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -120,7 +134,9 @@ public class AquariumFX extends Application {
 
         // Create a pane to hold the aquarium elements
         pane = new Pane();
-        pane.setPrefSize(width, height); // Set preferred size
+        // pane.setPrefSize(width, height); // Set preferred size
+        // Set the initial pane size to full screen
+        setPaneSizeToFullScreen();
 
         // Set the background image using CSS
         String backgroundImageUrl = getClass().getResource("/img/ocean.jpeg").toExternalForm();
