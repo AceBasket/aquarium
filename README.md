@@ -64,3 +64,5 @@ Si le nom du poisson contient le mot "Rouge", "Bleu", "Jaune" alors l'image du p
 Le poisson peut prendre un peu de temps avant de disparaitre des autres fenêtres.
 
 - Enfin, pour fermer un client, il suffit, comme pour le serveur, de faire CTRL+D dans le terminal du client correspondant.
+
+- Dans cette partie, il faut noter que le poisson doit avoir une forme particulière, son nom doit commencer par 'Poisson' puis être suivi du reste du nom. Par exemple, 'PoissonRouge'. 
