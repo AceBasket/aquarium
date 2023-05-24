@@ -188,6 +188,7 @@ void test_get_fishes_with_destination_in_view_not_in_aquarium() {
     start_fish(aquarium, fish->name);
     struct fish **fishes = get_fishes_with_destination_in_view(aquarium, view, 1);
     assert(fishes[0] == NULL);
+    free_fish(fish);
     free_fishes_array(fishes, view);
     free(view->name);
     free(view);

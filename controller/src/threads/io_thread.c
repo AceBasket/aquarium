@@ -284,10 +284,7 @@ void *thread_io(void *parameters) {
     if (pthread_join(handle_fishes_continuously_thread, NULL) != 0) {
         log_message(log, LOG_ERROR, "The handle fishes continuously thread could not be joined");
     }
-    free(parameters);
     log_message(log, LOG_INFO, "===== thread_io() terminated =====");
-
-    fclose(log);
 
     return EXIT_SUCCESS;
 }

@@ -275,7 +275,7 @@ int add_views_to_destination(struct aquarium *aquarium, struct fish_destination 
         destination->views[i]->is_sent = NOK;
     }
     destination->views[len_views] = NULL;
-    free(views);
+    free_views_array(views);
     return OK;
 }
 
@@ -299,6 +299,9 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
         element->time_at_destination = get_time_in_milliseconds();
         // add all the positions on the borders of the views on the path from origin to destination
         add_intermediate_movements(aquarium, fish, element, new_destination, OK);
+        if (!STAILQ_EMPTY(&fish->destinations_queue)) {
+            free(element);
+        }
     }
 
     // now that new destinations have been added to tail of element, we need to update element
@@ -318,7 +321,9 @@ int add_movement(struct aquarium *aquarium, struct fish *fish) {
 
     // adding all the views to which the destination belongs to
     add_views_to_destination(aquarium, new_destination);
-
+    if (STAILQ_EMPTY(&fish->destinations_queue)) {
+        free(element);
+    }
     STAILQ_INSERT_TAIL(&fish->destinations_queue, new_destination, next);
     return OK;
 }
@@ -494,8 +499,10 @@ int coordinates_in_view_not_connected(struct aquarium *aquarium, struct coordina
     for (len_views = 0; views[len_views] != NULL; len_views++) {
     }
     if (len_views >= 1) {
+        free_views_array(views);
         return OK;
     }
+    free_views_array(views);
     return NOK;
 }
 

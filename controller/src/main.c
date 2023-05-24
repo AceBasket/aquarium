@@ -144,9 +144,6 @@ int main(int argc, char const *argv[]) {
     if (pthread_cancel(tid_accept) != 0) {
         log_message(log, LOG_ERROR, "The accept thread could not be canceled");
     } // if accept thread is waiting in accept --> cancellation point
-    if (pthread_cancel(tid_timeout) != 0) {
-        log_message(log, LOG_ERROR, "The timeout thread could not be canceled");
-    } // if accept thread is waiting in accept --> cancellation point
     // checking threads join
     if (pthread_join(tid_io, NULL) != 0) {
         log_message(log, LOG_ERROR, "The io thread could not be joined");
@@ -170,6 +167,8 @@ int main(int argc, char const *argv[]) {
     free(parameters.accept_parameters);
     free(parameters.io_parameters);
     free(parameters.views_sockets_fd);
+
+    free_aquarium(aquarium);
 
     log_message(log, LOG_INFO, "Terminated accept thread");
     log_message(log, LOG_INFO, "===== thread_main() terminated =====");

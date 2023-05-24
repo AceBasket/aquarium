@@ -39,7 +39,7 @@ void log_message(FILE *log, enum log_level level, const char *message, ...) {
     va_list args;
     va_start(args, message);
     // format the message into a temporary buffer (with the interpretation of %...)
-    char buffer[256];
+    char buffer[256] = {};
     vsnprintf(buffer, sizeof(buffer), message, args);
 
     // fog informational messages

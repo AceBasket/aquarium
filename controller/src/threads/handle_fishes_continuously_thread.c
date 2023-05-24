@@ -42,6 +42,11 @@ void *get_fishes_continuously(void *parameters) {
                 log_message(log, LOG_WARNING, "No destination in the queue");
                 pthread_mutex_lock(&aquarium_mutex);
             } else {
+                // sending the fish to the client
+                for (int i = 0; fishes_in_view[i] != NULL; i++) {
+                    log_message(log, LOG_INFO, "Fish: %s", fishes_in_view[i]->name);
+                    debug_destinations_queue(log, fishes_in_view[i]);
+                }
                 list_fishes_for_client(log, fishes_in_view, view, socket_fd);
             }
         }

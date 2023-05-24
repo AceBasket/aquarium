@@ -32,10 +32,10 @@ TEST = ${OBJ_TST:%.o=%.tst}
 all: build
 
 dir:
-	mkdir -p build/tst build/src/threads/handler_functions build/src/communication build/src/aquarium build/src/parser
+	@mkdir -p build/tst build/src/threads/handler_functions build/src/communication build/src/aquarium build/src/parser
 
 build: dir ${BIN}
-	rm -f log_handle_fish*
+	@rm -f log_handle_fish*
 	${BIN} 5 8000
 
 valgrind: dir ${BIN}

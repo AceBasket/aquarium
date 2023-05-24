@@ -17,7 +17,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
         log_message(log, LOG_WARNING, "Can't change aquarium when views are connected");
         return;
     }
-    
+
     FILE *fd = fopen(parser->arguments[0], "r");
     if (fd == NULL) {
         log_message(log, LOG_ERROR, "Opening file");
@@ -48,6 +48,7 @@ void load_handler(FILE *log, struct parse *parser, struct aquarium **aquarium) {
         }
     }
     fprintf(stdout, "Aquarium loaded (%d display view)\n", len_views(*aquarium));
+    free_parser(parsed_file);
     fclose(fd);
 }
 
