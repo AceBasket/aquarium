@@ -33,8 +33,10 @@ public class Parser {
         ArrayList<String> args = new ArrayList<String>();
         String[] responseSplit = command.split(" at | : |: |:|, |,| \\[|\\] \\[|\\]|x| ");
         if (responseSplit[0].equals("status")) {
+            // STATUS
             return new ParserResult(PossibleResponses.STATUS, args);
         } else if (responseSplit[0].equals("addFish")) {
+            // ADDFISH
             if (responseSplit.length == 7) {
                 if (responseSplit[1].length() < 7) {
                     throw new ParserException("The fish name is not Poisson*");
@@ -58,8 +60,8 @@ public class Parser {
             } else {
                 throw new ParserException("There is not the right number of argument after addFish");
             }
-
         } else if (responseSplit[0].equals("delFish")) {
+            // DELFISH
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {
                     if (responseSplit[i].length() < 7) {
@@ -77,6 +79,7 @@ public class Parser {
                 throw new ParserException("There is no argument after delFish");
             }
         } else if (responseSplit[0].equals("startFish")) {
+            // STARTFISH
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {
                     if (responseSplit[i].length() < 7) {
@@ -94,6 +97,7 @@ public class Parser {
                 throw new ParserException("There is no argument after startFish");
             }
         } else if (responseSplit[0].equals("NOK")) {
+            // NOK
             if (responseSplit.length >= 2) {
                 for (int i = 1; i < responseSplit.length; i++) {
                     args.add(responseSplit[i]);
@@ -103,6 +107,7 @@ public class Parser {
                 return new ParserResult(PossibleResponses.NOK, args);
             }
         } else if (responseSplit[0].equals("OK")) {
+            // OK
             if (responseSplit.length == 1) {
                 return new ParserResult(PossibleResponses.OK, args);
             } else {
@@ -143,7 +148,7 @@ public class Parser {
                 }
             }
         } else if (responseSplit[0].equals("greeting")) {
-
+            // GREETING
             if (responseSplit.length != 2) {
                 throw new ParserException("There is not the right number of argument after greeting");
             } else {
@@ -162,8 +167,10 @@ public class Parser {
                 return new ParserResult(PossibleResponses.GREETING, args);
             }
         } else if (responseSplit[0].equals("no greeting")) {
+            // NO GREETING
             return new ParserResult(PossibleResponses.NO_GREETING, args);
         } else if (responseSplit[0].equals("list")) {
+            // LIST
             if (responseSplit.length % 6 == 1) {
                 for (int i = 1; i < responseSplit.length; i++) {
                     if (i % 6 == 1) {
@@ -185,8 +192,10 @@ public class Parser {
                 throw new ParserException("There is not the right number of argument after list");
             }
         } else if (responseSplit[0].equals("bye")) {
+            // BYE
             return new ParserResult(PossibleResponses.BYE, args);
         } else if (responseSplit[0].equals("pong")) {
+            // PONG
             if (responseSplit.length != 2) {
                 throw new ParserException("There is not the right number of argument after pong");
             } else {
@@ -199,6 +208,7 @@ public class Parser {
                 return new ParserResult(PossibleResponses.PONG, args);
             }
         } else {
+            // UNKNOWN COMMAND
             throw new ParserException("Unknown response/command");
         }
     }

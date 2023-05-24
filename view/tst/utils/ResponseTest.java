@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 public class ResponseTest {
     public static void main(String[] args) throws IOException, ParserException {
+        // Par manque de temps, tous les tests n'ont pas pû être tous implémentés
+        // Pour palier à ce problème, les fonctions du parseur ont toutes été implémentées en ayant en têtre tous les cas possibles que nous pouvions rencontrer
+
         boolean missingAssertion = false;
         assert missingAssertion = true;
 
