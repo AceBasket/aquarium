@@ -6,8 +6,6 @@ import aquarium.Aquarium;
 import aquarium.Fish;
 import utils.Log.LogLevel;
 import utils.Log;
-// import utils.Parser;
-// import utils.ParserException;
 import utils.ParserResult;
 
 public class PromptThreadHandlers {

@@ -23,7 +23,6 @@ public class Parser {
         } catch (InvalidParameterException e) {
             throw new ParserException("Parsing error");
         }
-
     }
 
     public static ParserResult parse(String command) throws ParserException {

@@ -79,7 +79,7 @@ public class Fish {
         return destinations.getFirst().getDestination();
     }
 
-    public int getWidth() {// width
+    public int getWidth() { // width
         return width;
     }
 
@@ -117,7 +117,7 @@ public class Fish {
     }
 
     public synchronized int getSizeDestinations() {
-        /* Only counts STARTED fishes */
+        // Only counts STARTED fishes
         return getStatus() == statusEnum.STARTED ? destinations.size() : -1;
     }
 

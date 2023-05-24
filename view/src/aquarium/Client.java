@@ -17,8 +17,6 @@ public class Client {
     private int displayTimeoutValue;
     public volatile boolean connected = false;
 
-    // private Aquarium aquariumView;:
-
     public Client(File config) throws IOException, ParserException {
         displayTimeoutValue = Parser.parserTimeout(config);
         // resources = utils.Parse.parserResources(config);

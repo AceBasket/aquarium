@@ -26,7 +26,6 @@ public class Log {
             if (verbosityLevel.ordinal() <= level.ordinal()) {
                 logFile.println("FATAl ERROR: " + message);
             }
-            // System.exit(1);
         }
         logFile.flush();
     }
